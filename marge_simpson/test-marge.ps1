@@ -8,7 +8,7 @@ Validates that:
 4. Cleanup script runs in preview mode
 
 Usage:
-  powershell -ExecutionPolicy Bypass -File .\meta_marge\test-marge.ps1
+  powershell -ExecutionPolicy Bypass -File .\marge_simpson\test-marge.ps1
 #>
 
 $ErrorActionPreference = "Stop"
