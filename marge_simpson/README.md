@@ -12,12 +12,15 @@ Copy this folder into your repo root. That's it.
 
 ## Quick Start
 
-### Two prompts you use
-- `marge_simpson/prompt_templates/system_wide_audit.md` — for full codebase audits
-- `marge_simpson/prompt_templates/bulleted_issues.md` — for reporting specific issues
+### Prompt examples you can use
+- `marge_simpson/prompt_examples/system_audit.md` - for full codebase audits
+- `marge_simpson/prompt_examples/issues_prompt.md` - for reporting specific issues
+- `marge_simpson/prompt_examples/questions_prompt.md` - for asking questions
+- `marge_simpson/prompt_examples/feature_prompt.md` - for requesting features
+- `marge_simpson/prompt_examples/multiple_prompts.md` - for combined requests
 
 ### Day-to-day workflow
-1) Paste the `bulleted_issues.md` prompt, then list your issues as bullets in the same message.
+1) Paste any prompt from `prompt_examples/`, then describe your request in the same message.
 2) The assistant fixes issues linearly and MUST run automated verification after each fix:
    - macOS/Linux: `./marge_simpson/verify.sh fast`
    - Windows (PowerShell): `./marge_simpson/verify.ps1 fast`

@@ -138,9 +138,12 @@ marge_simpson/
   verify.ps1 / verify.sh  # Automated test runner
   cleanup.ps1 / cleanup.sh # Log cleanup utility
   verify_logs/            # Timestamped verification logs
-  prompt_templates/
-    system_wide_audit.md
-    bulleted_issues.md
+  prompt_examples/
+    system_audit.md       # Full codebase audit
+    issues_prompt.md      # Report issues
+    questions_prompt.md   # Ask questions
+    feature_prompt.md     # Request features
+    multiple_prompts.md   # Combined requests
 ```
 
 ---

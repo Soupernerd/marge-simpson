@@ -1,4 +1,4 @@
-# marge_simpson/assessment.md
+﻿# marge_simpson/assessment.md
 Purpose: Periodic, point-in-time assessments of repo/system status.
 
 ## Read First (REQUIRED)
@@ -16,13 +16,13 @@ AI/Agents must read `marge_simpson/AGENTS.md` before working.
 - **Last updated:** YYYY-MM-DD
 - **Scope assessed:** (folders/features/issues covered)
 - **Build/Run context:** (env, branch, key flags, platform if relevant)
-- **Overall status:** ✅ Healthy / ⚠️ Mixed / ❌ Broken
-- **Top risks:** (1–3 bullets)
+- **Overall status:** âœ… Healthy / âš ï¸ Mixed / âŒ Broken
+- **Top risks:** (1â€“3 bullets)
 
 ---
 
 ## Known Invariants (Do Not Break)
-- (list “must never regress” behaviors)
+- (list â€œmust never regressâ€ behaviors)
 - (example: persistence rules, API contracts, key UX flows)
 
 ---
@@ -30,16 +30,16 @@ AI/Agents must read `marge_simpson/AGENTS.md` before working.
 ## Findings (by area)
 ### 1) (Area / subsystem name)
 **Observations**
-- …
+- â€¦
 
 **Issues**
-- …
+- â€¦
 
 **Recommendations**
-- …
+- â€¦
 
 **Impact / Risk**
-- …
+- â€¦
 
 ---
 
@@ -49,6 +49,7 @@ AI/Agents must read `marge_simpson/AGENTS.md` before working.
 ### [MS-0001] Short title
 - **Reported:** YYYY-MM-DD
 - **Status:** Todo / Doing / Done
+- **Expert(s):** (optional) Relevant expert persona(s) from `EXPERT_REGISTRY.md`
 - **Symptom:** What the user sees
 - **Root cause:** The actual cause (code-level)
 - **Fix:** What changed (brief)

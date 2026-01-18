@@ -248,3 +248,112 @@ Immediately start executing the remaining unchecked items in `marge_simpson/task
 
 ### Response Format
 Use Section C format, including IDs touched.
+
+---
+
+## F) Feature Request Workflow
+
+When the user provides feature requests (explicit or inferred), follow this workflow:
+
+### Goal
+Plan and implement requested features systematically. Each feature gets tracked like an issue, but focuses on new capability rather than bugfixes.
+
+### Feature Intake + Tracking (required)
+
+1) For each feature request:
+   - Create the next MS-#### ID.
+   - Add an entry in `marge_simpson/assessment.md` under "Feature Requests" section:
+     - **Description**: What the user wants
+     - **Scope**: What's in/out of scope
+     - **Expert(s)**: Relevant expert type(s) from `EXPERT_REGISTRY.md` (if available)
+     - **Implementation Plan**: Steps to build it
+     - **Verification**: How to confirm it works
+   - Add a task in `marge_simpson/tasklist.md` (DoD + Verification).
+   - Increment `Next ID` in BOTH files immediately.
+
+2) If `marge_simpson/EXPERT_REGISTRY.md` exists, consult it to select relevant expert persona(s) for the feature. Include in the assessment entry.
+
+### Execution Rules
+
+1) **Work order**
+   - A) Existing unchecked P0/P1 items already in `marge_simpson/tasklist.md`
+   - B) Then the newly created feature items
+   - C) Then remaining unchecked items (P0 → P1 → P2)
+
+2) **Verification Gate** — Follow Section A.7 exactly (NON-NEGOTIABLE).
+
+3) **Response format** — Use Section C format, plus:
+   - `Feature implementation notes:` section with design decisions made
+
+---
+
+## G) Questions Workflow
+
+When the user asks questions (explicit or inferred), follow this workflow:
+
+### Goal
+Answer questions accurately based on codebase evidence. Questions do NOT require ID tracking unless they reveal issues.
+
+### Handling Questions
+
+1) **Investigate first**: Read relevant code/docs before answering.
+2) **Cite evidence**: Reference specific files/lines when answering.
+3) **If the question reveals an issue**: Create an MS-#### entry and track it.
+4) **If unsure**: Say what you checked, what you know, and what remains unknown.
+
+---
+
+## H) Intent Inference (No Keyword Requirements)
+
+The assistant must infer user intent from context, NOT rely on specific keywords like "Issues:" or "Features:".
+
+### Intent Categories
+
+| Intent | Signals | Action |
+|--------|---------|--------|
+| **Question** | "How does...", "Why is...", "What is...", "Can you explain...", curiosity tone | Follow Section G |
+| **Issue/Bug** | "broken", "error", "doesn't work", "wrong", "fix", "failing", problem description | Follow Section D |
+| **Feature** | "add", "new", "I want", "let's make", "implement", "create", "build", capability requests | Follow Section F |
+| **Audit** | "audit", "review", "check", "scan", "analyze the codebase" | Follow Section E |
+
+### Mixed Intent
+
+If a single message contains multiple intents (questions + issues + features):
+1) Separate them by intent type.
+2) Process in this order: Questions (immediate answers) → Issues (track + fix) → Features (track + implement).
+3) Each issue and feature gets its own MS-#### ID.
+
+### Ambiguous Intent
+
+If intent is unclear:
+- Make a reasonable assumption and proceed.
+- State your assumption briefly: "Treating this as a feature request..."
+- Only ask for clarification if the wrong assumption would cause major rework.
+
+---
+
+## I) Expert Integration (Optional)
+
+If `marge_simpson/EXPERT_REGISTRY.md` exists in the workspace, use it to enhance work quality.
+
+### When to Use Experts
+
+- **Feature requests**: Select expert(s) whose domain matches the feature
+- **Complex issues**: Select expert(s) who specialize in the affected area
+- **Architecture decisions**: Consult Principal Systems Architect persona
+- **Security concerns**: Consult Security & Compliance Architect persona
+
+### Expert Selection Process
+
+1) Read the feature/issue description.
+2) Match against Knowledge Domains in EXPERT_REGISTRY.md.
+3) Select 1-3 most relevant experts.
+4) Record in assessment.md under `Expert(s):` field.
+5) Apply that persona's Behavioral Patterns when making decisions.
+
+### Expert Field Format
+
+```
+Expert(s): Principal Systems Architect, Security & Compliance Architect
+```
+
