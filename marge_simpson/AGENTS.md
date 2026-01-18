@@ -5,7 +5,7 @@ This folder is a drop-in workflow for running audits and fixing bugs in any code
 Priority order: correctness > safety > minimal diffs > speed.
 
 **CRITICAL RULE: Marge NEVER creates files outside its own folder.**
-All tracking docs, logs, and artifacts stay within `marge_simpson/`.
+All tracking docs, logs, and artifacts stay within `meta_marge/`.
 
 ---
 
@@ -41,10 +41,10 @@ Before any of the following, stop and request approval with a short plan + risks
 - For EACH issue, verification is a hard gate.
 - Do NOT move to the next issue until the current issue has passing verification evidence.
 - Always run the repo verification runner:
-  - macOS/Linux: `./marge_simpson/verify.sh fast`
-  - Windows (PowerShell): `./marge_simpson/verify.ps1 fast`
+  - macOS/Linux: `./meta_marge/verify.sh fast`
+  - Windows (PowerShell): `./meta_marge/verify.ps1 fast`
   - Use `--skip-if-no-tests` (bash) or `-SkipIfNoTests` (PowerShell) for repos with no tests yet.
-- The verification runner uses `marge_simpson/verify.config.json` if present (recommended for deterministic commands).
+- The verification runner uses `meta_marge/verify.config.json` if present (recommended for deterministic commands).
   If it is empty or missing, it auto-detects common test stacks (Node, Python, Go, Rust, .NET, Java).
 - Include raw command output in `assessment.md` (or reference the log file path created by the verify runner).
 - Never claim "tests passed" without evidence.
@@ -91,25 +91,25 @@ needed capability to run `verify` (one question max).
 ### Tracking IDs (required)
 - Use a single shared, incrementing ID for all tracked work: `MS-0001`, `MS-0002`, ...
 - Maintain a `Next ID:` field in BOTH:
-  - `marge_simpson/assessment.md`
-  - `marge_simpson/tasklist.md`
+  - `meta_marge/assessment.md`
+  - `meta_marge/tasklist.md`
 - When creating a new issue/task:
   1) Use the current `Next ID` as the item’s ID.
   2) Increment `Next ID` by 1 in BOTH files immediately.
 - Every task must reference an ID, and every issue entry must use an ID.
 
 ### Source-of-truth files (required)
-- `marge_simpson/tasklist.md` = what's left / what's in progress / what's done
-- `marge_simpson/assessment.md` = findings + root cause notes + verification notes
-- `marge_simpson/instructions_log.md` = append-only log of new standing instructions from the user
+- `meta_marge/tasklist.md` = what's left / what's in progress / what's done
+- `meta_marge/assessment.md` = findings + root cause notes + verification notes
+- `meta_marge/instructions_log.md` = append-only log of new standing instructions from the user
 
 ### Issue intake trigger (when a message contains "Issues:" followed by bullets)
 If the user message contains a section labeled `Issues:` with bullet points, treat each bullet as a candidate issue and follow this section exactly.
 
 1) Treat each bullet as a candidate issue.
 2) For each bullet, create an ID and record it:
-   - Add/append an entry in `marge_simpson/assessment.md` (symptom → root cause → fix → files touched → verification).
-   - Add a task in `marge_simpson/tasklist.md` (DoD + verification + status).
+   - Add/append an entry in `meta_marge/assessment.md` (symptom → root cause → fix → files touched → verification).
+   - Add a task in `meta_marge/tasklist.md` (DoD + verification + status).
    - Increment `Next ID` in BOTH files.
 3) Implement fixes in this order:
    A) Existing unchecked P0/P1 items already in `tasklist.md`
@@ -122,8 +122,8 @@ When asked to audit, refactor, repair, or upgrade:
 
 1) Read this `AGENTS.md` file, then scan relevant folders/files.
 2) Audit without breaking intended functionality.
-3) Write findings into `marge_simpson/assessment.md`.
-4) Update `marge_simpson/tasklist.md` with concrete, ordered steps (DoD + verification).
+3) Write findings into `meta_marge/assessment.md`.
+4) Update `meta_marge/tasklist.md` with concrete, ordered steps (DoD + verification).
 5) Execute tasklist steps, updating docs as you go.
 6) Repeat until objectives are met.
 
@@ -133,13 +133,54 @@ Rule: assessment + tasklist are the source of truth during the loop.
 
 ## C) Response Format (default)
 
-When delivering work, use:
+When delivering work, use this visually enhanced format:
 
-- **IDs touched:** MS-000X, MS-000Y
-- **What changed:** (1–3 bullets)
-- **Patch / edits:** (diff or file-specific blocks)
-- **How to verify:** (short checklist)
-- **Notes / risks:** (only if needed)
+```
++=========================================================================+
+|    __  __    _    ____   ____ _____                                     |
+|   |  \/  |  / \  |  _ \ / ___| ____|                                    |
+|   | |\/| | / _ \ | |_) | |  _|  _|                                      |
+|   | |  | |/ ___ \|  _ <| |_| | |___                                     |
+|   |_|  |_/_/   \_\_| \_\\____|_____|   WORK COMPLETE                    |
++=========================================================================+
+```
+
+### Summary Table
+| Field          | Value                                    |
+|----------------|------------------------------------------|
+| IDs Touched    | MS-000X, MS-000Y                         |
+| Files Modified | `file1.ts`, `file2.ts`                   |
+| Status         | ✓ VERIFIED / ⚠ NEEDS ATTENTION           |
+
+---
+
+### What Changed
+- (Bullet 1)
+- (Bullet 2)
+- (Bullet 3)
+
+---
+
+### Verification Evidence
+```
+(Raw command output or log file path)
+```
+| Command                        | Result |
+|--------------------------------|--------|
+| `./meta_marge/verify.ps1 fast` | PASS   |
+
+---
+
+### How to Verify (Manual)
+- [ ] Step 1
+- [ ] Step 2
+
+---
+
+### Notes / Risks
+_(Only if needed)_
+
+---
 
 If verification fails or is incomplete, keep the item as Doing and write what's missing.
 
@@ -162,12 +203,12 @@ Fix all listed issues in one run. After EACH fix, run automated verification and
    - Treat each bullet under `Issues:` as a new candidate item.
    - For each bullet:
      - Create the next MS-#### ID.
-     - Add an entry in `marge_simpson/assessment.md`.
-     - Add a task in `marge_simpson/tasklist.md` (DoD + Verification).
+     - Add an entry in `meta_marge/assessment.md`.
+     - Add a task in `meta_marge/tasklist.md` (DoD + Verification).
      - Increment `Next ID` in BOTH files immediately.
 
 3) **Work order**
-   - A) Existing unchecked P0/P1 items already in `marge_simpson/tasklist.md`
+   - A) Existing unchecked P0/P1 items already in `meta_marge/tasklist.md`
    - B) Then the newly created items from this message
    - C) Then remaining unchecked items (P0 → P1 → P2)
 
@@ -188,17 +229,17 @@ When the user requests a system-wide audit, follow this workflow:
 3) Do not break intended functionality.
 
 ### Update/Create Tracking Docs (required)
-- `marge_simpson/assessment.md`
+- `meta_marge/assessment.md`
   - Current snapshot (scope, status, top risks)
   - Findings by area
   - Issues Log entries (MS-####) with root cause, fix plan, and verification plan
-- `marge_simpson/tasklist.md`
+- `meta_marge/tasklist.md`
   - Prioritized, ordered tasks with Definition of Done and Verification (automated)
-- `marge_simpson/instructions_log.md`
+- `meta_marge/instructions_log.md`
   - Append any new standing instructions the user provides
 
 ### Execution Phase
-Immediately start executing the remaining unchecked items in `marge_simpson/tasklist.md` (P0 → P1 → P2), keeping docs updated as you go.
+Immediately start executing the remaining unchecked items in `meta_marge/tasklist.md` (P0 → P1 → P2), keeping docs updated as you go.
 
 ### Verification Requirements (do not skip)
 - For EACH MS item you implement, run automated verification and record evidence before moving on.

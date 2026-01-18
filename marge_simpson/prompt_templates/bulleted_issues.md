@@ -1,6 +1,3 @@
-## USE EVERYTHING BELOW THIS LINE IN YOUR PROMPT (MODIFY THE QUESTIONS  AND THE ISSUES SECTIONS TO YOUR NEEDS)
-
-
 
 Read the AGENTS.md file in the marge_simpson folder and follow it.
 

@@ -1,6 +1,3 @@
-## USE EVERYTHING BELOW THIS LINE IN YOUR PROMPT EXACTLY
-
-
 
 Read the AGENTS.md file in the marge_simpson folder and follow it.
 
