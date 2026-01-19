@@ -76,6 +76,7 @@ Select-String -Path "marge_simpson/knowledge/*.md" -Pattern "keyword1|keyword2"
 ```markdown
 ### [D-###] Short title #tag1 #tag2
 - **Date:** YYYY-MM-DD
+- **Last Accessed:** YYYY-MM-DD
 - **Context:** Why this decision was needed
 - **Decision:** What was decided
 - **Alternatives:** What else was considered
@@ -86,6 +87,7 @@ Select-String -Path "marge_simpson/knowledge/*.md" -Pattern "keyword1|keyword2"
 ```markdown
 ### [PR-###] Short description #tag1 #tag2
 - **Stated:** YYYY-MM-DD
+- **Last Accessed:** YYYY-MM-DD
 - **Strength:** Weak / Moderate / Strong
 - **Preference:** What the user prefers
 - **Exceptions:** When this doesn't apply
@@ -96,6 +98,7 @@ Select-String -Path "marge_simpson/knowledge/*.md" -Pattern "keyword1|keyword2"
 ```markdown
 ### [P-###] Short title #tag1 #tag2
 - **Observed:** YYYY-MM-DD
+- **Last Accessed:** YYYY-MM-DD
 - **Frequency:** always / usually / sometimes
 - **Pattern:** Description
 - **Example:** Concrete example
@@ -105,6 +108,7 @@ Select-String -Path "marge_simpson/knowledge/*.md" -Pattern "keyword1|keyword2"
 ```markdown
 ### [I-###] Short description #tag1 #tag2
 - **Observed:** YYYY-MM-DD
+- **Last Accessed:** YYYY-MM-DD
 - **Confidence:** Low / Medium / High
 - **Insight:** What was inferred
 - **Evidence:** What led to this
@@ -125,12 +129,13 @@ After adding/updating entries, update `knowledge/_index.md`:
 
 ## Phase 5: Memory Decay Check
 
-Entries should decay over time. Check for stale entries:
+Entries should decay over time. Check for stale entries based on **Last Accessed**:
 
 | Condition | Action |
 |-----------|--------|
+| Last Accessed > 90 days | Flag for review |
 | Insight unverified > 60 days | Mark for user verification |
-| Weak preference > 90 days | Consider archiving |
+| Weak preference + Last Accessed > 90 days | Archive |
 | Pattern not observed recently | Reduce frequency or archive |
 | Decision superseded | Archive with reason |
 

@@ -40,6 +40,8 @@ Check `_index.md` → **Recent Entries** section for:
 
 **Keep in working memory:** Reference these when making decisions.
 
+**Update Last Accessed:** When you use an entry to inform a decision, update its `Last Accessed: YYYY-MM-DD` field. This enables time-decay ranking and smarter pruning.
+
 ---
 
 ## Phase 3: Project Context (If Known)
