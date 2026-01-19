@@ -49,6 +49,7 @@ _None yet_
 | [patterns.md](patterns.md) | Recurring behaviors observed | After noticing repeated user preferences |
 | [preferences.md](preferences.md) | User's stated preferences | When user expresses how they like things done |
 | [insights.md](insights.md) | Learned facts about codebase | After discovering non-obvious codebase info |
+| [archive.md](archive.md) | Pruned entries (historical) | When entry meets prune criteria |
 
 ---
 

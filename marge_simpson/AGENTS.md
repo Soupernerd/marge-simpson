@@ -453,3 +453,73 @@ Use the chunked knowledge system in `marge_simpson/knowledge/` to persist and re
 - Verify insights when opportunity arises
 - Cross-reference related entries with `Related:` field
 
+---
+
+## K) Session Wrap-Up (Knowledge Capture)
+
+**AFTER delivering the user's requested work**, perform a brief knowledge review. This is non-blocking - the user's goal is always completed first.
+
+### When to Run
+
+Run this wrap-up phase:
+- After completing one or more MS-#### tasks
+- At natural session end (user says thanks, goodbye, or conversation ends)
+- After significant discussions even without formal tasks
+
+**Do NOT run** during active work - finish the user's request first.
+
+### Knowledge Review Checklist
+
+Quickly scan the session for capture opportunities:
+
+| Check | If Yes → Action |
+|-------|-----------------|
+| User made an architectural/tech choice? | Add D-### to `decisions.md` |
+| Same approach used 2+ times? | Add P-### to `patterns.md` |
+| User said "I prefer..." or corrected your approach? | Add PR-### to `preferences.md` |
+| You noticed something user didn't state? | Add I-### to `insights.md` (if Medium+ confidence) |
+
+### Batch Index Update
+
+After adding entries (if any), update `knowledge/_index.md` once:
+1. Increment counts in Quick Stats
+2. Add new entries to Recent Entries (keep last 5)
+3. Add any new tags to Tag Index
+
+### Pruning Review (Same Session)
+
+While reviewing, also check for entries to prune:
+
+**KEEP if ANY of these are true:**
+- Entry is referenced by another entry (`Related:` field points to it)
+- Insight has `Verified: [x]`
+- Decision is still in effect (not superseded)
+- Preference has `Strength: Strong` or `Moderate`
+- Pattern has `Frequency: always` or `usually`
+
+**PRUNE if ALL of these are true:**
+- No other entries reference it
+- Entry is older than 90 days
+- AND one of:
+  - Insight: `Confidence: Low` and `Verified: [ ]`
+  - Preference: `Strength: Weak`
+  - Pattern: `Frequency: sometimes` and not used recently
+  - Decision: Explicitly superseded by newer decision
+
+### Pruning Process
+
+1. Move entry to `knowledge/archive.md` (create if needed)
+2. Add `Archived: YYYY-MM-DD | Reason: <reason>` to the entry
+3. Update `_index.md` (decrement count, remove from Recent if present)
+
+### Session Wrap-Up Output (Optional)
+
+If knowledge was captured, briefly note it at the end of your response:
+
+```
+---
+📝 Knowledge captured: D-003 (database choice), PR-007 (prefer functional style)
+```
+
+Keep this minimal - the user's work is the main output.
+
