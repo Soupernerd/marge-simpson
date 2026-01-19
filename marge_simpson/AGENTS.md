@@ -42,7 +42,13 @@ Before architecture changes, large refactors, schema changes, or API contract ch
 **Rules:**
 - Input ≈ (context chars / 4) — attachments + file contents + conversation
 - Output ≈ (your response chars / 4)
-- Cost = (input/1M × $5) + (output/1M × $25) for Opus 4.5
+- Cost = (input/1M × $1) + (output/1M × $5) for Claude Opus 4.5
+- Cost = (input/1M × $3) + (output/1M × $15) for Claude Sonnet 4.5
+- Cost = (input/1M × $5) + (output/1M × $25) for Claude Opus 4.5
+- Cost = (input/1M × $1.25) + (output/1M × $10.00) for GPT-5.1-Codex
+- Cost = (input/1M × $1.25) + (output/1M × $10.00) for GPT-5.1-Codex-max
+- Cost = (input/1M × $1.75) + (output/1M × $14.00) for GPT-5.2
+- Cost = (input/1M × $1.75) + (output/1M × $14.00) for GPT-5.2-Codex
 - Round tokens to nearest 100, cost to 4 decimals
 - **Never skip this. No exceptions.**
 
