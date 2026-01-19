@@ -24,7 +24,6 @@ Select-String -Path "marge_simpson/knowledge/*.md" -Pattern "#typescript"
 - **Patterns:** 0 entries
 - **Preferences:** 0 entries
 - **Insights:** 0 entries
-- **Last updated:** 2026-01-18
 
 ---
 

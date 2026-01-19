@@ -19,6 +19,8 @@
 
 That's it!
 
+> **💡 Renamed the folder?** If you rename `marge_simpson/` to something else, replace all instances of `marge_simpson` in the prompts below with your folder name.
+
 
 ## Your workflow (exactly how you use it)
 
@@ -201,6 +203,12 @@ meta_marge/
 # Run verification
 .\meta_marge\verify.ps1 fast -SkipIfNoTests
 ```
+
+### Versioning
+The `VERSION` file in each folder tracks the current version (semantic versioning).
+- Update `marge_simpson/VERSION` when releasing changes to the template
+- `meta_marge/VERSION` is updated automatically by `convert-to-meta`
+- Bump **major** for breaking changes, **minor** for features, **patch** for fixes
 
 ---
 
