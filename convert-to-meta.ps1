@@ -278,20 +278,14 @@ if (Test-Path $verifyLogsPath) {
     Write-Host "  Cleared: verify_logs/" -ForegroundColor Gray
 }
 
-# Add meta-specific AGENTS.md rule (exclude self from audits)
+# Verify AGENTS.md has the audit exclusion rule (should already be there from source)
 $agentsPath = Join-Path $targetFolder "AGENTS.md"
 if (Test-Path $agentsPath) {
     $agentsContent = Get-Content -Path $agentsPath -Raw
-    
-    # Check if it has the single CRITICAL RULE (one-line format)
-    if ($agentsContent -match "\*\*CRITICAL RULE:\*\* Marge NEVER creates files outside its own folder\. All tracking docs, logs, and artifacts stay within") {
-        # Replace with CRITICAL RULES (plural) format
-        $pattern = '\*\*CRITICAL RULE:\*\* Marge NEVER creates files outside its own folder\. All tracking docs, logs, and artifacts stay within `' + $TargetName + '/`\.'
-        $replacement = "**CRITICAL RULES:**`n1. Marge NEVER creates files outside its own folder. All tracking docs, logs, and artifacts stay within ``$TargetName/``.`n2. The ``$TargetName/`` folder itself is excluded from audits and issue scans - it is the tooling, not the target."
-        
-        $agentsContent = $agentsContent -replace $pattern, $replacement
-        Set-Content -Path $agentsPath -Value $agentsContent -NoNewline
-        Write-Host "  Updated: AGENTS.md (added meta exclusion rule)" -ForegroundColor Gray
+    if ($agentsContent -match "excluded from audits and issue scans") {
+        Write-Host "  AGENTS.md has audit exclusion rule" -ForegroundColor Gray
+    } else {
+        Write-Host "  WARNING: AGENTS.md missing audit exclusion rule - check source marge_simpson/AGENTS.md" -ForegroundColor Yellow
     }
 }
 
