@@ -1,47 +1,111 @@
-# Marge Simpson — Drop-in Audit & Bugfix Workflow
+# Marge Simpson — Drop-in AI Workflow
 
-A portable, framework-agnostic workflow for running audits and fixing bugs in any codebase.
+A portable workflow that teaches any AI assistant to audit codebases and fix bugs systematically.
 
 ## Features
-- **Auto-detection**: Detects Node.js, Python, Go, Rust, .NET, and Java test stacks automatically.
-- **Configurable**: Use `verify.config.json` for deterministic commands.
-- **Cross-platform**: Works on Windows (PowerShell) and macOS/Linux (Bash).
+- **Automated verification** — Auto-detects Node.js, Python, Go, Rust, .NET, Java test stacks
+- **Tracked work** — Every fix gets an ID (`MS-0001`, `MS-0002`, …) with root cause + verification
+- **Cross-platform** — Works on Windows (PowerShell) and macOS/Linux (Bash)
+- **Prompt templates** — Copy-paste prompts for common workflows
 
-## Install
-Copy this folder into your repo root. That's it.
+---
 
-## Quick Start
+## Install (30 seconds)
 
-### Prompt examples you can use
-- `marge_simpson/prompt_examples/system_audit.md` - for full codebase audits
-- `marge_simpson/prompt_examples/features_and_issues.md` - for bugs, features, improvements
-- `marge_simpson/prompt_examples/questions_confirmations_prompt.md` - for questions and confirmations
-- `marge_simpson/prompt_examples/multiple_prompts.md` - for combined requests
+1. Copy this folder into your repo root
+2. Use a prompt template below
 
-### Day-to-day workflow
-1) Paste any prompt from `prompt_examples/`, then describe your request in the same message.
-2) The assistant fixes issues linearly and MUST run automated verification after each fix:
-   - macOS/Linux: `./marge_simpson/verify.sh fast`
-   - Windows (PowerShell): `./marge_simpson/verify.ps1 fast`
-3) You only reply again if the assistant is blocked from executing commands in your environment.
+> **💡 Renamed the folder?** Replace `marge_simpson` with your folder name in prompts.
 
-### For repos with no tests yet
-Use `--skip-if-no-tests` (bash) or `-SkipIfNoTests` (PowerShell) to exit cleanly:
-```bash
-./marge_simpson/verify.sh fast --skip-if-no-tests
+---
+
+## Prompt Templates
+
+### 🔍 System Audit (use first, or periodically)
+Scans your codebase, creates a prioritized task list, and starts fixing issues.
+
+```
+Read the AGENTS.md file in the marge_simpson folder and follow it.
+
+Run a system-wide audit of this workspace/repo.
+- Read and understand the architecture and major workflows.
+- Identify correctness issues, risky patterns, and high-impact improvements.
+- Do not break intended functionality.
+
+Update/create tracking docs:
+- marge_simpson/assessment.md (snapshot + findings + new MS issues)
+- marge_simpson/tasklist.md (prioritized tasks with DoD + verification)
+- marge_simpson/instructions_log.md (append any new standing instructions I give)
+
+Then immediately start executing the remaining unchecked items in marge_simpson/tasklist.md (P0 → P1 → P2), keeping docs updated as you go.
+Output using the Response Format (include IDs touched).
 ```
 
-## Scripts
+---
 
-| Script | Description |
-|--------|-------------|
-| `verify.ps1` / `verify.sh` | Runs tests (auto-detect or config-based) |
-| `cleanup.ps1` / `cleanup.sh` | Cleans old logs, suggests archiving |
-| `test-marge.ps1` / `test-marge.sh` | Self-test suite (validates Marge scripts work correctly) |
+### 🐛 Features & Issues (daily driver)
+Report bugs or request features. Each becomes tracked work.
+
+```
+Read the AGENTS.md file in the marge_simpson folder and follow it.
+
+New Feature / Issues:
+- (describe your issue or feature request)
+
+After finished above, search for and complete remaining unchecked items (if any exist) in marge_simpson/tasklist.md (P0 → P1 → P2).
+```
+
+---
+
+### ❓ Questions & Confirmations
+Ask questions or confirm fixes. Quick answers grounded in code.
+
+```
+Read the AGENTS.md file in the marge_simpson folder and follow it.
+
+Questions / Confirmations:
+1. (your question here)
+2. "MS-00xx fixed" (to confirm a fix worked)
+
+After answering the questions above, search for and complete remaining unchecked items (if any exist) in marge_simpson/tasklist.md (P0 → P1 → P2).
+```
+
+---
+
+### 🔀 Combined (questions + issues together)
+Mix questions and issues in one prompt for efficiency.
+
+```
+Read the AGENTS.md file in the marge_simpson folder and follow it.
+
+Questions / Confirmations:
+1. (your question here)
+
+New Feature / Issues:
+- (your issue here)
+
+After finished above, search for and complete remaining unchecked items (if any exist) in marge_simpson/tasklist.md (P0 → P1 → P2).
+```
+
+---
+
+## What's Inside
+
+| File | Purpose |
+|------|---------|
+| `AGENTS.md` | Rules the assistant follows |
+| `assessment.md` | Findings + root cause + verification evidence |
+| `tasklist.md` | Prioritized tasks (backlog → in-progress → done) |
+| `instructions_log.md` | Your standing instructions (preserved across sessions) |
+| `verify.ps1` / `verify.sh` | Automated test runner |
+| `verify.config.json` | Custom test commands (optional) |
+| `prompt_examples/` | Ready-to-copy prompt templates |
+
+---
 
 ## Configuration
 
-Edit `verify.config.json` to specify custom commands:
+Edit `verify.config.json` to specify custom test commands:
 ```json
 {
   "fast": ["npm test"],
@@ -49,15 +113,21 @@ Edit `verify.config.json` to specify custom commands:
 }
 ```
 
-If empty or missing, the scripts auto-detect your stack.
+If empty, the scripts auto-detect your stack.
 
-## Tracking Files
+For repos with no tests yet:
+```bash
+./marge_simpson/verify.sh fast --skip-if-no-tests
+```
 
-| File | Purpose |
-|------|---------|
-| `assessment.md` | Findings, root causes, verification evidence |
-| `tasklist.md` | Prioritized tasks with Definition of Done |
-| `instructions_log.md` | Append-only log of standing instructions |
+---
 
-## How to know what's left
-Open `tasklist.md` and search for `- [ ]` (unchecked items).
+## Philosophy
+
+| Principle | What it means |
+|-----------|---------------|
+| **Code first** | Read files before making claims |
+| **Root causes** | Fix the source, not symptoms |
+| **Minimal diffs** | Touch fewest files necessary |
+| **Verification** | Tests pass or it's not done |
+| **Tasklist is truth** | One source of what's left |

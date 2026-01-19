@@ -1,34 +1,28 @@
-# Marge Simpson - sMITten Recursive Context
+# Marge Simpson
 
-# NOW with Automated Testing 🛠️
+**Drop-in AI workflow for audits and bug fixes in any codebase.**
 
 <p float="left">
   <img src="assets/2p1f.png" width="96%" />
 </p>
 
-## BATCHED Questions + Issues = BATCHED Answers + CLEAN Fixes
-
-<p float="left">
-  <img src="assets/question-issue.png" width="48%" />
-  <img src="assets/response.png" width="48%" />
-</p>
+---
 
 ## Install (30 seconds)
-1) Copy the **`marge_simpson/`** folder into your repo/workspace root.
-2) Run the prompts below.
 
-That's it!
+1. Copy the **`marge_simpson/`** folder into your repo root
+2. Use a prompt template below
 
-> **💡 Renamed the folder?** If you rename `marge_simpson/` to something else, replace all instances of `marge_simpson` in the prompts below with your folder name.
+> **💡 Renamed the folder?** Replace `marge_simpson` with your folder name in prompts.
 
+---
 
-## Your workflow (exactly how you use it)
+## Prompt Templates
 
-### 1) Let's kickstart the system! (Also do this periodically as you see fit)
+### 🔍 System Audit
+*Use first, or periodically to refresh the plan.*
 
-Paste this entire prompt into your assistant chat:
-
-```txt
+```
 Read the AGENTS.md file in the marge_simpson folder and follow it.
 
 Run a system-wide audit of this workspace/repo.
@@ -45,172 +39,127 @@ Then immediately start executing the remaining unchecked items in marge_simpson/
 Output using the Response Format (include IDs touched).
 ```
 
-**What you get**
-- a refreshed **plan** (tasklist)
-- a refreshed **truth record** (assessment)
-- the assistant immediately starts burning down remaining work
+---
+
+### 🐛 Features & Issues
+*Report bugs or request features. Each becomes tracked work.*
+
+```
+Read the AGENTS.md file in the marge_simpson folder and follow it.
+
+New Feature / Issues:
+- (describe your issue or feature request)
+
+After finished above, search for and complete remaining unchecked items (if any exist) in marge_simpson/tasklist.md (P0 → P1 → P2).
+```
 
 ---
 
-### 2) After kickstarting, This is your everyday, regular prompt!
-Natural language, super simple.
+### ❓ Questions & Confirmations
+*Ask questions or confirm fixes. Quick answers grounded in code.*
 
-Modify then Paste this entire prompt into your assistant chat:
-
-```txt
+```
 Read the AGENTS.md file in the marge_simpson folder and follow it.
 
 Questions / Confirmations:
-1. (Question/confirmation here)
-2. (Question/confirmation here)
-3. Example Confirmation: "MS-00xx fixed"
-4. Example Question: "Are there alternatives to codemirror?"
+1. (your question here)
+2. "MS-00xx fixed" (to confirm a fix worked)
 
-Issues:
-- (Issue here)
-- (Issue here)
-- Example / New Issue: "The right hand side nav is expanding as expected, however it will not close"
-- Example / Existing issue not fixed: "MS-0046 not fixed, still exibiting [insert issue here]"
-
-After the issues above, continue remaining unchecked items (if any exist) in marge_simpson/tasklist.md (P0 → P1 → P2).
-```
-
-**How it behaves**
-- questions get answered (briefly, grounded in code)
-- each issue becomes tracked work (MS IDs) and gets fixed
-- after that, it continues the remaining unchecked tasklist items automatically
-
----
-
-## What it is
-**Marge Simpson** is a small folder you drop into your workspace root that tells *any* AI assistant how to behave during coding work:
-
-- read the real files first (no guessing)
-- fix root causes (not band-aids)
-- keep changes small and safe
-- track work with a single incrementing ID (`MS-0001`, `MS-0002`, …)
-- **automated verification** with auto-detected test stacks (Node, Python, Go, Rust, .NET, Java)
-- keep two source-of-truth docs:
-  - **`marge_simpson/tasklist.md`** (what's left / doing / done)
-  - **`marge_simpson/assessment.md`** (root cause notes + verification)
-
----
-
-## How to see what’s left
-
-Simply ask your agent!
-
-```txt
-List remaining unchecked items (if any exist) in marge_simpson/tasklist.md
+After answering the questions above, search for and complete remaining unchecked items (if any exist) in marge_simpson/tasklist.md (P0 → P1 → P2).
 ```
 
 ---
 
-## Save money / time: verify in one batch
-After you direct and test a bunch of fixes, reply once (instead of 10 times and losing fidelity):
+### 🔀 Combined
+*Mix questions and issues in one prompt for efficiency.*
 
-```txt
+```
 Read the AGENTS.md file in the marge_simpson folder and follow it.
 
 Questions / Confirmations:
-1. (Question/confirmation here)
-2. (Question/confirmation here)
-3. Example Confirmation: "MS-00xx fixed"
-2. Example Question: "Are there alternatives to codemirror?"
+1. (your question here)
 
-Issues:
-- (Issue here)
-- (Issue here)
-- Example / New Issue: "The right hand side nav is expanding as expected, however it will not close"
-- Example / Existing issue not fixed: "MS-0046 not fixed, still exibiting [insert issue here]"
+New Feature / Issues:
+- (your issue here)
 
-After the issues above, continue remaining unchecked items (if any exist) in marge_simpson/tasklist.md (P0 → P1 → P2).
+After finished above, search for and complete remaining unchecked items (if any exist) in marge_simpson/tasklist.md (P0 → P1 → P2).
 ```
 
 ---
 
-## What’s inside
-```
-marge_simpson/
-  AGENTS.md               # The rules assistants follow
-  assessment.md           # Findings + root cause + verification
-  tasklist.md             # Prioritized tasks with DoD
-  instructions_log.md     # Standing instructions from user
-  verify.config.json      # Custom test commands (optional)
-  verify.ps1 / verify.sh  # Automated test runner
-  cleanup.ps1 / cleanup.sh # Log cleanup utility
-  verify_logs/            # Timestamped verification logs
-  prompt_examples/
-    system_audit.md                    # Full codebase audit
-    features_and_issues.md             # Bugs, features, improvements (unified)
-    questions_confirmations_prompt.md  # Questions and confirmations
-    multiple_prompts.md                # Combined requests
-```
+## What It Does
+
+| Behavior | Description |
+|----------|-------------|
+| **Reads first** | Opens files before making claims |
+| **Tracks work** | Every fix gets an ID (`MS-0001`, `MS-0002`, …) |
+| **Verifies** | Runs tests automatically after each fix |
+| **Stays focused** | Minimal diffs, root cause fixes |
+
+**Two source-of-truth files:**
+- `tasklist.md` — what's left / doing / done
+- `assessment.md` — root cause notes + verification evidence
 
 ---
 
-## Philosophy (why this works)
-- **Open files before claims**
-- **Fix the cause**
-- **Small diffs**
-- **Verification beats vibes**
-- **Tasklist is reality**
+## What's Inside
+
+| File | Purpose |
+|------|---------|
+| `AGENTS.md` | Rules the assistant follows |
+| `assessment.md` | Findings + root cause + verification |
+| `tasklist.md` | Prioritized tasks (backlog → done) |
+| `instructions_log.md` | Your standing instructions |
+| `verify.ps1` / `verify.sh` | Automated test runner |
+| `prompt_examples/` | Ready-to-copy templates |
 
 ---
 
-## For Contributors: Creating a meta_marge
+## Configuration
+
+Custom test commands in `verify.config.json`:
+```json
+{
+  "fast": ["npm test"],
+  "full": ["npm ci", "npm test", "npm run build"]
+}
+```
+
+No config? Scripts auto-detect Node, Python, Go, Rust, .NET, Java.
+
+---
+
+## For Contributors
 
 Want to improve Marge itself? Use the **meta development workflow**:
 
-### What's the difference?
 | Folder | Purpose |
 |--------|---------|
-| `marge_simpson/` | **Template for end users** - this gets copied to other repos |
-| `meta_marge/` | **Development instance** - used to improve Marge itself |
+| `marge_simpson/` | Template for end users (gets copied to other repos) |
+| `meta_marge/` | Development instance (improve Marge here) |
 
 ### Quick Start
 ```powershell
-# Windows PowerShell
+# Windows
 .\convert-to-meta.ps1
-```
-```bash
+
 # macOS/Linux
 ./convert-to-meta.sh
 ```
 
-This creates `meta_marge/` by copying from `marge_simpson/` and updating internal references.
-
-### Development Workflow
-1. Run `convert-to-meta.ps1` (or `.sh`) to create/refresh `meta_marge/`
-2. Use the prompts but reference `meta_marge` instead of `marge_simpson`
-3. Make improvements, test with `./meta_marge/test-marge.ps1`
-4. When satisfied, copy changes back to `marge_simpson/` (the template)
-
-### Key Files
-```
-meta_marge/
-  AGENTS.md               # Edit this to change assistant behavior
-  test-marge.ps1          # Self-test suite (15 tests)
-  verify.ps1              # Verification runner
-  cleanup.ps1             # Log cleanup utility
-```
-
-### Testing Your Changes
-```powershell
-# Run the self-test suite
-.\meta_marge\test-marge.ps1
-
-# Run verification
-.\meta_marge\verify.ps1 fast -SkipIfNoTests
-```
+### Workflow
+1. Run `convert-to-meta` to create/refresh `meta_marge/`
+2. Use prompts referencing `meta_marge` instead of `marge_simpson`
+3. Test with `./meta_marge/test-marge.ps1` (15 tests)
+4. Copy changes back to `marge_simpson/` when satisfied
 
 ### Versioning
-The `VERSION` file in each folder tracks the current version (semantic versioning).
-- Update `marge_simpson/VERSION` when releasing changes to the template
-- `meta_marge/VERSION` is updated automatically by `convert-to-meta`
-- Bump **major** for breaking changes, **minor** for features, **patch** for fixes
+- `marge_simpson/VERSION` — bump when releasing template changes
+- `meta_marge/VERSION` — auto-updated by convert script
+- Semantic: **major** (breaking) / **minor** (features) / **patch** (fixes)
 
 ---
 
 ## License
-Do whatever you want with it. Fork it, rename it, ship it with your team.
+
+Do whatever you want with it. Fork it, rename it, ship it.
