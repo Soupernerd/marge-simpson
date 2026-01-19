@@ -15,7 +15,7 @@ Copy this folder into your repo root. That's it.
 ### Prompt examples you can use
 - `marge_simpson/prompt_examples/system_audit.md` - for full codebase audits
 - `marge_simpson/prompt_examples/features_and_issues.md` - for bugs, features, improvements
-- `marge_simpson/prompt_examples/questions_prompt.md` - for asking questions
+- `marge_simpson/prompt_examples/questions_confirmations_prompt.md` - for questions and confirmations
 - `marge_simpson/prompt_examples/multiple_prompts.md` - for combined requests
 
 ### Day-to-day workflow

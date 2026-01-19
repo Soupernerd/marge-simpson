@@ -139,10 +139,10 @@ marge_simpson/
   cleanup.ps1 / cleanup.sh # Log cleanup utility
   verify_logs/            # Timestamped verification logs
   prompt_examples/
-    system_audit.md         # Full codebase audit
-    features_and_issues.md  # Bugs, features, improvements (unified)
-    questions_prompt.md     # Ask questions
-    multiple_prompts.md     # Combined requests
+    system_audit.md                    # Full codebase audit
+    features_and_issues.md             # Bugs, features, improvements (unified)
+    questions_confirmations_prompt.md  # Questions and confirmations
+    multiple_prompts.md                # Combined requests
 ```
 
 ---

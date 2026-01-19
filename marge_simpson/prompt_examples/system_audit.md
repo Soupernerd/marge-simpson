@@ -1,4 +1,3 @@
-
 Read the AGENTS.md file in the marge_simpson folder and follow it.
 
 Run a system-wide audit of this workspace/repo.
