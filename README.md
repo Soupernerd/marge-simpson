@@ -2,10 +2,10 @@
 
 # NOW with Automated Testing 🛠️
 
-**Drop-in AI workflow for audits and bug fixes in any codebase.**
+**Full Featured - Drop-in AI workflow for automated audits, bug fixes, new feature suggestion/implementation and testing - for any codebase.**
 
 <p float="left">
-  <img src="assets/2p1f.png" width="96%" />
+  <img src="assets/many_marge.jpg" width="96%" />
 </p>
 
 ---
