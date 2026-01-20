@@ -4,8 +4,8 @@
 
 **Full Featured - Drop-in AI workflow for automated audits, bug fixes, new feature suggestion/implementation and testing - for any codebase.**
 
-<p float="left">
-  <img src="assets/many_marge.jpg" width="96%" />
+<p float="none">
+  <img src="assets/many_marge.jpg" width="100%" />
 </p>
 
 ---
