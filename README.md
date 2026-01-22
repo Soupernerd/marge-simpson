@@ -12,10 +12,62 @@
 
 ## Install (30 seconds)
 
+### Option A: Drop-in (per-project)
+
 1. Copy just the **`marge_simpson/`** folder into your repo root
 2. Use a prompt template below
 
 > **💡 Renamed the folder?** Replace `marge_simpson` with your folder name in prompts.
+
+### Option B: Global Install (multi-project)
+
+For users working across multiple repos who want:
+- **Clean repos** — `marge_simpson/` is gitignored, not committed
+- **Shared resources** — experts, workflows, and knowledge shared globally
+- **Per-project tracking** — MS-IDs and logs isolated per project
+
+**Install globally:**
+```bash
+# macOS/Linux
+./install-global.sh
+
+# Windows
+.\install-global.ps1
+```
+
+**Initialize in any project:**
+```bash
+# macOS/Linux
+cd your-project
+marge-init
+
+# Windows
+cd your-project
+marge-init
+```
+
+This creates `marge_simpson/` with:
+- **Symlinks** to `~/.marge/shared/` (AGENTS.md, experts, workflows, scripts)
+- **Local copies** of tracking files (assessment.md, tasklist.md, verify.config.json)
+- Auto-adds `marge_simpson/` to `.gitignore`
+
+**Structure:**
+```
+~/.marge/
+├── shared/           # Symlinked to all projects
+│   ├── AGENTS.md
+│   ├── experts/      # Add custom experts here (shared across projects)
+│   ├── workflows/
+│   ├── scripts/
+│   └── knowledge/
+├── templates/        # Copied per-project
+│   ├── assessment.md
+│   ├── tasklist.md
+│   └── verify.config.json
+└── marge-init        # Project initialization script
+```
+
+> **💡 Custom experts:** Add domain-specific expert files to `~/.marge/shared/experts/` and they'll be available in all your projects.
 
 ---
 
