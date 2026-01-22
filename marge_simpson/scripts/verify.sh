@@ -89,10 +89,10 @@ read_config_commands() {
   fi
 
   if have python; then
-    python - <<'PY'
-import json, sys
-conf_path = sys.argv[1]
-profile = sys.argv[2]
+    CONF_PATH="$CONF" PROFILE_NAME="$PROFILE" python - <<'PY'
+import json, sys, os
+conf_path = os.environ.get('CONF_PATH', '')
+profile = os.environ.get('PROFILE_NAME', 'fast')
 try:
     with open(conf_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
@@ -104,15 +104,15 @@ if not isinstance(cmds, list):
 for c in cmds:
     if isinstance(c, str) and c.strip():
         print(c.strip())
-PY "$CONF" "$PROFILE"
+PY
     return 0
   fi
 
   if have node; then
-    node - <<'JS'
+    CONF_PATH="$CONF" PROFILE_NAME="$PROFILE" node - <<'JS'
 const fs = require('fs');
-const confPath = process.argv[1];
-const profile = process.argv[2];
+const confPath = process.env.CONF_PATH || '';
+const profile = process.env.PROFILE_NAME || 'fast';
 const raw = fs.readFileSync(confPath, 'utf8');
 const data = JSON.parse(raw);
 const cmds = (data && data[profile]) || [];
@@ -120,7 +120,7 @@ if (!Array.isArray(cmds)) process.exit(2);
 for (const c of cmds) {
   if (typeof c === 'string' && c.trim()) console.log(c.trim());
 }
-JS "$CONF" "$PROFILE"
+JS
     return 0
   fi
 
