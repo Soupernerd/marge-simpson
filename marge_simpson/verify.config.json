@@ -1,4 +1,5 @@
 {
-  "fast": ["powershell -ExecutionPolicy Bypass -File ./marge_simpson/scripts/test-marge.ps1"],
-  "full": ["powershell -ExecutionPolicy Bypass -File ./marge_simpson/scripts/test-marge.ps1"]
+  "fast": [],
+  "full": [],
+  "_comment": "Empty by default. The CI workflow runs test scripts directly. Users can add project-specific test commands here."
 }
