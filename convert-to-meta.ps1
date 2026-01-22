@@ -335,6 +335,13 @@ if (Test-Path $verifyLogsPath) {
     Write-Host "  Cleared: verify_logs/ (preserved .gitignore, .gitkeep)" -ForegroundColor Gray
 }
 
+# Clear plans/ folder (keep .gitkeep and _template.md)
+$plansPath = Join-Path $targetFolder "plans"
+if (Test-Path $plansPath) {
+    Get-ChildItem -Path $plansPath -File -ErrorAction SilentlyContinue | Where-Object { $_.Name -notmatch '^\.git(ignore|keep)$' -and $_.Name -ne '_template.md' } | Remove-Item -Force
+    Write-Host "  Cleared: plans/ (preserved .gitkeep, _template.md)" -ForegroundColor Gray
+}
+
 # Transform AGENTS.md for meta_marge (add audit exclusion rule)
 $agentsPath = Join-Path $targetFolder "AGENTS.md"
 if (Test-Path $agentsPath) {

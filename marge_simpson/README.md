@@ -192,6 +192,7 @@ Output using the Response Format (include IDs created).
 | `AGENTS.md` | Rules the assistant follows |
 | `assessment.md` | Findings + root cause + verification |
 | `tasklist.md` | Prioritized tasks (backlog → done) |
+| `plans/` | Feature plan files (one per feature) |
 | `instructions_log.md` | Your standing instructions |
 | `scripts/verify.ps1` / `verify.sh` | Automated test runner |
 | `scripts/test-marge.ps1` / `test-marge.sh` | Self-test suite |
