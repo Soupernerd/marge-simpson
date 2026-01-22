@@ -12,10 +12,81 @@
 
 ## Install (30 seconds)
 
+### Option A: Drop-in (per-project)
+
 1. Copy just the **`marge_simpson/`** folder into your repo root
 2. Use a prompt template below
 
 > **💡 Renamed the folder?** Replace `marge_simpson` with your folder name in prompts.
+
+### Option B: Global Install (multi-project)
+
+For users working across multiple repos who want:
+- **Clean repos** — `marge_simpson/` is gitignored, not committed
+- **Shared resources** — experts, workflows, and knowledge shared globally
+- **Per-project tracking** — MS-IDs and logs isolated per project
+
+**Install globally:**
+```bash
+# macOS/Linux
+./install-global.sh
+
+# Windows
+.\install-global.ps1
+```
+
+**Use the CLI:**
+```bash
+marge "fix the login bug"              # Run task directly (no subcommand needed)
+marge "add dark mode" --model opus     # Override model (sonnet, opus, haiku)
+marge "audit codebase" --dry-run       # Preview prompt without executing
+marge "full cleanup" --loop            # Iterate until complete
+marge "quick fix" --fast               # Skip verification
+marge "debug this" -v                  # Verbose output
+marge --version                        # Version info
+marge init                             # Initialize marge_simpson/ in current project
+marge status                           # Show marge status
+marge experts                          # List available experts
+```
+
+**Options:**
+| Flag | Description |
+|------|-------------|
+| `--dry-run` | Preview prompt without launching claude |
+| `--model <model>` | Override model (sonnet, opus, haiku) |
+| `--fast` | Skip verification steps |
+| `--loop` | Keep iterating until task complete |
+| `-v, --verbose` | Debug output |
+| `--version` | Show version |
+
+The `marge` command:
+1. Auto-initializes `marge_simpson/` if not present
+2. Launches `claude` with your task + full marge workflow context
+3. Claude follows AGENTS.md rules, tracks work with MS-IDs, verifies changes
+
+This creates `marge_simpson/` with:
+- **Symlinks** to `~/.marge/shared/` (AGENTS.md, experts, workflows, scripts)
+- **Local copies** of tracking files (assessment.md, tasklist.md, verify.config.json)
+- Auto-adds `marge_simpson/` to `.gitignore`
+
+**Structure:**
+```
+~/.marge/
+├── shared/           # Symlinked to all projects
+│   ├── AGENTS.md
+│   ├── experts/      # Add custom experts here (shared across projects)
+│   ├── workflows/
+│   ├── scripts/
+│   └── knowledge/
+├── templates/        # Copied per-project
+│   ├── assessment.md
+│   ├── tasklist.md
+│   └── verify.config.json
+├── marge             # CLI wrapper (marge run, marge status, etc.)
+└── marge-init        # Project initialization script
+```
+
+> **💡 Custom experts:** Add domain-specific expert files to `~/.marge/shared/experts/` and they'll be available in all your projects.
 
 ---
 
