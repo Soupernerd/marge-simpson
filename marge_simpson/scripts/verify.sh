@@ -202,7 +202,6 @@ detect_java_commands() {
 main() {
   say "[$MS_FOLDER_NAME] verify profile=$PROFILE"
   say "[$MS_FOLDER_NAME] repo_root=$ROOT_DIR"
-  say "[$MS_FOLDER_NAME] log=$LOG_FILE"
 
   local cmds=()
 
