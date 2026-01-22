@@ -36,6 +36,8 @@ Whichever AGENTS.md you read determines where IDs go:
 | **Question** | Curiosity, "how", "why", "what" | None (answer directly) | No |
 | **Work** | Fix, add, change, build | [work.md](work.md) | Yes (or continue existing) |
 | **Audit** | "audit", "review codebase" | [audit.md](audit.md) → then work.md | Yes (generates multiple) |
+| **Planning** | "PLANNING ONLY", "plan only", "no code changes" | [planning.md](planning.md) | Yes (findings become tasks) |
+| **Loop** | "loop until clean", "iterate until done" | [loop.md](loop.md) | Depends on work type |
 | **Session End** | Task complete, goodbye, natural end | [session_end.md](session_end.md) | No |
 
 ## Decision Tree

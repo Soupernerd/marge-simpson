@@ -13,7 +13,18 @@ User wants something **done** - any of:
 
 ## Work Intake
 
-### For NEW work (no existing ID)
+### For FEATURES (type: feature)
+
+1. Create the next MS-#### ID
+2. Create plan file: `plans/[feature-name]_MS-####.md`
+   - Copy from `plans/_template.md`
+   - Fill in: Goal, Approach, Why, Risks
+   - List sub-tasks (each gets own MS-#### ID)
+3. Add entry to `assessment.md` referencing the plan
+4. Add task(s) to `tasklist.md` with parent reference
+5. Increment `Next ID` in BOTH files
+
+### For BUGS/IMPROVEMENTS/REFACTORS
 
 1. Create the next MS-#### ID
 2. Add entry to `marge_simpson/assessment.md`:

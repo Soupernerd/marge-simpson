@@ -8,8 +8,17 @@
 - After completing MS-#### tasks
 - When user says thanks, goodbye, or conversation ends
 - After significant discussions (even without formal tasks)
+- **Before starting fresh** — long sessions (50+ exchanges) benefit from knowledge capture before restarting
 
 **Do NOT run during active work.** Finish the user's request first.
+
+### Why Start Fresh Sometimes?
+Very long conversations accumulate context that can degrade reasoning quality. If you notice:
+- Repeated misunderstandings
+- Circular discussions
+- Forgotten earlier decisions
+
+Consider: Capture knowledge → Start new conversation → Reference captured knowledge.
 
 ---
 

@@ -239,6 +239,24 @@ No config? Scripts auto-detect Node, Python, Go, Rust, .NET, Java.
 
 ---
 
+## Pro Tips
+
+### Deep Reasoning ("Ultrathink")
+For complex problems, debugging, or architectural decisions, you can request extended reasoning:
+- "Think extra hard about this"
+- "Take your time reasoning through this"
+- "Use extended thinking for this problem"
+
+This prompts the model to reason more deeply before responding.
+
+### Fresh Context for Long Sessions
+After very long conversations (50+ exchanges), reasoning quality may degrade due to context accumulation. Consider:
+- Starting a fresh conversation for new major features
+- Using session_end workflow to capture knowledge before restarting
+- Keeping focused conversations (one major topic per chat)
+
+---
+
 ## Repository Architecture
 
 This repository has a **dual-folder architecture**:
