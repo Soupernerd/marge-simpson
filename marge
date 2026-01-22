@@ -6,7 +6,7 @@ set -eo pipefail
 # ============================================
 
 MARGE_HOME="${MARGE_HOME:-$HOME/.marge}"
-VERSION="3.0.0"
+VERSION="1.1.0"
 
 # Defaults
 DRY_RUN=false
