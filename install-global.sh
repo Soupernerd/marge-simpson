@@ -103,9 +103,14 @@ done
 cp "$SRC_DIR/marge-init" "$INSTALL_DIR/marge-init"
 chmod +x "$INSTALL_DIR/marge-init"
 
-# Create convenience symlink in ~/.local/bin if it exists or can be created
+# Install marge CLI wrapper
+cp "$SRC_DIR/marge" "$INSTALL_DIR/marge"
+chmod +x "$INSTALL_DIR/marge"
+
+# Create convenience symlinks in ~/.local/bin if it exists or can be created
 LOCAL_BIN="${HOME}/.local/bin"
 if [[ -d "$LOCAL_BIN" ]] || mkdir -p "$LOCAL_BIN" 2>/dev/null; then
+    ln -sf "$INSTALL_DIR/marge" "$LOCAL_BIN/marge"
     ln -sf "$INSTALL_DIR/marge-init" "$LOCAL_BIN/marge-init"
     ADDED_TO_PATH=1
 else
@@ -122,6 +127,7 @@ REQUIRED=(
     "$INSTALL_DIR/templates/assessment.md"
     "$INSTALL_DIR/templates/tasklist.md"
     "$INSTALL_DIR/marge-init"
+    "$INSTALL_DIR/marge"
 )
 
 MISSING=()
@@ -153,11 +159,12 @@ echo "  ├── templates/     # Per-project templates"
 echo "  │   ├── assessment.md"
 echo "  │   ├── tasklist.md"
 echo "  │   └── verify.config.json"
+echo "  ├── marge          # CLI wrapper"
 echo "  └── marge-init     # Project initialization script"
 echo ""
 
 if [[ "$ADDED_TO_PATH" -eq 1 ]]; then
-    echo "marge-init has been added to $LOCAL_BIN"
+    echo "marge and marge-init have been added to $LOCAL_BIN"
     if [[ ":$PATH:" != *":$LOCAL_BIN:"* ]]; then
         echo ""
         echo "Add to your PATH (if not already):"
@@ -165,13 +172,15 @@ if [[ "$ADDED_TO_PATH" -eq 1 ]]; then
         echo "  source ~/.bashrc"
     fi
 else
-    echo "To use marge-init from anywhere, add to your PATH:"
+    echo "To use marge from anywhere, add to your PATH:"
     echo "  echo 'export PATH=\"$INSTALL_DIR:\$PATH\"' >> ~/.bashrc"
     echo "  source ~/.bashrc"
 fi
 
 echo ""
 echo "Usage:"
-echo "  cd your-project"
-echo "  marge-init          # Initialize marge_simpson/ with symlinks"
-echo "  marge-init --force  # Reinitialize (overwrites existing)"
+echo "  marge run \"fix the bug\"   # Run a task with marge workflow"
+echo "  marge init                  # Initialize marge_simpson/ in current project"
+echo "  marge status                # Show marge status"
+echo "  marge experts               # List available experts"
+echo "  marge --help                # Show all commands"

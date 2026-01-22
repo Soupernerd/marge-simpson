@@ -35,16 +35,19 @@ For users working across multiple repos who want:
 .\install-global.ps1
 ```
 
-**Initialize in any project:**
+**Use the CLI:**
 ```bash
-# macOS/Linux
-cd your-project
-marge-init
-
-# Windows
-cd your-project
-marge-init
+marge run "fix the login bug"      # Run a task with marge workflow
+marge run "add dark mode support"  # Launches claude with full marge context
+marge init                          # Initialize marge_simpson/ in current project
+marge status                        # Show marge status
+marge experts                       # List available experts
 ```
+
+The `marge run` command:
+1. Auto-initializes `marge_simpson/` if not present
+2. Launches `claude` with your task + full marge workflow context
+3. Claude follows AGENTS.md rules, tracks work with MS-IDs, verifies changes
 
 This creates `marge_simpson/` with:
 - **Symlinks** to `~/.marge/shared/` (AGENTS.md, experts, workflows, scripts)
@@ -64,6 +67,7 @@ This creates `marge_simpson/` with:
 │   ├── assessment.md
 │   ├── tasklist.md
 │   └── verify.config.json
+├── marge             # CLI wrapper (marge run, marge status, etc.)
 └── marge-init        # Project initialization script
 ```
 

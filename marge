@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# marge - CLI for marge workflow management
+# Usage: marge <command> [options]
+
+MARGE_HOME="${MARGE_HOME:-$HOME/.marge}"
+
+print_usage() {
+    cat <<EOF
+Usage: marge <command> [options]
+
+Commands:
+  run "<task>"       Run a task with marge workflow (launches claude)
+  init [--force]     Initialize marge_simpson/ in current project
+  status             Show marge status for current project
+  experts            List available experts
+  home               Print MARGE_HOME path
+
+Examples:
+  marge run "fix the login bug"
+  marge run "add dark mode support"
+  marge run "audit the codebase for security issues"
+
+Run 'marge <command> --help' for command-specific help.
+EOF
+}
+
+case "${1:-}" in
+    run)
+        shift
+        if [[ -z "${1:-}" ]]; then
+            echo "Error: No task specified" >&2
+            echo "Usage: marge run \"<task>\"" >&2
+            exit 1
+        fi
+
+        TASK="$*"
+
+        # Auto-init if marge_simpson/ doesn't exist
+        if [[ ! -d "./marge_simpson" ]]; then
+            echo "marge_simpson/ not found, initializing..."
+            "$MARGE_HOME/marge-init"
+            echo ""
+        fi
+
+        # Build the prompt
+        PROMPT="Read the AGENTS.md file in the marge_simpson folder and follow it.
+
+Instruction:
+- $TASK
+
+After finished above, search for and list remaining unchecked items (if any exist) in marge_simpson/tasklist.md (P0 → P1 → P2). Suggest order of operations.
+
+Output using the Response Format (include IDs created)."
+
+        # Launch claude with the prompt
+        exec claude "$PROMPT"
+        ;;
+    init)
+        shift
+        exec "$MARGE_HOME/marge-init" "$@"
+        ;;
+    status)
+        if [[ -d "./marge_simpson" ]]; then
+            echo "marge_simpson/ exists in current directory"
+            if [[ -L "./marge_simpson/AGENTS.md" ]]; then
+                echo "Mode: hybrid (symlinked to $MARGE_HOME)"
+            else
+                echo "Mode: standalone"
+            fi
+            echo ""
+            echo "Local files:"
+            ls -1 ./marge_simpson/*.md 2>/dev/null | xargs -I{} basename {} | sed 's/^/  /'
+        else
+            echo "marge_simpson/ not found in current directory"
+            echo "Run 'marge init' to set up"
+        fi
+        ;;
+    experts)
+        if [[ -d "$MARGE_HOME/shared/experts" ]]; then
+            echo "Available experts in $MARGE_HOME/shared/experts/:"
+            ls -1 "$MARGE_HOME/shared/experts/"*.md 2>/dev/null | xargs -I{} basename {} .md | grep -v "^_" | sed 's/^/  /'
+        else
+            echo "No experts directory found"
+        fi
+        ;;
+    home)
+        echo "$MARGE_HOME"
+        ;;
+    -h|--help|"")
+        print_usage
+        ;;
+    *)
+        echo "Unknown command: $1" >&2
+        print_usage
+        exit 1
+        ;;
+esac
