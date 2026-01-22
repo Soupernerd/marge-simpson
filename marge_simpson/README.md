@@ -5,14 +5,14 @@
 **Full Featured - Drop-in AI workflow for automated audits, bug fixes, new feature suggestion/implementation and testing - for any codebase.**
 
 <p float="none">
-  <img src="assets/many_marge.jpg" width="100%" />
+  <img src="marge_simpson/assets/many_marge.jpg" width="100%" />
 </p>
 
 ---
 
 ## Install (30 seconds)
 
-1. Copy THIS folder **`marge_simpson/`** into your repo root
+1. Copy just the **`marge_simpson/`** folder into your repo root
 2. Use a prompt template below
 
 > **💡 Renamed the folder?** Replace `marge_simpson` with your folder name in prompts.
@@ -27,7 +27,7 @@
 ```
 Read the AGENTS.md file in the marge_simpson folder and follow it.
 
-Run a system-wide audit of this workspace/repo.
+Run a system-wide audit of this workspace/repo (read-only).
 - Read and understand the architecture and major workflows.
 - Identify correctness issues, risky patterns, and high-impact improvements.
 - Do not break intended functionality.
@@ -35,10 +35,11 @@ Run a system-wide audit of this workspace/repo.
 Update/create tracking docs:
 - marge_simpson/assessment.md (snapshot + findings + new MS issues)
 - marge_simpson/tasklist.md (prioritized tasks with DoD + verification)
-- marge_simpson/instructions_log.md (append any new standing instructions I give)
+- skip adding this instruction to marge_simpson/instructions_log.md
 
-Then immediately start executing the remaining unchecked items in marge_simpson/tasklist.md (P0 → P1 → P2), keeping docs updated as you go.
-Output using the Response Format (include IDs touched).
+After finished above, search for and list remaining unchecked items (if any exist) in marge_simpson/tasklist.md (P0 → P1 → P2). Suggest order of operations.
+
+Output using the Response Format (include IDs created).
 ```
 
 ---
@@ -50,9 +51,13 @@ Output using the Response Format (include IDs touched).
 Read the AGENTS.md file in the marge_simpson folder and follow it.
 
 New Feature / Issues:
-- (describe your issue or feature request)
+- Example Feature: "Lets add a drop down next to search that allows for.."
+- Example / New Issue: "The right hand side nav is not expanding as expected"
+- Example / Existing issue not fixed: "MS-0046 is still exhibiting [insert issue here]"
 
-After finished above, search for and complete remaining unchecked items (if any exist) in marge_simpson/tasklist.md (P0 → P1 → P2).
+After finished above, search for and list remaining unchecked items (if any exist) in marge_simpson/tasklist.md (P0 → P1 → P2). Suggest order of operations.
+
+Output using the Response Format (include IDs created).
 ```
 
 ---
@@ -67,7 +72,9 @@ Instruction:
 - (your instruction here)
 - (another instruction here)
 
-After finished above, search for and complete remaining unchecked items (if any exist) in marge_simpson/tasklist.md (P0 → P1 → P2).
+After finished above, search for and list remaining unchecked items (if any exist) in marge_simpson/tasklist.md (P0 → P1 → P2). Suggest order of operations.
+
+Output using the Response Format (include IDs created).
 ```
 
 ---
@@ -79,10 +86,14 @@ After finished above, search for and complete remaining unchecked items (if any 
 Read the AGENTS.md file in the marge_simpson folder and follow it.
 
 Questions / Confirmations:
-1. (your question here)
-2. "MS-00xx fixed" (to confirm a fix worked)
+1. (Question/confirmation here)
+2. (Question/confirmation here)
+3. Example Confirmation: "MS-00xx fixed"
+4. Example Question: "Are there alternatives to codemirror?"
 
-After answering the questions above, search for and complete remaining unchecked items (if any exist) in marge_simpson/tasklist.md (P0 → P1 → P2).
+After finished above, search for and list remaining unchecked items (if any exist) in marge_simpson/tasklist.md (P0 → P1 → P2). Suggest order of operations.
+
+Output using the Response Format (include IDs created).
 ```
 
 ---
@@ -114,6 +125,9 @@ Output format:
 1) Ranked list of features
 2) A short “Top pick summary” (2–4 lines) explaining why the #1–#2 options win on UX/value
 
+Update/append/create tracking doc:
+- marge_simpson/recommended_features.md (with the bullet points created per feature)
+
 Minimize follow-up questions. If info is missing, make reasonable assumptions and state them briefly.
 ```
 
@@ -126,12 +140,20 @@ Minimize follow-up questions. If info is missing, make reasonable assumptions an
 Read the AGENTS.md file in the marge_simpson folder and follow it.
 
 Questions / Confirmations:
-1. (your question here)
+1. (Question/confirmation here)
+2. (Question/confirmation here)
+
+Instruction:
+- (your instruction here)
+- (another instruction here)
 
 New Feature / Issues:
-- (your issue here)
+- (New Feature or Issue here)
+- (New Feature or Issue here)
 
-After finished above, search for and complete remaining unchecked items (if any exist) in marge_simpson/tasklist.md (P0 → P1 → P2).
+After finished above, search for and list remaining unchecked items (if any exist) in marge_simpson/tasklist.md (P0 → P1 → P2). Suggest order of operations.
+
+Output using the Response Format (include IDs created).
 ```
 
 ---

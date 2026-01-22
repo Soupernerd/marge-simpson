@@ -44,8 +44,42 @@ say() {
   echo "$@" | tee -a "$LOG_FILE"
 }
 
+# Cross-platform command adaptation
+# Converts Windows PowerShell commands to bash equivalents when running on Unix
+adapt_command() {
+  local cmd="$1"
+  
+  # If command references a .ps1 file, try to find equivalent .sh
+  if [[ "$cmd" =~ \.ps1 ]] && ! have powershell && ! have pwsh; then
+    # Extract the .ps1 file path
+    local ps1_path
+    ps1_path=$(echo "$cmd" | grep -oE '[^ ]*\.ps1')
+    
+    if [[ -n "$ps1_path" ]]; then
+      # Convert to .sh path
+      local sh_path="${ps1_path%.ps1}.sh"
+      
+      # Check if the .sh equivalent exists
+      if [[ -f "$ROOT_DIR/$sh_path" ]] || [[ -f "$sh_path" ]]; then
+        # Replace powershell invocation with bash
+        cmd=$(echo "$cmd" | sed 's|powershell -ExecutionPolicy Bypass -File ||g')
+        cmd=$(echo "$cmd" | sed "s|$ps1_path|$sh_path|g")
+        say "[cross-platform] Adapted: $cmd"
+      else
+        say "[warning] No bash equivalent found for: $ps1_path"
+      fi
+    fi
+  fi
+  
+  echo "$cmd"
+}
+
 run_cmd() {
   local cmd="$1"
+  
+  # Adapt command for cross-platform compatibility
+  cmd=$(adapt_command "$cmd")
+  
   say ""
   say "==> $cmd"
   # shellcheck disable=SC2086

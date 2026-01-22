@@ -4,4 +4,6 @@ Instruction:
 - (your instruction here)
 - (another instruction here)
 
-After finished above, search for and complete remaining unchecked items (if any exist) in marge_simpson/tasklist.md (P0 → P1 → P2).
+After finished above, search for and list remaining unchecked items (if any exist) in marge_simpson/tasklist.md (P0 → P1 → P2). Suggest order of operations.
+
+Output using the Response Format (include IDs created).
