@@ -53,6 +53,8 @@ IMPLEMENT → VERIFY → RECORD → COMPLETE
 | Planning mode (`PLANNING ONLY`, `plan only`) | Read `workflows/planning.md` — NO code changes |
 | Loop mode (`loop until clean`) | Read `workflows/loop.md` |
 
+**Mixed intent** (e.g., question + feature + bug): Answer questions inline (no ID), then process each work item per `work.md` (each gets MS-####).
+
 ---
 
 ## Response Format
