@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2015  # A && B || C pattern is intentional for fallback
+# shellcheck disable=SC2155  # Declare and assign combined is acceptable here
+# shellcheck disable=SC1090  # Can't follow non-constant source (dynamic config)
+# shellcheck disable=SC2034  # Some variables reserved for future use (AUTO, FAST)
 set -eo pipefail
 
 # ============================================
