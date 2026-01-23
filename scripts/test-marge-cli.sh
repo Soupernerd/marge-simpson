@@ -121,40 +121,40 @@ echo ""
 # ============================================================
 echo -e "${BLUE}Test Group: CLI Scripts${NC}"
 
-if [[ -f "$SHARED_DIR/scripts/marge" ]]; then
+if [[ -f "$MARGE_HOME/marge" ]]; then
     test_pass "marge CLI script exists"
 else
     test_fail "marge CLI script missing"
 fi
 
-if [[ -x "$SHARED_DIR/scripts/marge" ]]; then
+if [[ -x "$MARGE_HOME/marge" ]]; then
     test_pass "marge CLI is executable"
 else
     test_fail "marge CLI is not executable"
 fi
 
-if [[ -f "$SHARED_DIR/scripts/marge.ps1" ]]; then
+if [[ -f "$MARGE_HOME/marge.ps1" ]]; then
     test_pass "marge.ps1 exists"
 else
-    test_fail "marge.ps1 missing"
+    test_fail "marge.ps1 missing (optional on non-Windows)"
 fi
 
-if [[ -f "$SHARED_DIR/scripts/marge-init" ]]; then
+if [[ -f "$MARGE_HOME/marge-init" ]]; then
     test_pass "marge-init script exists"
 else
     test_fail "marge-init script missing"
 fi
 
-if [[ -x "$SHARED_DIR/scripts/marge-init" ]]; then
+if [[ -x "$MARGE_HOME/marge-init" ]]; then
     test_pass "marge-init is executable"
 else
     test_fail "marge-init is not executable"
 fi
 
-if [[ -f "$SHARED_DIR/scripts/marge-init.ps1" ]]; then
+if [[ -f "$MARGE_HOME/marge-init.ps1" ]]; then
     test_pass "marge-init.ps1 exists"
 else
-    test_fail "marge-init.ps1 missing"
+    test_fail "marge-init.ps1 missing (optional on non-Windows)"
 fi
 
 echo ""

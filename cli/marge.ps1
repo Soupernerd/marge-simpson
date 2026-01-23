@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Marge v1.1.0 - Autonomous AI Coding Loop (PowerShell)
+    Marge v1.2.1 - Autonomous AI Coding Loop (PowerShell)
 
 .DESCRIPTION
     A command-line interface for running AI coding tasks autonomously.
@@ -39,7 +39,7 @@
 .EXAMPLE
     .\marge.ps1 "fix the login button"
     .\marge.ps1 "add dark mode" -Loop
-    .\marge.ps1 -Folder meta_marge "run audit"
+    .\marge.ps1 -Folder .marge_meta "run audit"
     .\marge.ps1 meta "run self-improvement audit"
 #>
 
@@ -52,10 +52,10 @@ param(
 $ErrorActionPreference = "Stop"
 
 # ============================================
-# Marge v1.1.0 - Autonomous AI Coding Loop
+# Marge v1.2.1 - Autonomous AI Coding Loop
 # ============================================
 
-$script:VERSION = "1.1.0"
+$script:VERSION = "1.2.1"
 $script:MARGE_HOME = if ($env:MARGE_HOME) { $env:MARGE_HOME } else { "$env:USERPROFILE\.marge" }
 
 # Defaults
@@ -94,7 +94,7 @@ marge v$script:VERSION - Autonomous AI coding loop (PowerShell)
 USAGE:
   .\marge.ps1 [options]              Run PRD tasks from PRD.md
   .\marge.ps1 "<task>" [options]     Run a single task
-  .\marge.ps1 meta "<task>"          Run task using meta_marge folder
+  .\marge.ps1 meta "<task>"          Run task using .marge_meta folder
 
 EXAMPLES:
   .\marge.ps1 "fix the login bug"
@@ -122,7 +122,7 @@ COMMANDS:
   init               Initialize .marge/ config and PRD.md template
   status             Show current status and progress
   config             Show config file contents
-  meta               Shortcut for -Folder meta_marge
+  meta               Shortcut for -Folder .marge_meta
 
 CONFIG FILE:
   Place .marge\config.yaml in your project:
@@ -549,7 +549,15 @@ while ($i -lt $Arguments.Count) {
     elseif ($arg -eq 'init') { Initialize-Config; exit 0 }
     elseif ($arg -eq 'status') { Show-Status; exit 0 }
     elseif ($arg -eq 'config') { if (Test-Path ".marge\config.yaml") { Get-Content ".marge\config.yaml" }; exit 0 }
-    elseif ($arg -eq 'meta') { $script:MARGE_FOLDER = "meta_marge"; $matched = $true }
+    elseif ($arg -eq 'meta') {
+        # Try .marge_meta first (new naming), fall back to meta_marge (legacy)
+        if (Test-Path ".marge_meta" -PathType Container) {
+            $script:MARGE_FOLDER = ".marge_meta"
+        } else {
+            $script:MARGE_FOLDER = "meta_marge"
+        }
+        $matched = $true
+    }
     elseif ($arg -eq 'resume') {
         if (Load-Progress) { Write-Info "Resuming from iteration $script:iteration" }
         else { Write-Warn "No progress to resume" }

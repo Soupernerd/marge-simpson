@@ -8,9 +8,11 @@
 |--------|---------|-------------|
 | **verify.ps1 / .sh** | Run test suite | After any code change |
 | **test-marge.ps1 / .sh** | Self-test Marge structure | Called by verify |
+| **test-marge-cli.sh** | Test CLI & global install | After CLI changes |
 | **cleanup.ps1 / .sh** | Remove generated files | Before commits, fresh start |
 | **status.ps1 / .sh** | Dashboard view | Quick health check |
 | **decay.ps1 / .sh** | Find stale knowledge entries | Periodic maintenance |
+| **marge.ps1** | Simple CLI wrapper (Windows) | Alternative to cli/marge.ps1 |
 
 ## Common Commands
 

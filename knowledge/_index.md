@@ -71,5 +71,5 @@ _None yet_
    - Update Tag Index
 
 **Quarterly review:**
-- Archive entries older than 6 months to `knowledge/archive/`
+- Archive entries older than 6 months to `knowledge/archive.md`
 - Review and merge duplicate/similar entries

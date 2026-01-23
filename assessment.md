@@ -1,8 +1,8 @@
-﻿# marge_simpson/assessment.md
+﻿# Assessment
 Purpose: Periodic, point-in-time assessments of repo/system status.
 
 ## Read First (REQUIRED)
-AI/Agents must read `marge_simpson/AGENTS.md` before working.
+AI/Agents must read `AGENTS.md` before working.
 
 ---
 
@@ -16,13 +16,13 @@ AI/Agents must read `marge_simpson/AGENTS.md` before working.
 - **Last updated:** YYYY-MM-DD
 - **Scope assessed:** (folders/features/issues covered)
 - **Build/Run context:** (env, branch, key flags, platform if relevant)
-- **Overall status:** âœ… Healthy / âš ï¸ Mixed / âŒ Broken
-- **Top risks:** (1â€“3 bullets)
+- **Overall status:** ✅ Healthy / ⚠️ Mixed / ❌ Broken
+- **Top risks:** (1–3 bullets)
 
 ---
 
 ## Known Invariants (Do Not Break)
-- (list â€œmust never regressâ€ behaviors)
+- (list "must never regress" behaviors)
 - (example: persistence rules, API contracts, key UX flows)
 
 ---
@@ -30,16 +30,16 @@ AI/Agents must read `marge_simpson/AGENTS.md` before working.
 ## Findings (by area)
 ### 1) (Area / subsystem name)
 **Observations**
-- â€¦
+- …
 
 **Issues**
-- â€¦
+- …
 
 **Recommendations**
-- â€¦
+- …
 
 **Impact / Risk**
-- â€¦
+- …
 
 ---
 
@@ -57,7 +57,7 @@ AI/Agents must read `marge_simpson/AGENTS.md` before working.
 - **Verification:**
   - Test(s) added/changed: ...
   - Commands executed:
-    - `./marge_simpson/scripts/verify.sh fast` (or `./marge_simpson/scripts/verify.ps1 fast`)
+    - `./scripts/verify.sh fast` (or `./scripts/verify.ps1 fast`)
     - (any targeted command)
   - Evidence: paste raw output
 - **Notes / follow-ups:** Any remaining risk or cleanup

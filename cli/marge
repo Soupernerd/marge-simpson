@@ -6,11 +6,11 @@
 set -eo pipefail
 
 # ============================================
-# Marge v1.1.0 - Autonomous AI Coding Loop
+# Marge v1.2.1 - Autonomous AI Coding Loop
 # ============================================
 
 MARGE_HOME="${MARGE_HOME:-$HOME/.marge}"
-VERSION="1.1.0"
+VERSION="1.2.1"
 
 # Defaults
 DRY_RUN=false
@@ -64,12 +64,12 @@ ${BOLD}marge${RESET} v$VERSION - Autonomous AI coding loop
 ${BOLD}USAGE:${RESET}
   marge [options]              Run PRD tasks from PRD.md
   marge "<task>" [options]     Run a single task
-  marge meta "<task>"          Run task using meta_marge folder
+  marge meta "<task>"          Run task using .marge_meta folder
 
 ${BOLD}EXAMPLES:${RESET}
   marge "fix the login bug"
   marge --loop --auto
-  marge --folder meta_marge "run audit"
+  marge --folder .marge_meta "run audit"
   marge meta "run self-improvement audit"
   marge --parallel --max-parallel 3
   marge --engine aider --loop
@@ -99,7 +99,7 @@ ${BOLD}COMMANDS:${RESET}
   status              Show current status and progress
   config              Show config file contents
   resume              Resume from saved progress
-  meta                Shortcut for --folder meta_marge
+  meta                Shortcut for --folder .marge_meta
 
 ${BOLD}CONFIG FILE:${RESET}
   Place .marge/config.yaml in your project:
@@ -678,7 +678,14 @@ while [[ $# -gt 0 ]]; do
         --version) echo "marge $VERSION"; exit 0 ;;
         -h|--help|help) print_usage; exit 0 ;;
         init) init_config; exit 0 ;;
-        meta) MARGE_FOLDER="meta_marge"; shift ;;
+        meta)
+            # Try .marge_meta first (new naming), fall back to meta_marge (legacy)
+            if [[ -d ".marge_meta" ]]; then
+                MARGE_FOLDER=".marge_meta"
+            else
+                MARGE_FOLDER="meta_marge"
+            fi
+            shift ;;
         status)
             echo "${BOLD}Marge Status${RESET}"
             echo "Project type: $(detect_project)"

@@ -11,7 +11,7 @@ Meta-development means improving the Marge system while using it. This creates a
 ```bash
 # 1. Create meta working copy
 ./meta/convert-to-meta.sh
-# Creates: .marge_meta/ (or meta_marge/ if in marge_simpson/)
+# Creates: .marge_meta/
 
 # 2. Work on Marge using Marge
 ./cli/marge --folder .marge_meta "run self-audit"
