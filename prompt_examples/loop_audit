@@ -1,21 +1,18 @@
-Lets consider version 1.2.1 and work our way up slowly. lets go again
+Read the AGENTS.md file in this folder and follow it.
 
-Read the AGENTS.md file in the .meta_marge folder and follow it.
+Instructions:
+- Audit the assessment and tasklist files in planning_docs/. Look for solid reasoning in the actions taken
+- Audit the workspace and compare it to your assessment and tasklist audit above, make sure all actions taken were good decisions
+- Find an expert for the above in the experts/ folder
+- Audit CLI functions, ensure they match intended functionality. Reference docs as needed.
+- When conflicts exist, pick the option that makes the most sense based on what creates a more robust system, not ease of implementation
 
-Instructions::
-- Audit the .meta_marge assessment and tasklist files. look for solid reasoning in the actions taken
-- audit marge-simpson and compare it to your assessment and tasklist file audit above, make sure all actions taken were good decisions
-- find an expert for the above, in the experts files of .meta_marge folder
-audit the newly added cli functions, make sure they are up to part with the intended functionality. reference whatever docs you need to acertsian inteded functionality
-- figure something out with the prd.md file in root. I dont know what that file is but perhaps it belongs in planning_docs folder? Ill let you decide. check what requires it also to make sure we need it and or whatever system that uses it is working well. its new so Im unfamiliar with it, I suspect its part of the recently merged cli features from another dev
-- when conflicts exist, pick the option that makes the most sense, not based on ease of implementation but based on what makes a more robust system as a hole. or look at the audit and infer which conflict if any wins out
+Read-only, update assessment.md and tasklist.md (etc) as you go
 
-read only, update .meta_marge assessment and tasklist (etc) as you go
+Loop until clean, minimum 20 iterations.
 
-loop until clean min 20
+1 loop = ENTIRE audit of the workspace
 
-1 loop is an ENTIRE audit of the workspace (excluding .meta_marge)
+Output using the Response Format (include IDs created) WITH DETAIL for the user to understand.
 
-Output using the Response Format (include IDs created). WITH DETAIL for the user to understand
-
-in between each loop, fix the issues. do not stop between the loops except to take a breif few second pause as to not tax github systems. just audit, fix audit fix until yo uhit at least the min stated above, and keep looping beyind the min if there are still issues found until there are no more issues found.
+Between each loop, fix the issues. Do not stop between loops except for a brief pause. Audit → fix → audit → fix until you hit at least the min stated above, and keep looping beyond the min if there are still issues found until clean.

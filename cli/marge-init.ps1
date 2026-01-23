@@ -143,7 +143,8 @@ New-Item -ItemType Directory -Path $PlanningDocsDir -Force | Out-Null
 
 $TemplateFiles = @(
     "assessment.md",
-    "tasklist.md"
+    "tasklist.md",
+    "PRD.md"
 )
 
 foreach ($item in $TemplateFiles) {

@@ -71,7 +71,7 @@ $script:RETRY_DELAY = if ($env:RETRY_DELAY) { [int]$env:RETRY_DELAY } else { 5 }
 $script:AUTO_COMMIT = $true
 $script:ENGINE = "claude"
 $script:MARGE_FOLDER = if ($env:MARGE_FOLDER) { $env:MARGE_FOLDER } else { ".marge" }
-$script:PRD_FILE = "PRD.md"
+$script:PRD_FILE = "planning_docs/PRD.md"
 $script:CONFIG_FILE = ".marge\config.yaml"
 $script:PROGRESS_FILE = ".marge\progress.txt"
 
@@ -92,7 +92,7 @@ function Show-Usage {
 marge v$script:VERSION - Autonomous AI coding loop (PowerShell)
 
 USAGE:
-  .\marge.ps1 [options]              Run PRD tasks from PRD.md
+  .\marge.ps1 [options]              Run PRD tasks from planning_docs/PRD.md
   .\marge.ps1 "<task>" [options]     Run a single task
   .\marge.ps1 meta "<task>"          Run task using .meta_marge folder
 
@@ -119,7 +119,7 @@ OPTIONS:
   -Help              Show help
 
 COMMANDS:
-  init               Initialize .marge/ config and PRD.md template
+  init               Initialize .marge/ and planning_docs/PRD.md template
   status             Show current status and progress
   config             Show config file contents
   meta               Shortcut for -Folder .meta_marge
@@ -457,6 +457,7 @@ function Invoke-SingleTask {
 
 function Initialize-Config {
     New-Item -ItemType Directory -Path ".marge" -Force | Out-Null
+    New-Item -ItemType Directory -Path "planning_docs" -Force | Out-Null
 
     @"
 engine: claude
@@ -467,7 +468,7 @@ auto_commit: true
 folder: .marge
 "@ | Out-File -FilePath ".marge\config.yaml" -Encoding utf8
 
-    if (-not (Test-Path "PRD.md")) {
+    if (-not (Test-Path "planning_docs/PRD.md")) {
         @"
 # PRD
 
@@ -479,10 +480,10 @@ folder: .marge
 
 ### Task 3: Testing
 - [ ] Write tests
-"@ | Out-File -FilePath "PRD.md" -Encoding utf8
+"@ | Out-File -FilePath "planning_docs/PRD.md" -Encoding utf8
     }
 
-    Write-Success "Initialized .marge/"
+    Write-Success "Initialized .marge/ and planning_docs/"
 }
 
 function Show-Status {

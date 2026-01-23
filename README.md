@@ -239,8 +239,8 @@ marge "audit codebase" --dry-run       # Preview without executing
 marge --folder .marge "run audit"      # Explicit folder
 marge meta "run self-improvement"      # Shortcut for meta development
 
-# PRD mode (run tasks from PRD.md)
-marge                                  # Run all tasks from PRD.md
+# PRD mode (run tasks from planning_docs/PRD.md)
+marge                                  # Run all tasks from planning_docs/PRD.md
 marge --parallel --max-parallel 3      # Run tasks in parallel
 marge --branch-per-task --create-pr    # Git workflow automation
 

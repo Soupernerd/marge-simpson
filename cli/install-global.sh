@@ -89,6 +89,7 @@ done
 TEMPLATE_FILES=(
     "assessment.md"
     "tasklist.md"
+    "PRD.md"
 )
 
 for item in "${TEMPLATE_FILES[@]}"; do

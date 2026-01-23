@@ -28,7 +28,7 @@ BRANCH_PER_TASK=false
 CREATE_PR=false
 PARALLEL=false
 MAX_PARALLEL=${MAX_PARALLEL:-3}
-PRD_FILE="PRD.md"
+PRD_FILE="planning_docs/PRD.md"
 MARGE_FOLDER="${MARGE_FOLDER:-.marge}"
 
 # State
@@ -62,7 +62,7 @@ print_usage() {
 ${BOLD}marge${RESET} v$VERSION - Autonomous AI coding loop
 
 ${BOLD}USAGE:${RESET}
-  marge [options]              Run PRD tasks from PRD.md
+  marge [options]              Run PRD tasks from planning_docs/PRD.md
   marge "<task>" [options]     Run a single task
   marge meta "<task>"          Run task using .meta_marge folder
 
@@ -95,7 +95,7 @@ ${BOLD}OPTIONS:${RESET}
   --help              Show help
 
 ${BOLD}COMMANDS:${RESET}
-  init                Initialize .marge/ config and PRD.md template
+  init                Initialize .marge/ and planning_docs/PRD.md template
   status              Show current status and progress
   config              Show config file contents
   resume              Resume from saved progress
@@ -115,7 +115,7 @@ ${BOLD}ENVIRONMENT:${RESET}
   MARGE_FOLDER        Default folder (default: .marge)
 
 ${BOLD}PRD FORMAT:${RESET}
-  Tasks are parsed from PRD.md using "### Task N: Title" format.
+  Tasks are parsed from planning_docs/PRD.md using "### Task N: Title" format.
   See 'marge init' for a template.
 EOF
 }
@@ -629,6 +629,7 @@ run_single() {
 
 init_config() {
     mkdir -p .marge
+    mkdir -p planning_docs
     cat > .marge/config.yaml <<EOF
 engine: claude
 model: ""
@@ -637,7 +638,7 @@ max_retries: 3
 auto_commit: true
 EOF
 
-    [[ ! -f "PRD.md" ]] && cat > PRD.md <<'EOF'
+    [[ ! -f "planning_docs/PRD.md" ]] && cat > planning_docs/PRD.md <<'EOF'
 # PRD
 
 ### Task 1: Setup
@@ -650,7 +651,7 @@ EOF
 - [ ] Write tests
 EOF
 
-    log_success "Initialized .marge/"
+    log_success "Initialized .marge/ and planning_docs/"
 }
 
 # Load config before parsing args (CLI overrides config)

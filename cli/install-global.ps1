@@ -74,7 +74,8 @@ foreach ($item in $SharedItems) {
 # Copy per-project templates (from planning_docs/)
 $TemplateItems = @(
     "assessment.md",
-    "tasklist.md"
+    "tasklist.md",
+    "PRD.md"
 )
 
 foreach ($item in $TemplateItems) {
