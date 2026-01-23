@@ -46,12 +46,12 @@
 | architecture.md | 2 | ~800 |
 | security.md | 3 | ~1,200 |
 | testing.md | 2 | ~800 |
-| product.md | 4 | ~1,600 |
+| product.md | 5 | ~2,000 |
 | devops.md | 3 | ~1,200 |
-| documentation.md | 4 | ~1,600 |
+| documentation.md | 5 | ~2,000 |
 | design.md | 5 | ~2,000 |
-| implementation.md | 5 | ~2,000 |
+| implementation.md | 6 | ~2,400 |
 | **This index** | - | ~400 |
 
-**Total if monolithic**: ~10,000 tokens
+**Total if monolithic**: ~11,800 tokens
 **Typical chunked read**: ~400 (index) + ~1,200 (1-2 files) = **~1,600 tokens**
