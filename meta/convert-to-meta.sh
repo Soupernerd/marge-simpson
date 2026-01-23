@@ -151,6 +151,12 @@ while IFS= read -r -d '' file; do
   original_content=$(cat "$file" 2>/dev/null) || continue
   content="$original_content"
 
+  # Skip meta/README.md - it documents meta-development and references should stay as original
+  relative_path="${file#$TARGET_FOLDER/}"
+  if [[ "$relative_path" == "meta/README.md" ]]; then
+    continue
+  fi
+
   for name in "${CONTENT_SOURCE_NAMES[@]}"; do
     # Apply replacements
     content=${content//"$name/"/"$TARGET_NAME/"}
@@ -193,6 +199,7 @@ meta_transform_file() {
     # Make AGENTS.md reference explicit for meta-development
     content=${content//"Read the AGENTS.md file in this folder"/"Read the .meta_marge/AGENTS.md file"}
     content=${content//"AGENTS.md file in this folder"/".meta_marge/AGENTS.md file"}
+    content=${content//"AGENTS.md (in this folder)"/".meta_marge/AGENTS.md"}
     
     # Make planning_docs paths explicit (only if not already prefixed)
     content=$(echo "$content" | sed -E 's/([^.])planning_docs\//\1.meta_marge\/planning_docs\//g')

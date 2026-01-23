@@ -135,6 +135,12 @@ $files = Get-ChildItem -Path $TargetFolder -Recurse -File -Force
 foreach ($file in $files) {
     $ext = $file.Extension.TrimStart('.')
     $filename = $file.Name
+    $relativePath = $file.FullName.Substring($TargetFolder.Length + 1)
+    
+    # Skip meta/README.md - it documents meta-development and references should stay as original
+    if ($relativePath -eq "meta\README.md" -or $relativePath -eq "meta/README.md") {
+        continue
+    }
     
     $isText = $false
     if ($ext -in $TextExtensions) {
@@ -207,6 +213,7 @@ function MetaTransformFile {
         # Make AGENTS.md reference explicit for meta-development
         $content = $content -replace 'Read the AGENTS\.md file in this folder', 'Read the .meta_marge/AGENTS.md file'
         $content = $content -replace 'AGENTS\.md file in this folder', '.meta_marge/AGENTS.md file'
+        $content = $content -replace 'AGENTS\.md \(in this folder\)', '.meta_marge/AGENTS.md'
         
         # Make planning_docs paths explicit
         $content = $content -replace '(?<!\.)planning_docs/', '.meta_marge/planning_docs/'
