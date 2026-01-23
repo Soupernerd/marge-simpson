@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# cleanup.sh — Marge Simpson Artifact Cleanup
+# cleanup.sh -- Marge Simpson Artifact Cleanup
 #
 # Reports on Marge tracking files and suggests archiving when they get large.
 # This script auto-detects its own folder name, so you can rename the folder if needed.

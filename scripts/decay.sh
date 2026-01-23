@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# decay.sh — Marge Simpson Knowledge Decay Scanner
+# decay.sh -- Marge Simpson Knowledge Decay Scanner
 #
 # Scans knowledge/*.md files for entries with old Last Accessed dates.
 # Flags entries for review or auto-archives based on decay rules:

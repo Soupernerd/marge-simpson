@@ -85,7 +85,7 @@ $scriptFiles = Get-ChildItem -Path $RepoRoot -Include "*.ps1", "*.sh" -Recurse -
 
 $encodingIssues = @()
 foreach ($file in $scriptFiles) {
-    $content = Get-Content -Path $file.FullName -Raw -ErrorAction SilentlyContinue
+    $content = Get-Content -Path $file.FullName -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
     if ($content) {
         foreach ($pattern in $problematicPatterns) {
             if ($content.Contains($pattern.Pattern)) {

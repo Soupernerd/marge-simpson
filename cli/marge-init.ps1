@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     Initialize .marge/ in the current project directory.
 
@@ -26,10 +26,43 @@
 param(
     [switch]$Force,
     [switch]$NoGitignore,
+    [switch]$Help,
     [string]$MargeHome = $null
 )
 
 $ErrorActionPreference = "Stop"
+
+# Show help if requested
+if ($Help) {
+    Write-Host @"
+marge-init - Initialize .marge/ in a project directory
+
+USAGE:
+  marge-init [options]
+
+DESCRIPTION:
+  Creates a hybrid setup with:
+  - Symlinks to global shared resources (AGENTS.md, experts, workflows, etc.)
+  - Local per-project files (planning_docs/assessment.md, planning_docs/tasklist.md)
+
+OPTIONS:
+  -Force          Overwrite existing .marge/ folder
+  -NoGitignore    Don't add .marge/ to .gitignore
+  -MargeHome      Path to global marge installation
+                  Default: `$env:USERPROFILE\.marge or MARGE_HOME env var
+  -Help           Show this help message
+
+EXAMPLES:
+  marge-init
+  marge-init -Force
+  marge-init -MargeHome "D:\tools\marge"
+
+PREREQUISITES:
+  Install marge globally first using:
+    .\install-global.ps1
+"@
+    exit 0
+}
 
 # Determine MARGE_HOME
 if (-not $MargeHome) {

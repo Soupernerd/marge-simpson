@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# status.sh — Marge Simpson Status Dashboard
+# status.sh -- Marge Simpson Status Dashboard
 #
 # Displays a formatted summary of:
 # - Task counts by status (backlog, in-progress, done)

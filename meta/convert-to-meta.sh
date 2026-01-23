@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# convert-to-meta.sh — Creates .meta_marge/ for meta-development
+# convert-to-meta.sh -- Creates .meta_marge/ for meta-development
 #
 # This script copies the current Marge folder to a .meta_marge/ subfolder
 # inside the workspace for meta-development (improving Marge itself).

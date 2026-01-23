@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# verify.sh — Marge Simpson Verification Runner
+# verify.sh -- Marge Simpson Verification Runner
 #
 # Runs repo verification commands and writes a timestamped log.
 # This script auto-detects its own folder name, so you can rename the folder if needed.

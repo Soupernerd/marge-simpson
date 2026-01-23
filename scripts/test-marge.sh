@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# test-marge.sh — Self-test for the Marge Simpson verification system
+# test-marge.sh -- Self-test for the Marge Simpson verification system
 #
 # Validates that:
 # 1. Scripts exist
