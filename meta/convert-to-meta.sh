@@ -334,7 +334,8 @@ if [[ -f "$AGENTS_PATH" ]]; then
   NEW_SCOPE="**Scope (CRITICAL):**
 1. The \`$TARGET_NAME/\` folder is **excluded from audits** -- it is the tooling, not the target, and exists to update Marge.
 2. Audit the workspace/repo OUTSIDE this folder. Track findings HERE in \`$TARGET_NAME/planning_docs/\` assessment.md and tasklist.md.
-3. Never create \`$TARGET_NAME\` files outside this folder."
+3. Never create \`$TARGET_NAME\` files outside this folder.
+4. **Architecture updates:** When adding/removing files or changing structure, update \`meta/ARCHITECTURE.md\` in the source repo."
 
   # Read the file, replace the scope section, write back
   # Using awk for multi-line replacement

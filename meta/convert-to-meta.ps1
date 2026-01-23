@@ -345,6 +345,7 @@ if (Test-Path $AgentsPath) {
 1. The ``$TargetName/`` folder is **excluded from audits** -- it is the tooling, not the target, and exists to update Marge.
 2. Audit the workspace/repo OUTSIDE this folder. Track findings HERE in ``$TargetName/planning_docs/`` assessment.md and tasklist.md.
 3. Never create ``$TargetName`` files outside this folder.
+4. **Architecture updates:** When adding/removing files or changing structure, update ``meta/ARCHITECTURE.md`` in the source repo.
 "@
     
     # Replace the entire Scope section (matches from **Scope to the line before ---)
