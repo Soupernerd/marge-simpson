@@ -58,7 +58,6 @@ $SharedItems = @(
     "experts",
     "knowledge",
     "model_pricing.json",
-    "plans",
     "prompt_examples",
     "README.md",
     "scripts",
@@ -73,19 +72,23 @@ foreach ($item in $SharedItems) {
     }
 }
 
-# Copy per-project templates
+# Copy per-project templates (from planning_docs/)
 $TemplateItems = @(
     "assessment.md",
-    "instructions_log.md",
-    "tasklist.md",
-    "verify.config.json"
+    "tasklist.md"
 )
 
 foreach ($item in $TemplateItems) {
-    $srcPath = Join-Path $RepoRoot $item
+    $srcPath = Join-Path $RepoRoot "planning_docs\$item"
     if (Test-Path $srcPath) {
         Copy-Item -Force $srcPath "$InstallDir\templates\"
     }
+}
+
+# Copy verify.config.json from root
+$verifyConfig = Join-Path $RepoRoot "verify.config.json"
+if (Test-Path $verifyConfig) {
+    Copy-Item -Force $verifyConfig "$InstallDir\templates\"
 }
 
 # Install marge-init script
@@ -135,8 +138,8 @@ Write-Host "  │   ├── workflows\"
 Write-Host "  │   ├── scripts\"
 Write-Host "  │   └── knowledge\"
 Write-Host "  ├── templates\     # Per-project templates"
-Write-Host "  │   ├── assessment.md"
-Write-Host "  │   ├── tasklist.md"
+Write-Host "  │   ├── assessment.md      (goes into planning_docs/)"
+Write-Host "  │   ├── tasklist.md        (goes into planning_docs/)"
 Write-Host "  │   └── verify.config.json"
 Write-Host "  └── marge-init.ps1 # Project initialization script"
 Write-Host ""

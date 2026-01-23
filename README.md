@@ -85,10 +85,10 @@ Run a system-wide audit of this workspace/repo (read-only).
 - Do not break intended functionality.
 
 Update/create tracking docs:
-- .marge/assessment.md (snapshot + findings + new MS issues)
-- .marge/tasklist.md (prioritized tasks with DoD + verification)
+- .marge/planning_docs/assessment.md (snapshot + findings + new MS issues)
+- .marge/planning_docs/tasklist.md (prioritized tasks with DoD + verification)
 
-After finished above, search for and list remaining unchecked items (if any exist) in .marge/tasklist.md (P0 → P1 → P2). Suggest order of operations.
+After finished above, search for and list remaining unchecked items (if any exist) in .marge/planning_docs/tasklist.md (P0 → P1 → P2). Suggest order of operations.
 
 Output using the Response Format (include IDs created).
 ```
@@ -106,7 +106,7 @@ New Feature / Issues:
 - Example / New Issue: "The right hand side nav is not expanding as expected"
 - Example / Existing issue not fixed: "MS-0046 is still exhibiting [insert issue here]"
 
-After finished above, search for and list remaining unchecked items (if any exist) in .marge/tasklist.md (P0 → P1 → P2). Suggest order of operations.
+After finished above, search for and list remaining unchecked items (if any exist) in .marge/planning_docs/tasklist.md (P0 → P1 → P2). Suggest order of operations.
 
 Output using the Response Format (include IDs created).
 ```
@@ -123,7 +123,7 @@ Instruction:
 - (your instruction here)
 - (another instruction here)
 
-After finished above, search for and list remaining unchecked items (if any exist) in .marge/tasklist.md (P0 → P1 → P2). Suggest order of operations.
+After finished above, search for and list remaining unchecked items (if any exist) in .marge/planning_docs/tasklist.md (P0 → P1 → P2). Suggest order of operations.
 
 Output using the Response Format (include IDs created).
 ```
@@ -142,7 +142,7 @@ Questions / Confirmations:
 3. Example Confirmation: "MS-00xx fixed"
 4. Example Question: "Are there alternatives to codemirror?"
 
-After finished above, search for and list remaining unchecked items (if any exist) in .marge/tasklist.md (P0 → P1 → P2). Suggest order of operations.
+After finished above, search for and list remaining unchecked items (if any exist) in .marge/planning_docs/tasklist.md (P0 → P1 → P2). Suggest order of operations.
 
 Output using the Response Format (include IDs created).
 ```
@@ -202,7 +202,7 @@ New Feature / Issues:
 - (New Feature or Issue here)
 - (New Feature or Issue here)
 
-After finished above, search for and list remaining unchecked items (if any exist) in .marge/tasklist.md (P0 → P1 → P2). Suggest order of operations.
+After finished above, search for and list remaining unchecked items (if any exist) in .marge/planning_docs/tasklist.md (P0 → P1 → P2). Suggest order of operations.
 
 Output using the Response Format (include IDs created).
 ```
@@ -325,22 +325,20 @@ Marge auto-detects your project type:
 | **Stays focused** | Minimal diffs, root cause fixes |
 
 **Two source-of-truth files:**
-- `tasklist.md` — what's left / doing / done
-- `assessment.md` — root cause notes + verification evidence
+- `planning_docs/tasklist.md` — what's left / doing / done
+- `planning_docs/assessment.md` — root cause notes + verification evidence
 
 ## What's Inside
 
 | File/Folder | Purpose |
 |-------------|---------|
 | `AGENTS.md` | Rules the assistant follows |
-| `assessment.md` | Findings + root cause + verification |
-| `tasklist.md` | Prioritized tasks (backlog → done) |
+| `planning_docs/` | Assessment, tasklist, and feature plans |
 | `cli/` | CLI tools (marge, marge-init, install-global) |
 | `scripts/` | Verify scripts, test suite |
 | `workflows/` | Session start/end, planning, audit workflows |
 | `experts/` | Domain expert instructions |
 | `knowledge/` | Decisions, patterns, preferences |
-| `plans/` | Feature plan files |
 | `prompt_examples/` | Ready-to-copy templates |
 | `meta/` | Tools for contributing to Marge |
 
@@ -381,8 +379,8 @@ No config? Scripts auto-detect Node, Python, Go, Rust, .NET, Java.
 Want to improve Marge itself? See [meta/README.md](./meta/README.md) for the meta-development workflow.
 
 Quick version:
-1. Run `./meta/convert-to-meta.sh` (or `.ps1`) to create `.marge_meta/`
-2. Use prompts referencing `.marge_meta` instead of `.marge`
+1. Run `./meta/convert-to-meta.sh` (or `.ps1`) to create `.meta_marge/`
+2. Use prompts referencing `.meta_marge` instead of `.marge`
 3. Test with `./scripts/test-marge.sh` (or `.ps1`)
 4. Copy changes back when satisfied
 

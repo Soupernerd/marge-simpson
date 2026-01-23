@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - **Flat repository structure** - Repo root IS the product (no nested `marge_simpson/` folder)
 - **Default folder name** - Changed from `marge_simpson` to `.marge` for user projects
-- **Meta folder name** - Changed from `meta_marge` to `.marge_meta`
+- **Meta folder name** - Standardized to `.meta_marge/` (inside workspace, gitignored)
 - **CLI location** - Moved to `cli/` subdirectory
 - **Meta tools location** - Moved to `meta/` subdirectory
 
@@ -27,13 +27,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Root-level `install.sh` and `install.ps1` (now in `cli/`)
 - Root-level `convert-to-meta.*` (now in `meta/`)
-- Nested `marge_simpson/` and `meta_marge/` folders
+- Nested `marge_simpson/` and `.meta_marge/` folders
 
 ## [1.1.0] - 2026-01-23
 
 ### Added
-- **`--folder` flag** - Target any Marge folder (e.g., `marge --folder meta_marge "task"`)
-- **`meta` command shortcut** - Quick access to meta_marge folder (e.g., `marge meta "run audit"`)
+- **`--folder` flag** - Target any Marge folder (e.g., `marge --folder .meta_marge "task"`)
+- **`meta` command shortcut** - Quick access to `.meta_marge` folder (e.g., `marge meta "run audit"`)
 - **`MARGE_FOLDER` environment variable** - Set default folder globally
 - **`marge.ps1` CLI** - PowerShell version with full feature parity
 - **ShellCheck linting** - CI now enforces shell script quality
@@ -59,14 +59,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Knowledge management** - Decisions, patterns, preferences, insights
 - **Scripts** - verify.sh, cleanup.sh, decay.sh, status.sh
 - **Cross-platform support** - Bash and PowerShell scripts
-- **Auto-detection** - Folder name detection for marge_simpson/meta_marge
+- **Auto-detection** - Folder name detection for marge_simpson/.meta_marge
 - **Test suite** - Self-validating test-marge.sh
 - **CI/CD** - GitHub Actions for Windows, Linux, macOS
 
 ### Repository Architecture
 - `marge_simpson/` - Production template for end users
-- `meta_marge/` - Self-development working copy (gitignored)
-- Changes flow: `marge_simpson/` → `meta_marge/` → validate → back to `marge_simpson/`
+- `.meta_marge/` - Self-development working copy (gitignored)
+- Changes flow: `marge_simpson/` → `.meta_marge/` → validate → back to `marge_simpson/`
 
 [1.2.1]: https://github.com/Soupernerd/marge-simpson/compare/v1.1.0...v1.2.1
 [1.1.0]: https://github.com/Soupernerd/marge-simpson/compare/v1.0.0...v1.1.0

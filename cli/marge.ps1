@@ -39,7 +39,7 @@
 .EXAMPLE
     .\marge.ps1 "fix the login button"
     .\marge.ps1 "add dark mode" -Loop
-    .\marge.ps1 -Folder .marge_meta "run audit"
+    .\marge.ps1 -Folder .meta_marge "run audit"
     .\marge.ps1 meta "run self-improvement audit"
 #>
 
@@ -94,12 +94,12 @@ marge v$script:VERSION - Autonomous AI coding loop (PowerShell)
 USAGE:
   .\marge.ps1 [options]              Run PRD tasks from PRD.md
   .\marge.ps1 "<task>" [options]     Run a single task
-  .\marge.ps1 meta "<task>"          Run task using .marge_meta folder
+  .\marge.ps1 meta "<task>"          Run task using .meta_marge folder
 
 EXAMPLES:
   .\marge.ps1 "fix the login bug"
   .\marge.ps1 -Loop -Auto
-  .\marge.ps1 -Folder meta_marge "run audit"
+  .\marge.ps1 -Folder .meta_marge "run audit"
   .\marge.ps1 meta "run self-improvement audit"
   .\marge.ps1 -Engine aider -Loop
 
@@ -122,7 +122,7 @@ COMMANDS:
   init               Initialize .marge/ config and PRD.md template
   status             Show current status and progress
   config             Show config file contents
-  meta               Shortcut for -Folder .marge_meta
+  meta               Shortcut for -Folder .meta_marge
 
 CONFIG FILE:
   Place .marge\config.yaml in your project:
@@ -244,8 +244,8 @@ function Invoke-AutoCommit {
 }
 
 function Test-TaskComplete {
-    $tasklistPath = "./$script:MARGE_FOLDER/tasklist.md"
-    $assessmentPath = "./$script:MARGE_FOLDER/assessment.md"
+    $tasklistPath = "./$script:MARGE_FOLDER/planning_docs/tasklist.md"
+    $assessmentPath = "./$script:MARGE_FOLDER/planning_docs/assessment.md"
 
     if (Test-Path $tasklistPath) {
         $content = Get-Content $tasklistPath -Raw
@@ -306,7 +306,7 @@ Read the AGENTS.md file in the $script:MARGE_FOLDER folder and follow it.
 Instruction:
 - $Task$loopSuffix
 
-After finished, list remaining unchecked items in $script:MARGE_FOLDER/tasklist.md.
+After finished, list remaining unchecked items in $script:MARGE_FOLDER/planning_docs/tasklist.md.
 "@
 
     if ($script:DRY_RUN) {
@@ -550,11 +550,14 @@ while ($i -lt $Arguments.Count) {
     elseif ($arg -eq 'status') { Show-Status; exit 0 }
     elseif ($arg -eq 'config') { if (Test-Path ".marge\config.yaml") { Get-Content ".marge\config.yaml" }; exit 0 }
     elseif ($arg -eq 'meta') {
-        # Try .marge_meta first (new naming), fall back to meta_marge (legacy)
-        if (Test-Path ".marge_meta" -PathType Container) {
+        # Try .meta_marge first (standardized), fall back to legacy names
+        if (Test-Path ".meta_marge" -PathType Container) {
+            $script:MARGE_FOLDER = ".meta_marge"
+        } elseif (Test-Path ".marge_meta" -PathType Container) {
             $script:MARGE_FOLDER = ".marge_meta"
         } else {
-            $script:MARGE_FOLDER = "meta_marge"
+            # Default to new standardized name even if it doesn't exist yet
+            $script:MARGE_FOLDER = ".meta_marge"
         }
         $matched = $true
     }

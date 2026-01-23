@@ -6,7 +6,7 @@ set -euo pipefail
 #
 # Creates a hybrid setup with:
 #   - Symlinks to global shared resources (AGENTS.md, experts, workflows, etc.)
-#   - Local per-project files (assessment.md, tasklist.md, verify_logs/)
+#   - Local per-project files (planning_docs/assessment.md, planning_docs/tasklist.md)
 #
 # Usage: marge-init [OPTIONS]
 #
@@ -71,16 +71,16 @@ fi
 echo "Initializing .marge/..."
 
 # Create directory structure
-mkdir -p "$TARGET_DIR/verify_logs"
+mkdir -p "$TARGET_DIR"
 
 # Symlink shared resources
 SHARED_LINKS=(
     "AGENTS.md"
     "assets"
+    "bak"
     "experts"
     "knowledge"
     "model_pricing.json"
-    "plans"
     "prompt_examples"
     "README.md"
     "scripts"
@@ -94,19 +94,25 @@ for item in "${SHARED_LINKS[@]}"; do
     fi
 done
 
-# Copy per-project templates
+# Create planning_docs directory and copy per-project templates
+PLANNING_DOCS_DIR="$TARGET_DIR/planning_docs"
+mkdir -p "$PLANNING_DOCS_DIR"
+
 TEMPLATE_FILES=(
     "assessment.md"
-    "instructions_log.md"
     "tasklist.md"
-    "verify.config.json"
 )
 
 for item in "${TEMPLATE_FILES[@]}"; do
     if [[ -e "$MARGE_HOME/templates/$item" ]]; then
-        cp "$MARGE_HOME/templates/$item" "$TARGET_DIR/"
+        cp "$MARGE_HOME/templates/$item" "$PLANNING_DOCS_DIR/"
     fi
 done
+
+# Copy verify.config.json to root
+if [[ -e "$MARGE_HOME/templates/verify.config.json" ]]; then
+    cp "$MARGE_HOME/templates/verify.config.json" "$TARGET_DIR/"
+fi
 
 # Update .gitignore
 if [[ "$UPDATE_GITIGNORE" -eq 1 ]]; then
@@ -138,15 +144,14 @@ echo "  ├── experts/            → $MARGE_HOME/shared/ (symlink)"
 echo "  ├── workflows/          → $MARGE_HOME/shared/ (symlink)"
 echo "  ├── scripts/            → $MARGE_HOME/shared/ (symlink)"
 echo "  ├── knowledge/          → $MARGE_HOME/shared/ (symlink)"
-echo "  ├── assessment.md       (local - per-project)"
-echo "  ├── tasklist.md         (local - per-project)"
-echo "  ├── verify.config.json  (local - per-project)"
-echo "  ├── instructions_log.md (local - per-project)"
-echo "  └── verify_logs/        (local - per-project)"
+echo "  ├── planning_docs/"
+echo "  │   ├── assessment.md   (local - per-project)"
+echo "  │   └── tasklist.md     (local - per-project)"
+echo "  └── verify.config.json  (local - per-project)"
 echo ""
 echo "Edit verify.config.json to configure your project's test commands."
 echo ""
 echo "Ready to use marge! Start with:"
 echo "  - Read .marge/AGENTS.md for workflow rules"
-echo "  - Add tasks to .marge/tasklist.md"
+echo "  - Add tasks to .marge/planning_docs/tasklist.md"
 echo "  - Run verification: ./.marge/scripts/verify.sh fast"

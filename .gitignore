@@ -1,4 +1,5 @@
 # Meta-development folder (for developing Marge itself)
+.meta_marge/
 .marge_meta/
 meta_marge/
 

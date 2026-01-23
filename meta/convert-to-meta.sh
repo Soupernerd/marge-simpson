@@ -1,17 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# convert-to-meta.sh — Creates .marge_meta/ for meta-development
+# convert-to-meta.sh — Creates .meta_marge/ for meta-development
 #
-# This script copies the current Marge folder to a sibling .marge_meta/ folder
-# and transforms internal references from .marge to .marge_meta.
+# This script copies the current Marge folder to a .meta_marge/ subfolder
+# inside the workspace for meta-development (improving Marge itself).
 #
-# Run this from inside a .marge folder (or any Marge folder at repo root).
-# It creates a meta-development copy for testing changes to Marge itself.
+# Run this from inside a Marge folder or repo root.
+# The .meta_marge/ folder is gitignored by default.
 #
 # Usage:
 #   ./meta/convert-to-meta.sh              # From repo root
-#   ../meta/convert-to-meta.sh             # From within a .marge folder
 #   ./meta/convert-to-meta.sh -f           # Force overwrite
 
 # Defaults
@@ -24,11 +23,11 @@ while [[ $# -gt 0 ]]; do
     -h|--help)
       echo "Usage: $0 [-f|--force]"
       echo ""
-      echo "Creates .marge_meta/ folder for meta-development."
+      echo "Creates .meta_marge/ folder for meta-development."
       echo "Run from within a Marge folder or repo root."
       echo ""
       echo "Options:"
-      echo "  -f, --force     Overwrite existing .marge_meta/ without prompting"
+      echo "  -f, --force     Overwrite existing .meta_marge/ without prompting"
       exit 0
       ;;
     *) shift ;;
@@ -48,22 +47,18 @@ fi
 # Detect source folder name
 SOURCE_NAME=$(basename "$SOURCE_FOLDER")
 
-# Handle common folder names
-if [[ "$SOURCE_NAME" == ".marge" ]]; then
-  TARGET_NAME=".marge_meta"
-elif [[ "$SOURCE_NAME" == "marge_simpson" ]]; then
-  TARGET_NAME="meta_marge"
-elif [[ "$SOURCE_NAME" == ".marge_meta" ]] || [[ "$SOURCE_NAME" == "meta_marge" ]]; then
+# Always use .meta_marge as the target name (standardized)
+TARGET_NAME=".meta_marge"
+
+# Check if we're already in a meta folder
+if [[ "$SOURCE_NAME" == ".meta_marge" ]] || [[ "$SOURCE_NAME" == ".marge_meta" ]] || [[ "$SOURCE_NAME" == "meta_marge" ]]; then
   echo "ERROR: Already in a meta-development folder ($SOURCE_NAME)"
   echo "This script creates the meta folder - you're already in one."
   exit 1
-else
-  # Generic case: append _meta
-  TARGET_NAME="${SOURCE_NAME}_meta"
 fi
 
-# Target is a sibling folder
-TARGET_FOLDER="$(dirname "$SOURCE_FOLDER")/$TARGET_NAME"
+# Target is INSIDE the source folder (not a sibling)
+TARGET_FOLDER="$SOURCE_FOLDER/$TARGET_NAME"
 
 echo ""
 echo "============================================================"
@@ -102,11 +97,11 @@ mkdir -p "$TARGET_FOLDER"
 
 # Use rsync if available for better exclusion, otherwise cp
 if command -v rsync &>/dev/null; then
-  rsync -a --exclude='.git' --exclude='node_modules' --exclude='.marge_meta' --exclude='meta_marge' "$SOURCE_FOLDER/" "$TARGET_FOLDER/"
+  rsync -a --exclude='.git' --exclude='node_modules' --exclude='.meta_marge' --exclude='.marge_meta' --exclude='meta_marge' "$SOURCE_FOLDER/" "$TARGET_FOLDER/"
 else
   cp -r "$SOURCE_FOLDER/." "$TARGET_FOLDER/"
   # Remove any nested meta folders that got copied
-  rm -rf "$TARGET_FOLDER/.git" "$TARGET_FOLDER/node_modules" "$TARGET_FOLDER/.marge_meta" "$TARGET_FOLDER/meta_marge" 2>/dev/null || true
+  rm -rf "$TARGET_FOLDER/.git" "$TARGET_FOLDER/node_modules" "$TARGET_FOLDER/.meta_marge" "$TARGET_FOLDER/.marge_meta" "$TARGET_FOLDER/meta_marge" 2>/dev/null || true
 fi
 
 # Text file extensions to transform
@@ -181,8 +176,8 @@ echo "  $TRANSFORMED_COUNT files transformed, $SKIPPED_COUNT skipped (binary/non
 # Reset work queues for fresh meta-development
 echo "[4/5] Resetting work queues..."
 
-# Reset assessment.md
-ASSESSMENT_PATH="$TARGET_FOLDER/assessment.md"
+# Reset planning_docs/assessment.md
+ASSESSMENT_PATH="$TARGET_FOLDER/planning_docs/assessment.md"
 if [[ -f "$ASSESSMENT_PATH" ]]; then
   cat > "$ASSESSMENT_PATH" << EOF
 # $TARGET_NAME Assessment
@@ -216,11 +211,11 @@ _None_
 
 _None_
 EOF
-  echo "  Reset: assessment.md"
+  echo "  Reset: planning_docs/assessment.md"
 fi
 
-# Reset tasklist.md
-TASKLIST_PATH="$TARGET_FOLDER/tasklist.md"
+# Reset planning_docs/tasklist.md
+TASKLIST_PATH="$TARGET_FOLDER/planning_docs/tasklist.md"
 if [[ -f "$TASKLIST_PATH" ]]; then
   cat > "$TASKLIST_PATH" << EOF
 # $TARGET_NAME Tasklist
@@ -247,21 +242,21 @@ _None_
 
 _None_
 EOF
-  echo "  Reset: tasklist.md"
+  echo "  Reset: planning_docs/tasklist.md"
 fi
 
-# Remove the conditional clause from AGENTS.md if present
+# Rewrite the AGENTS.md Scope section for meta-development
 AGENTS_PATH="$TARGET_FOLDER/AGENTS.md"
 if [[ -f "$AGENTS_PATH" ]]; then
-  # For meta folders, the folder IS the target, not excluded from audits
-  if grep -q "unless \`$TARGET_NAME/\` exists" "$AGENTS_PATH"; then
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-      sed -i '' "s/, unless \`${TARGET_NAME}\/\` exists and is being used to update Marge//g" "$AGENTS_PATH"
-    else
-      sed -i "s/, unless \`${TARGET_NAME}\/\` exists and is being used to update Marge//g" "$AGENTS_PATH"
-    fi
-    echo "  Updated: AGENTS.md (removed conditional clause)"
+  # Replace the entire Scope section with meta-specific version
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    sed -i '' 's/^1\. This folder.*IS the target.*$/1. The `'"$TARGET_NAME"'\/` folder is **excluded from audits** — it is the tooling, not the target./' "$AGENTS_PATH"
+    sed -i '' 's/^1\. This Marge folder.*excluded from audits.*$/1. The `'"$TARGET_NAME"'\/` folder is **excluded from audits** — it is the tooling, not the target./' "$AGENTS_PATH"
+  else
+    sed -i 's/^1\. This folder.*IS the target.*$/1. The `'"$TARGET_NAME"'\/` folder is **excluded from audits** — it is the tooling, not the target./' "$AGENTS_PATH"
+    sed -i 's/^1\. This Marge folder.*excluded from audits.*$/1. The `'"$TARGET_NAME"'\/` folder is **excluded from audits** — it is the tooling, not the target./' "$AGENTS_PATH"
   fi
+  echo "  Updated: AGENTS.md (scope section for meta-development)"
 fi
 
 # Verify the conversion

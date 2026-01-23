@@ -6,9 +6,9 @@ Run a system-wide audit of this workspace/repo (read-only).
 - Do not break intended functionality.
 
 Update/create tracking docs:
-- .marge/assessment.md (snapshot + findings + new MS issues)
-- .marge/tasklist.md (prioritized tasks with DoD + verification)
+- .marge/planning_docs/assessment.md (snapshot + findings + new MS issues)
+- .marge/planning_docs/tasklist.md (prioritized tasks with DoD + verification)
 
-After finished above, search for and list remaining unchecked items (if any exist) in .marge/tasklist.md (P0 → P1 → P2). Suggest order of operations.
+After finished above, search for and list remaining unchecked items (if any exist) in .marge/planning_docs/tasklist.md (P0 → P1 → P2). Suggest order of operations.
 
 Output using the Response Format (include IDs created).

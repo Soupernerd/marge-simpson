@@ -1,0 +1,23 @@
+Lets consider version 1.2.1 and work our way up slowly. lets go again
+
+Read the AGENTS.md file in the .marge folder and follow it.
+
+Instructions::
+- audit for perfection.
+- audit all supporting docs
+- audit all file path references
+- audit all workflow paths, ensure there are no broken chains in the workflow, search for files that never get touched (aside from those that are specifically meant to be invoked manually)
+- audit the cli worflow, make sure it is compatible with our base layer
+- audit anything that needs auditing
+- audit logic, trace that logic checking for breaks in the chain
+- exclude .meta_marge in the audits
+
+read only, update .meta_marge assessment and tasklist (etc) as you go
+
+Output using the Response Format (include IDs created). WITH DETAIL for the user to understand
+
+loop until clean min 60
+
+1 loop is anENTIRE audit of the workspace (excluding .meta_marge)
+
+in between each loop, fix the issues. do not stop between the loops. just audit, fix audit fix until yo uhit at least the min stated above, and keep looping beyind the min if there are still issues found until there are no more issues found.

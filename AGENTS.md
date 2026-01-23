@@ -3,8 +3,8 @@
 **Priority:** correctness > safety > minimal diffs > speed
 
 **Scope (CRITICAL):**
-1. This Marge folder (`.marge/` or similar) is **excluded from audits** — it is the tooling, not the target, unless `.marge_meta/` exists and is being used to update Marge.
-2. Audit the workspace/repo OUTSIDE this folder. Track findings HERE in `assessment.md` and `tasklist.md`.
+1. This folder (`marge-simpson/` or renamed) is the **Marge source repo** — it IS the target when `.meta_marge/` exists inside it. Otherwise, when installed as `.marge/` in a user project, this folder is excluded from audits.
+2. Audit the workspace/repo OUTSIDE this folder. Track findings HERE in `planning_docs/assessment.md` and `planning_docs/tasklist.md`.
 3. Never create Marge files outside this folder.
 
 ---
@@ -27,10 +27,9 @@
 
 | File | Purpose |
 |------|---------|
-| `assessment.md` | Findings + root cause + verification evidence |
-| `tasklist.md` | Work queue: backlog → in-progress → done |
-
-| `plans/[name]_MS-XXXX.md` | Feature plans (created for each feature) |
+| `planning_docs/assessment.md` | Findings + root cause + verification evidence |
+| `planning_docs/tasklist.md` | Work queue: backlog → in-progress → done |
+| `planning_docs/[name]_MS-XXXX.md` | Feature plans (created for each feature) |
 ```
 IMPLEMENT → VERIFY → RECORD → COMPLETE
 ```

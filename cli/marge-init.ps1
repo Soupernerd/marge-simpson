@@ -5,7 +5,7 @@
 .DESCRIPTION
     Creates a hybrid setup with:
     - Symlinks to global shared resources (AGENTS.md, experts, workflows, etc.)
-    - Local per-project files (assessment.md, tasklist.md, verify_logs/)
+    - Local per-project files (planning_docs/assessment.md, planning_docs/tasklist.md)
 
 .PARAMETER Force
     Overwrite existing .marge/ folder.
@@ -64,7 +64,7 @@ if (Test-Path $TargetDir) {
 Write-Host "Initializing .marge/..."
 
 # Create directory structure
-New-Item -ItemType Directory -Force -Path "$TargetDir\verify_logs" | Out-Null
+New-Item -ItemType Directory -Force -Path "$TargetDir" | Out-Null
 
 # Create symlinks to shared resources
 # Note: Creating symlinks on Windows may require admin privileges or Developer Mode
@@ -75,7 +75,6 @@ $SharedLinks = @(
     "experts",
     "knowledge",
     "model_pricing.json",
-    "plans",
     "prompt_examples",
     "README.md",
     "scripts",
@@ -106,19 +105,26 @@ foreach ($item in $SharedLinks) {
     }
 }
 
-# Copy per-project templates
+# Copy per-project templates into planning_docs/
+$PlanningDocsDir = "$TargetDir\planning_docs"
+New-Item -ItemType Directory -Path $PlanningDocsDir -Force | Out-Null
+
 $TemplateFiles = @(
     "assessment.md",
-    "instructions_log.md",
-    "tasklist.md",
-    "verify.config.json"
+    "tasklist.md"
 )
 
 foreach ($item in $TemplateFiles) {
     $srcPath = "$MargeHome\templates\$item"
     if (Test-Path $srcPath) {
-        Copy-Item -Force $srcPath "$TargetDir\"
+        Copy-Item -Force $srcPath "$PlanningDocsDir\"
     }
+}
+
+# Copy verify.config.json to root
+$verifyConfigSrc = "$MargeHome\templates\verify.config.json"
+if (Test-Path $verifyConfigSrc) {
+    Copy-Item -Force $verifyConfigSrc "$TargetDir\"
 }
 
 # Update .gitignore
@@ -154,15 +160,14 @@ Write-Host "  ├── experts\            → $MargeHome\shared\ $(if($Symlink
 Write-Host "  ├── workflows\          → $MargeHome\shared\ $(if($SymlinkFailed){'(copy)'}else{'(symlink)'})"
 Write-Host "  ├── scripts\            → $MargeHome\shared\ $(if($SymlinkFailed){'(copy)'}else{'(symlink)'})"
 Write-Host "  ├── knowledge\          → $MargeHome\shared\ $(if($SymlinkFailed){'(copy)'}else{'(symlink)'})"
-Write-Host "  ├── assessment.md       (local - per-project)"
-Write-Host "  ├── tasklist.md         (local - per-project)"
-Write-Host "  ├── verify.config.json  (local - per-project)"
-Write-Host "  ├── instructions_log.md (local - per-project)"
-Write-Host "  └── verify_logs\        (local - per-project)"
+Write-Host "  ├── planning_docs\"
+Write-Host "  │   ├── assessment.md   (local - per-project)"
+Write-Host "  │   └── tasklist.md     (local - per-project)"
+Write-Host "  └── verify.config.json  (local - per-project)"
 Write-Host ""
 Write-Host "Edit verify.config.json to configure your project's test commands."
 Write-Host ""
 Write-Host "Ready to use marge! Start with:"
 Write-Host "  - Read .marge\AGENTS.md for workflow rules"
-Write-Host "  - Add tasks to .marge\tasklist.md"
+Write-Host "  - Add tasks to .marge\planning_docs\tasklist.md"
 Write-Host "  - Run verification: .\.marge\scripts\verify.ps1 fast"

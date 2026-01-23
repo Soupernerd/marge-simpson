@@ -6,8 +6,8 @@ Reports on Marge tracking files and suggests archiving when they get large.
 This script auto-detects its own folder name, so you can rename the folder if needed.
 
 CLEANUP RULES:
-1. assessment.md  - Suggest archiving if large (no auto-modification)
-2. tasklist.md    - Suggest archiving if large (no auto-modification)
+1. planning_docs/assessment.md  - Suggest archiving if large (no auto-modification)
+2. planning_docs/tasklist.md    - Suggest archiving if large (no auto-modification)
 
 Usage:
   ./cleanup.ps1                    # Analyze and report
@@ -85,12 +85,12 @@ Write-Info "Repo Root: $repoRoot"
 Write-Info "Archive After: $ArchiveAfterDays days"
 
 # ==============================================================================
-# 1. Report on assessment.md
+# 1. Report on planning_docs/assessment.md
 # ==============================================================================
 
-Write-Section "Step 1/2: Analyzing assessment.md"
+Write-Section "Step 1/2: Analyzing planning_docs/assessment.md"
 
-$assessmentFile = Join-Path $margeDir "assessment.md"
+$assessmentFile = Join-Path $margeDir "planning_docs\assessment.md"
 
 if (Test-Path $assessmentFile) {
     $assessmentSize = (Get-Item $assessmentFile).Length
@@ -107,16 +107,16 @@ if (Test-Path $assessmentFile) {
     }
 }
 else {
-    Write-Info "No assessment.md found"
+    Write-Info "No planning_docs/assessment.md found"
 }
 
 # ==============================================================================
-# 2. Report on tasklist.md
+# 2. Report on planning_docs/tasklist.md
 # ==============================================================================
 
-Write-Section "Step 2/2: Analyzing tasklist.md"
+Write-Section "Step 2/2: Analyzing planning_docs/tasklist.md"
 
-$tasklistFile = Join-Path $margeDir "tasklist.md"
+$tasklistFile = Join-Path $margeDir "planning_docs\tasklist.md"
 
 if (Test-Path $tasklistFile) {
     $tasklistSize = (Get-Item $tasklistFile).Length
@@ -134,7 +134,7 @@ if (Test-Path $tasklistFile) {
     }
 }
 else {
-    Write-Info "No tasklist.md found"
+    Write-Info "No planning_docs/tasklist.md found"
 }
 
 Write-Host ""

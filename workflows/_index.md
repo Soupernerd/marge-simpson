@@ -4,15 +4,15 @@
 
 ## Scope Inference
 
-When both `.marge_meta/` and `.marge/` exist, paths can be ambiguous.
+When both `.meta_marge/` and `.marge/` exist, paths can be ambiguous.
 
 ### Rule: Ask When Ambiguous
 
 If the user references a shared path (e.g., "fix prompt_examples/", "update README.md"):
 
-> "I noticed you have both `.marge_meta/` and `.marge/`. Which folder should I apply this to?
+> "I noticed you have both `.meta_marge/` and `.marge/`. Which folder should I apply this to?
 > - `.marge/` (source of truth)
-> - `.marge_meta/` (working copy for meta-development)"
+> - `.meta_marge/` (working copy for meta-development)"
 
 ### When NOT Ambiguous
 
@@ -25,8 +25,8 @@ If the user references a shared path (e.g., "fix prompt_examples/", "update READ
 ### Tracking Always Follows AGENTS.md
 
 Whichever AGENTS.md you read determines where IDs go:
-- Read `.marge_meta/AGENTS.md` → IDs in `.marge_meta/tasklist.md`
-- Read `.marge/AGENTS.md` → IDs in `.marge/tasklist.md`
+- Read `.meta_marge/AGENTS.md` → IDs in `.meta_marge/planning_docs/tasklist.md`
+- Read `.marge/AGENTS.md` → IDs in `.marge/planning_docs/tasklist.md`
 
 ## Quick Reference
 

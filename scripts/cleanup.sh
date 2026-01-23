@@ -7,8 +7,8 @@ set -euo pipefail
 # This script auto-detects its own folder name, so you can rename the folder if needed.
 #
 # CLEANUP RULES:
-# 1. assessment.md  - Suggest archiving if large (no auto-modification)
-# 2. tasklist.md    - Suggest archiving if large (no auto-modification)
+# 1. planning_docs/assessment.md  - Suggest archiving if large (no auto-modification)
+# 2. planning_docs/tasklist.md    - Suggest archiving if large (no auto-modification)
 #
 # Usage:
 #   ./scripts/cleanup.sh                    # Analyze and report
@@ -44,12 +44,12 @@ echo "  archive_after: $ARCHIVE_AFTER_DAYS days"
 echo ""
 
 # ============================================================
-# 1. Report on assessment.md
+# 1. Report on planning_docs/assessment.md
 # ============================================================
 
-echo "[1/2] Analyzing assessment.md..."
+echo "[1/2] Analyzing planning_docs/assessment.md..."
 
-ASSESSMENT_FILE="$MARGE_DIR/assessment.md"
+ASSESSMENT_FILE="$MARGE_DIR/planning_docs/assessment.md"
 
 if [[ -f "$ASSESSMENT_FILE" ]]; then
   ASSESSMENT_SIZE=$(stat -c %s "$ASSESSMENT_FILE" 2>/dev/null || stat -f %z "$ASSESSMENT_FILE" 2>/dev/null)
@@ -64,18 +64,18 @@ if [[ -f "$ASSESSMENT_FILE" ]]; then
     echo "  Size is reasonable, no action needed"
   fi
 else
-  echo "  No assessment.md found"
+  echo "  No planning_docs/assessment.md found"
 fi
 
 echo ""
 
 # ============================================================
-# 2. Report on tasklist.md
+# 2. Report on planning_docs/tasklist.md
 # ============================================================
 
-echo "[2/2] Analyzing tasklist.md..."
+echo "[2/2] Analyzing planning_docs/tasklist.md..."
 
-TASKLIST_FILE="$MARGE_DIR/tasklist.md"
+TASKLIST_FILE="$MARGE_DIR/planning_docs/tasklist.md"
 
 if [[ -f "$TASKLIST_FILE" ]]; then
   TASKLIST_SIZE=$(stat -c %s "$TASKLIST_FILE" 2>/dev/null || stat -f %z "$TASKLIST_FILE" 2>/dev/null)
@@ -90,7 +90,7 @@ if [[ -f "$TASKLIST_FILE" ]]; then
     echo "  Size is reasonable, no action needed"
   fi
 else
-  echo "  No tasklist.md found"
+  echo "  No planning_docs/tasklist.md found"
 fi
 
 echo ""

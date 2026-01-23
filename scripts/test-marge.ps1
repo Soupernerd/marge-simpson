@@ -247,10 +247,26 @@ if ($bashAvailable) {
             }
         }
         
-        # Also check root-level CLI scripts
-        $rootScripts = @("marge", "marge-init", "install.sh", "install-global.sh", "convert-to-meta.sh")
-        foreach ($script in $rootScripts) {
-            $scriptPath = Join-Path $RepoRoot $script
+        # CLI scripts in cli/ folder
+        $cliScripts = @("marge", "marge-init", "install-global.sh")
+        foreach ($script in $cliScripts) {
+            $scriptPath = Join-Path $MsDir "cli\$script"
+            if (Test-Path $scriptPath) {
+                Test-Assert "$script passes shellcheck" {
+                    $shPath = $scriptPath -replace '\\', '/'
+                    if ($shPath -match '^([A-Za-z]):(.*)$') {
+                        $shPath = "/" + $Matches[1].ToLower() + $Matches[2]
+                    }
+                    $result = & shellcheck $shPath 2>&1
+                    $LASTEXITCODE -eq 0
+                }
+            }
+        }
+        
+        # Meta scripts in meta/ folder
+        $metaScripts = @("convert-to-meta.sh")
+        foreach ($script in $metaScripts) {
+            $scriptPath = Join-Path $MsDir "meta\$script"
             if (Test-Path $scriptPath) {
                 Test-Assert "$script passes shellcheck" {
                     $shPath = $scriptPath -replace '\\', '/'

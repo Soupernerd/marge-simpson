@@ -73,7 +73,6 @@ SHARED_FILES=(
     "experts"
     "knowledge"
     "model_pricing.json"
-    "plans"
     "prompt_examples"
     "README.md"
     "scripts"
@@ -87,19 +86,22 @@ for item in "${SHARED_FILES[@]}"; do
     fi
 done
 
-# Copy per-project templates
+# Copy per-project templates (from planning_docs/)
 TEMPLATE_FILES=(
     "assessment.md"
-    "instructions_log.md"
     "tasklist.md"
-    "verify.config.json"
 )
 
 for item in "${TEMPLATE_FILES[@]}"; do
-    if [[ -e "$REPO_ROOT/$item" ]]; then
-        cp "$REPO_ROOT/$item" "$INSTALL_DIR/templates/"
+    if [[ -e "$REPO_ROOT/planning_docs/$item" ]]; then
+        cp "$REPO_ROOT/planning_docs/$item" "$INSTALL_DIR/templates/"
     fi
 done
+
+# Copy verify.config.json from root
+if [[ -e "$REPO_ROOT/verify.config.json" ]]; then
+    cp "$REPO_ROOT/verify.config.json" "$INSTALL_DIR/templates/"
+fi
 
 # Install marge-init script
 cp "$SRC_DIR/marge-init" "$INSTALL_DIR/marge-init"
@@ -158,8 +160,8 @@ echo "  │   ├── workflows/"
 echo "  │   ├── scripts/"
 echo "  │   └── knowledge/"
 echo "  ├── templates/     # Per-project templates"
-echo "  │   ├── assessment.md"
-echo "  │   ├── tasklist.md"
+echo "  │   ├── assessment.md      (goes into planning_docs/)"
+echo "  │   ├── tasklist.md        (goes into planning_docs/)"
 echo "  │   └── verify.config.json"
 echo "  ├── marge          # CLI wrapper"
 echo "  └── marge-init     # Project initialization script"

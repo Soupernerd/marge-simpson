@@ -1,16 +1,16 @@
 <#
 .SYNOPSIS
-    Creates .marge_meta/ for meta-development.
+    Creates .meta_marge/ for meta-development.
 
 .DESCRIPTION
-    This script copies the current Marge folder to a sibling .marge_meta/ folder
-    and transforms internal references from .marge to .marge_meta.
+    This script copies the current Marge folder to a .meta_marge/ subfolder
+    inside the workspace for meta-development (improving Marge itself).
     
-    Run this from inside a .marge folder (or any Marge folder at repo root).
-    It creates a meta-development copy for testing changes to Marge itself.
+    Run this from inside a Marge folder or repo root.
+    The .meta_marge/ folder is gitignored by default.
 
 .PARAMETER Force
-    Overwrite existing .marge_meta/ folder without prompting.
+    Overwrite existing .meta_marge/ folder without prompting.
 
 .EXAMPLE
     .\meta\convert-to-meta.ps1
@@ -38,22 +38,18 @@ if ((Split-Path -Leaf $ScriptDir) -eq "meta") {
 # Detect source folder name
 $SourceName = Split-Path -Leaf $SourceFolder
 
-# Handle common folder names
-if ($SourceName -eq ".marge") {
-    $TargetName = ".marge_meta"
-} elseif ($SourceName -eq "marge_simpson") {
-    $TargetName = "meta_marge"
-} elseif ($SourceName -eq ".marge_meta" -or $SourceName -eq "meta_marge") {
+# Always use .meta_marge as the target name (standardized)
+$TargetName = ".meta_marge"
+
+# Check if we're already in a meta folder
+if ($SourceName -eq ".meta_marge" -or $SourceName -eq ".marge_meta" -or $SourceName -eq "meta_marge") {
     Write-Host "ERROR: Already in a meta-development folder ($SourceName)" -ForegroundColor Red
     Write-Host "This script creates the meta folder - you're already in one."
     exit 1
-} else {
-    # Generic case: append _meta
-    $TargetName = "${SourceName}_meta"
 }
 
-# Target is a sibling folder
-$TargetFolder = Join-Path (Split-Path -Parent $SourceFolder) $TargetName
+# Target is INSIDE the source folder (not a sibling)
+$TargetFolder = Join-Path $SourceFolder $TargetName
 
 Write-Host ""
 Write-Host "============================================================" -ForegroundColor Cyan
@@ -90,7 +86,7 @@ if (Test-Path $TargetFolder) {
 Write-Host "[2/5] Copying $SourceName -> $TargetName..."
 
 # Get all items excluding certain folders
-$excludeDirs = @('.git', 'node_modules', '.marge_meta', 'meta_marge')
+$excludeDirs = @('.git', 'node_modules', '.meta_marge', '.marge_meta', 'meta_marge')
 $items = Get-ChildItem -Path $SourceFolder -Recurse -Force | Where-Object {
     $exclude = $false
     foreach ($dir in $excludeDirs) {
@@ -195,8 +191,8 @@ Write-Host "  $TransformedCount files transformed, $SkippedCount skipped (binary
 # Reset work queues for fresh meta-development
 Write-Host "[4/5] Resetting work queues..."
 
-# Reset assessment.md
-$AssessmentPath = Join-Path $TargetFolder "assessment.md"
+# Reset planning_docs/assessment.md
+$AssessmentPath = Join-Path $TargetFolder "planning_docs\assessment.md"
 if (Test-Path $AssessmentPath) {
     $assessmentContent = @"
 # $TargetName Assessment
@@ -231,11 +227,11 @@ _None_
 _None_
 "@
     Set-Content -Path $AssessmentPath -Value $assessmentContent
-    Write-Host "  Reset: assessment.md"
+    Write-Host "  Reset: planning_docs/assessment.md"
 }
 
-# Reset tasklist.md
-$TasklistPath = Join-Path $TargetFolder "tasklist.md"
+# Reset planning_docs/tasklist.md
+$TasklistPath = Join-Path $TargetFolder "planning_docs\tasklist.md"
 if (Test-Path $TasklistPath) {
     $tasklistContent = @"
 # $TargetName Tasklist
@@ -261,21 +257,25 @@ _None_
 ## Done
 
 _None_
-"@
+\"@
     Set-Content -Path $TasklistPath -Value $tasklistContent
-    Write-Host "  Reset: tasklist.md"
+    Write-Host \"  Reset: planning_docs/tasklist.md\"
 }
 
-# Remove the conditional clause from AGENTS.md if present
+# Rewrite the AGENTS.md Scope section for meta-development
 $AgentsPath = Join-Path $TargetFolder "AGENTS.md"
 if (Test-Path $AgentsPath) {
     $agentsContent = Get-Content -Path $AgentsPath -Raw
-    $conditionalPattern = ", unless ``$TargetName/`` exists and is being used to update Marge"
-    if ($agentsContent -match [regex]::Escape($conditionalPattern)) {
-        $agentsContent = $agentsContent -replace [regex]::Escape($conditionalPattern), ""
-        Set-Content -Path $AgentsPath -Value $agentsContent -NoNewline
-        Write-Host "  Updated: AGENTS.md (removed conditional clause)"
-    }
+    
+    # Replace the scope line for meta-development
+    $newScopeLine = "1. The ``$TargetName/`` folder is **excluded from audits** — it is the tooling, not the target."
+    
+    # Match either the source repo scope or the generic .marge scope
+    $agentsContent = $agentsContent -replace '1\. This folder \(`[^`]+/` or renamed\) is the \*\*Marge source repo\*\* — it IS the target.*$', $newScopeLine
+    $agentsContent = $agentsContent -replace '1\. This Marge folder \(`\.marge/` or similar\) is \*\*excluded from audits\*\*.*$', $newScopeLine
+    
+    Set-Content -Path $AgentsPath -Value $agentsContent -NoNewline
+    Write-Host "  Updated: AGENTS.md (scope section for meta-development)"
 }
 
 # Verify the conversion

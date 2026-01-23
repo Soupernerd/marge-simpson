@@ -8,7 +8,7 @@ AI/Agents must read `AGENTS.md` before working.
 
 ## Tracking (required)
 - **Next ID:** MS-0001
-  - Use this for the next new Issue/Task ID, then increment here AND in `tasklist.md`.
+  - Use this for the next new Issue/Task ID, then increment here AND in `planning_docs/tasklist.md`.
 
 ---
 
@@ -49,7 +49,7 @@ AI/Agents must read `AGENTS.md` before working.
 ### [MS-0001] Short title
 - **Reported:** YYYY-MM-DD
 - **Status:** Todo / Doing / Done
-- **Expert(s):** (optional) Relevant expert persona(s) from `EXPERT_REGISTRY.md`
+- **Expert(s):** (optional) Relevant expert persona(s) from `experts/_index.md`
 - **Symptom:** What the user sees
 - **Root cause:** The actual cause (code-level)
 - **Fix:** What changed (brief)

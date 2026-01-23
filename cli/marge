@@ -64,12 +64,12 @@ ${BOLD}marge${RESET} v$VERSION - Autonomous AI coding loop
 ${BOLD}USAGE:${RESET}
   marge [options]              Run PRD tasks from PRD.md
   marge "<task>" [options]     Run a single task
-  marge meta "<task>"          Run task using .marge_meta folder
+  marge meta "<task>"          Run task using .meta_marge folder
 
 ${BOLD}EXAMPLES:${RESET}
   marge "fix the login bug"
   marge --loop --auto
-  marge --folder .marge_meta "run audit"
+  marge --folder .meta_marge "run audit"
   marge meta "run self-improvement audit"
   marge --parallel --max-parallel 3
   marge --engine aider --loop
@@ -99,7 +99,7 @@ ${BOLD}COMMANDS:${RESET}
   status              Show current status and progress
   config              Show config file contents
   resume              Resume from saved progress
-  meta                Shortcut for --folder .marge_meta
+  meta                Shortcut for --folder .meta_marge
 
 ${BOLD}CONFIG FILE:${RESET}
   Place .marge/config.yaml in your project:
@@ -379,8 +379,8 @@ auto_commit() {
 }
 
 is_task_complete() {
-    local tasklist="./$MARGE_FOLDER/tasklist.md"
-    local assessment="./$MARGE_FOLDER/assessment.md"
+    local tasklist="./$MARGE_FOLDER/planning_docs/tasklist.md"
+    local assessment="./$MARGE_FOLDER/planning_docs/assessment.md"
 
     [[ -f "$tasklist" ]] && grep -q "\[ \]" "$tasklist" && return 1
     [[ -f "$assessment" ]] && grep -iqE "(clean|complete|no issues)" "$assessment" && return 0
@@ -407,7 +407,7 @@ run_task() {
 Instruction:
 - ${task}$([[ "$LOOP" == true ]] && echo " Loop until complete.")
 
-After finished, list remaining unchecked items in $MARGE_FOLDER/tasklist.md."
+After finished, list remaining unchecked items in $MARGE_FOLDER/planning_docs/tasklist.md."
 
     if [[ "$DRY_RUN" == true ]]; then
         echo "${CYAN}Would run:${RESET} $(build_engine_cmd "$ENGINE") \"<prompt>\""
@@ -679,11 +679,14 @@ while [[ $# -gt 0 ]]; do
         -h|--help|help) print_usage; exit 0 ;;
         init) init_config; exit 0 ;;
         meta)
-            # Try .marge_meta first (new naming), fall back to meta_marge (legacy)
-            if [[ -d ".marge_meta" ]]; then
+            # Try .meta_marge first (standardized), fall back to legacy names
+            if [[ -d ".meta_marge" ]]; then
+                MARGE_FOLDER=".meta_marge"
+            elif [[ -d ".marge_meta" ]]; then
                 MARGE_FOLDER=".marge_meta"
             else
-                MARGE_FOLDER="meta_marge"
+                # Default to new standardized name even if it doesn't exist yet
+                MARGE_FOLDER=".meta_marge"
             fi
             shift ;;
         status)

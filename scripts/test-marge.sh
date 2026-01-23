@@ -81,8 +81,16 @@ if command -v shellcheck &>/dev/null; then
             test_assert "$script_name passes shellcheck" "$SHELLCHECK_RESULT" || true
         fi
     done
-    # Root-level CLI scripts
-    for script in "$REPO_ROOT/marge" "$REPO_ROOT/marge-init" "$REPO_ROOT/install.sh" "$REPO_ROOT/install-global.sh" "$REPO_ROOT/convert-to-meta.sh"; do
+    # CLI scripts in cli/ folder
+    for script in "$MS_DIR/cli/marge" "$MS_DIR/cli/marge-init" "$MS_DIR/cli/install-global.sh"; do
+        if [[ -f "$script" ]]; then
+            script_name=$(basename "$script")
+            SHELLCHECK_RESULT=$(shellcheck "$script" 2>&1 && echo 0 || echo 1)
+            test_assert "$script_name passes shellcheck" "$SHELLCHECK_RESULT" || true
+        fi
+    done
+    # Meta scripts in meta/ folder
+    for script in "$MS_DIR/meta/convert-to-meta.sh"; do
         if [[ -f "$script" ]]; then
             script_name=$(basename "$script")
             SHELLCHECK_RESULT=$(shellcheck "$script" 2>&1 && echo 0 || echo 1)
@@ -138,8 +146,8 @@ test_assert "AGENTS.md contains verification reference" "$HAS_VERIFY_REF" || tru
 HAS_MS_ID=$(echo "$AGENTS_CONTENT" | grep -qE "MS-[0-9]{4}|MS-####" && echo 0 || echo 1)
 test_assert "AGENTS.md contains MS-#### tracking ID format" "$HAS_MS_ID" || true
 
-# Meta-specific test: If this is meta_marge, check for audit exclusion rule
-if [[ "$MS_FOLDER_NAME" == "meta_marge" ]]; then
+# Meta-specific test: If this is a meta folder, check for audit exclusion rule
+if [[ "$MS_FOLDER_NAME" == ".meta_marge" ]] || [[ "$MS_FOLDER_NAME" == "meta_marge" ]] || [[ "$MS_FOLDER_NAME" == ".marge_meta" ]]; then
     HAS_EXCLUSION=$(echo "$AGENTS_CONTENT" | grep -q "excluded from audits" && echo 0 || echo 1)
     test_assert "AGENTS.md contains meta audit exclusion rule" "$HAS_EXCLUSION" || true
 fi

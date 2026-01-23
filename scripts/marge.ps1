@@ -105,7 +105,7 @@ function Invoke-Init {
 
     # Create directories
     New-Item -ItemType Directory -Path $margeDir -Force | Out-Null
-    New-Item -ItemType Directory -Path "$margeDir\verify_logs" -Force | Out-Null
+    New-Item -ItemType Directory -Path "$margeDir\planning_docs" -Force | Out-Null
 
     # Create symlinks (Windows requires admin or developer mode)
     try {
@@ -162,7 +162,7 @@ function Invoke-Init {
 ## Issues Log
 
 (Issues will be logged here with MS-#### IDs)
-"@ | Out-File -FilePath "$margeDir\assessment.md" -Encoding utf8
+"@ | Out-File -FilePath "$margeDir\planning_docs\assessment.md" -Encoding utf8
 
     @"
 # Task List
@@ -191,15 +191,7 @@ function Invoke-Init {
 
 ## Done
 (None)
-"@ | Out-File -FilePath "$margeDir\tasklist.md" -Encoding utf8
-
-    @"
-# Instructions Log
-
-> Append-only log of user instructions. Never edit, only append.
-
----
-"@ | Out-File -FilePath "$margeDir\instructions_log.md" -Encoding utf8
+"@ | Out-File -FilePath "$margeDir\planning_docs\tasklist.md" -Encoding utf8
 
     @"
 {
@@ -211,9 +203,8 @@ function Invoke-Init {
     Write-Host "Marge initialized successfully!" -ForegroundColor Green
     Write-Host ""
     Write-Host "Created:"
-    Write-Host "  - $margeDir\assessment.md"
-    Write-Host "  - $margeDir\tasklist.md"
-    Write-Host "  - $margeDir\instructions_log.md"
+    Write-Host "  - $margeDir\planning_docs\assessment.md"
+    Write-Host "  - $margeDir\planning_docs\tasklist.md"
     Write-Host "  - $margeDir\verify.config.json"
     Write-Host ""
     Write-Host "Add " -NoNewline
@@ -286,7 +277,7 @@ function Invoke-Status {
     Write-Banner
 
     $statusScript = "$projectRoot\.marge\scripts\status.ps1"
-    $taskList = "$projectRoot\.marge\tasklist.md"
+    $taskList = "$projectRoot\.marge\planning_docs\tasklist.md"
 
     if (Test-Path $statusScript) {
         & $statusScript
