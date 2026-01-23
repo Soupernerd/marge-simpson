@@ -17,7 +17,6 @@ set -euo pipefail
 SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MS_DIR="$(cd "$SCRIPTS_DIR/.." && pwd)"
 MS_FOLDER_NAME="$(basename "$MS_DIR")"
-REPO_ROOT="$(cd "$MS_DIR/.." && pwd)"
 
 # Colors
 RED='\033[0;31m'

@@ -57,8 +57,8 @@ adapt_command() {
       # Check if the .sh equivalent exists
       if [[ -f "$ROOT_DIR/$sh_path" ]] || [[ -f "$sh_path" ]]; then
         # Replace powershell invocation with bash
-        cmd=$(echo "$cmd" | sed 's|powershell -ExecutionPolicy Bypass -File ||g')
-        cmd=$(echo "$cmd" | sed "s|$ps1_path|$sh_path|g")
+        cmd="${cmd//powershell -ExecutionPolicy Bypass -File /}"
+        cmd="${cmd//$ps1_path/$sh_path}"
         say "[cross-platform] Adapted: $cmd"
       else
         say "[warning] No bash equivalent found for: $ps1_path"
@@ -149,7 +149,7 @@ detect_node_commands() {
 }
 
 detect_python_commands() {
-  ( [[ -f "$ROOT_DIR/pyproject.toml" ]] || [[ -f "$ROOT_DIR/requirements.txt" ]] || [[ -f "$ROOT_DIR/setup.py" ]] || [[ -f "$ROOT_DIR/setup.cfg" ]] ) || return 0
+  { [[ -f "$ROOT_DIR/pyproject.toml" ]] || [[ -f "$ROOT_DIR/requirements.txt" ]] || [[ -f "$ROOT_DIR/setup.py" ]] || [[ -f "$ROOT_DIR/setup.cfg" ]]; } || return 0
   have python || return 0
 
   # Only run pytest if there are likely tests.
@@ -193,7 +193,7 @@ detect_java_commands() {
     echo "./gradlew test"
     return 0
   fi
-  if ( [[ -f "$ROOT_DIR/build.gradle" ]] || [[ -f "$ROOT_DIR/build.gradle.kts" ]] ) && have gradle; then
+  if { [[ -f "$ROOT_DIR/build.gradle" ]] || [[ -f "$ROOT_DIR/build.gradle.kts" ]]; } && have gradle; then
     echo "gradle test"
     return 0
   fi

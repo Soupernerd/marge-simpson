@@ -11,7 +11,6 @@
 
 set -e
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MARGE_HOME="${MARGE_HOME:-$HOME/.marge}"
 SHARED_DIR="$MARGE_HOME/shared"
 
