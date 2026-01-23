@@ -1,13 +1,15 @@
 <#
 .SYNOPSIS
-    Validates PowerShell and Bash script syntax.
+    Validates PowerShell and Bash script syntax, plus ShellCheck linting.
 
 .DESCRIPTION
     Parses all .ps1 and .sh files in the repository to catch syntax errors
-    before they cause runtime failures. This prevents issues like:
+    before they cause runtime failures. Also runs ShellCheck on shell scripts
+    to catch common issues like:
     - Escaped quote problems in here-strings
     - Invalid variable references
     - Encoding issues with special characters (em-dashes, etc.)
+    - ShellCheck warnings (SC codes) that fail CI
 
 .EXAMPLE
     .\scripts\test-syntax.ps1
@@ -31,7 +33,8 @@ $FailedFiles = 0
 $Errors = @()
 
 # Validate PowerShell files
-Write-Host "[1/2] Checking PowerShell (.ps1) files..." -ForegroundColor Yellow
+Write-Host ""
+Write-Host "[1/3] Checking PowerShell (.ps1) files..." -ForegroundColor Yellow
 
 $ps1Files = Get-ChildItem -Path $RepoRoot -Filter "*.ps1" -Recurse -File | Where-Object {
     $_.FullName -notlike "*\.meta_marge\*" -and
@@ -71,7 +74,7 @@ foreach ($file in $ps1Files) {
 
 # Validate Bash files (if bash is available)
 Write-Host ""
-Write-Host "[2/2] Checking Bash (.sh) files..." -ForegroundColor Yellow
+Write-Host "[2/3] Checking Bash (.sh) files..." -ForegroundColor Yellow
 
 # Check if bash is available and functional (not just WSL without distro)
 $bashAvailable = $false
@@ -133,6 +136,58 @@ if (-not $bashAvailable) {
             $FailedFiles++
             $Errors += "  [FAIL] $relativePath : $($_.Exception.Message)"
             Write-Host "  [FAIL] $relativePath" -ForegroundColor Red
+        }
+    }
+}
+
+# ShellCheck linting (if available)
+Write-Host ""
+Write-Host "[3/3] Running ShellCheck on shell scripts..." -ForegroundColor Yellow
+
+$shellcheckCmd = Get-Command "shellcheck" -ErrorAction SilentlyContinue
+if (-not $shellcheckCmd) {
+    Write-Host "  [SKIP] shellcheck not available (install: winget install koalaman.shellcheck)" -ForegroundColor Yellow
+} else {
+    # Get all shell scripts
+    $shellScripts = @()
+    
+    # .sh files
+    $shellScripts += Get-ChildItem -Path $RepoRoot -Filter "*.sh" -Recurse -File | Where-Object {
+        $_.FullName -notlike "*\.meta_marge\*" -and
+        $_.FullName -notlike "*\node_modules\*"
+    }
+    
+    # Extensionless files with bash shebang
+    $noExtFiles = Get-ChildItem -Path $RepoRoot -File -Recurse | Where-Object {
+        $_.Extension -eq "" -and
+        $_.FullName -notlike "*\.meta_marge\*" -and
+        $_.FullName -notlike "*\node_modules\*" -and
+        $_.FullName -notlike "*\.git\*"
+    }
+    
+    foreach ($file in $noExtFiles) {
+        $firstLine = Get-Content -Path $file.FullName -First 1 -ErrorAction SilentlyContinue
+        if ($firstLine -match "^#!.*bash") {
+            $shellScripts += $file
+        }
+    }
+    
+    foreach ($file in $shellScripts) {
+        $relativePath = $file.FullName.Substring($RepoRoot.Length + 1)
+        
+        try {
+            $result = shellcheck $file.FullName 2>&1
+            if ($LASTEXITCODE -eq 0) {
+                Write-Host "  [PASS] $relativePath" -ForegroundColor Green
+            } else {
+                $FailedFiles++
+                $Errors += "  [FAIL] $relativePath : ShellCheck errors (run: shellcheck $relativePath)"
+                Write-Host "  [FAIL] $relativePath" -ForegroundColor Red
+                # Show first few lines of shellcheck output
+                $result | Select-Object -First 5 | ForEach-Object { Write-Host "         $_" -ForegroundColor DarkRed }
+            }
+        } catch {
+            Write-Host "  [WARN] $relativePath : Could not run shellcheck" -ForegroundColor Yellow
         }
     }
 }
