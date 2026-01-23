@@ -130,7 +130,8 @@ show_spinner() {
     local output_file="$1"
     local task="$2"
     local pid="$3"
-    local start_time=$(date +%s)
+    local start_time
+    start_time=$(date +%s)
     local spinstr='⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'
     local spin_idx=0
     local current_step="Working"
@@ -403,7 +404,8 @@ parse_prd() {
 
 run_task() {
     local task="$1" num="${2:-1}" workdir="${3:-.}"
-    local task_start_time=$(date +%s)
+    local task_start_time
+    task_start_time=$(date +%s)
 
     # Only show task info in verbose mode - spinner shows task info
     log_debug "Task $num: $task"
@@ -419,7 +421,8 @@ run_task() {
         fi
     fi
 
-    local prompt="Read the AGENTS.md file in the $MARGE_FOLDER folder and follow it.
+    local prompt
+    prompt="Read the AGENTS.md file in the $MARGE_FOLDER folder and follow it.
 
 Instruction:
 - ${task}$([[ "$LOOP" == true ]] && echo " Loop until complete.")
@@ -431,7 +434,8 @@ After finished, list remaining unchecked items in $MARGE_FOLDER/tasklist.md."
         return 0
     fi
 
-    local cmd=$(build_engine_cmd "$ENGINE")
+    local cmd
+    cmd=$(build_engine_cmd "$ENGINE")
     local retry=0
     local output_file="/tmp/marge_output_$$.txt"
     local ai_pid
@@ -463,7 +467,8 @@ After finished, list remaining unchecked items in $MARGE_FOLDER/tasklist.md."
         fi
 
         if [[ $exit_code -eq 0 ]]; then
-            local task_end_time=$(date +%s)
+            local task_end_time
+            task_end_time=$(date +%s)
             local task_duration=$((task_end_time - task_start_time))
             local duration_mins=$((task_duration / 60))
             local duration_secs=$((task_duration % 60))
@@ -567,7 +572,8 @@ run_prd() {
         for i in "${!tasks[@]}"; do
             local task="${tasks[$i]}"
             local num=$((i+1))
-            local slug=$(slugify "$task")
+            local slug
+            slug=$(slugify "$task")
 
             while [[ $running -ge $MAX_PARALLEL ]]; do
                 wait -n 2>/dev/null || true
@@ -589,7 +595,8 @@ run_prd() {
             ((iteration++))
 
             if [[ "$BRANCH_PER_TASK" == true ]]; then
-                local slug=$(slugify "$task")
+                local slug
+                slug=$(slugify "$task")
                 git checkout -b "marge/$slug" 2>/dev/null || git checkout "marge/$slug" 2>/dev/null || true
             fi
 
@@ -615,7 +622,8 @@ run_prd() {
 
 print_session_summary() {
     local iter_count="${1:-0}"
-    local session_end_time=$(date +%s)
+    local session_end_time
+    session_end_time=$(date +%s)
     local total_duration=$((session_end_time - session_start_time))
     local total_mins=$((total_duration / 60))
     local total_secs=$((total_duration % 60))
@@ -722,6 +730,7 @@ load_config
 # Parse args
 POSITIONAL=()
 while [[ $# -gt 0 ]]; do
+    # shellcheck disable=SC2034  # AUTO and FAST are reserved for future engine features
     case "$1" in
         --auto) AUTO=true; shift ;;
         --dry-run) DRY_RUN=true; shift ;;
