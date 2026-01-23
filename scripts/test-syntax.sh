@@ -79,9 +79,55 @@ while IFS= read -r -d '' file; do
     fi
 done < <(find "$REPO_ROOT" -type f ! -name "*.*" -print0)
 
+# ShellCheck linting (if available)
+echo ""
+echo -e "${YELLOW}[2/3] Running ShellCheck on Bash files...${NC}"
+
+SHELLCHECK_FAILED=0
+if ! command -v shellcheck &>/dev/null; then
+    echo -e "  ${YELLOW}[SKIP]${NC} shellcheck not available (install: apt install shellcheck / brew install shellcheck)"
+else
+    while IFS= read -r -d '' file; do
+        # Skip .meta_marge and node_modules
+        if [[ "$file" == *"/.meta_marge/"* ]] || [[ "$file" == *"/node_modules/"* ]]; then
+            continue
+        fi
+        
+        rel_path="${file#"$REPO_ROOT"/}"
+        
+        if shellcheck "$file" 2>/dev/null; then
+            echo -e "  ${GREEN}[PASS]${NC} $rel_path"
+        else
+            ((SHELLCHECK_FAILED++)) || true
+            ((FAILED_FILES++)) || true
+            ERRORS+=("  [FAIL] $rel_path : ShellCheck errors (run: shellcheck $rel_path)")
+            echo -e "  ${RED}[FAIL]${NC} $rel_path"
+        fi
+    done < <(find "$REPO_ROOT" -name "*.sh" -type f -print0)
+    
+    # Also check extensionless bash scripts
+    while IFS= read -r -d '' file; do
+        if [[ "$file" == *"/.meta_marge/"* ]] || [[ "$file" == *"/node_modules/"* ]] || [[ "$file" == *"/.git/"* ]]; then
+            continue
+        fi
+        first_line=$(head -n 1 "$file" 2>/dev/null || true)
+        if [[ "$first_line" =~ ^#!.*bash ]]; then
+            rel_path="${file#"$REPO_ROOT"/}"
+            if shellcheck "$file" 2>/dev/null; then
+                echo -e "  ${GREEN}[PASS]${NC} $rel_path"
+            else
+                ((SHELLCHECK_FAILED++)) || true
+                ((FAILED_FILES++)) || true
+                ERRORS+=("  [FAIL] $rel_path : ShellCheck errors")
+                echo -e "  ${RED}[FAIL]${NC} $rel_path"
+            fi
+        fi
+    done < <(find "$REPO_ROOT" -type f ! -name "*.*" -print0)
+fi
+
 # Validate PowerShell files (if pwsh is available)
 echo ""
-echo -e "${YELLOW}[2/2] Checking PowerShell (.ps1) files...${NC}"
+echo -e "${YELLOW}[3/3] Checking PowerShell (.ps1) files...${NC}"
 
 if ! command -v pwsh &>/dev/null; then
     echo -e "  ${YELLOW}[SKIP]${NC} pwsh not available on this system"

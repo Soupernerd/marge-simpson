@@ -44,6 +44,9 @@ say() {
 adapt_command() {
   local cmd="$1"
   
+  # Convert Windows backslashes to forward slashes
+  cmd="${cmd//\\//}"
+  
   # If command references a .ps1 file, try to find equivalent .sh
   if [[ "$cmd" =~ \.ps1 ]] && ! have powershell && ! have pwsh; then
     # Extract the .ps1 file path
@@ -54,14 +57,18 @@ adapt_command() {
       # Convert to .sh path
       local sh_path="${ps1_path%.ps1}.sh"
       
-      # Check if the .sh equivalent exists
-      if [[ -f "$ROOT_DIR/$sh_path" ]] || [[ -f "$sh_path" ]]; then
-        # Replace powershell invocation with bash
-        cmd="${cmd//powershell -ExecutionPolicy Bypass -File /}"
+      # Check if the .sh equivalent exists (try both relative and from ROOT_DIR)
+      local sh_full_path="$ROOT_DIR/$sh_path"
+      # Remove leading ./ if present for the check
+      sh_full_path="${sh_full_path/\/.\//\/}"
+      
+      if [[ -f "$sh_full_path" ]] || [[ -f "$sh_path" ]]; then
+        # Replace .ps1 with .sh
         cmd="${cmd//$ps1_path/$sh_path}"
         say "[cross-platform] Adapted: $cmd"
       else
-        say "[warning] No bash equivalent found for: $ps1_path"
+        say "[warning] No bash equivalent found for: $ps1_path (tried $sh_full_path)"
+        return 1
       fi
     fi
   fi
