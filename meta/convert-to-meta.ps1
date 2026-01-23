@@ -89,7 +89,7 @@ Write-Host "[2/5] Copying $SourceName -> $TargetName..."
 $excludeDirs = @('.git', 'node_modules', '.meta_marge', '.marge_meta', 'meta_marge', 'cli', 'meta', 'assets', '.github')
 
 # Files to exclude (not needed for meta-development)
-$excludeFiles = @('README.md', 'CHANGELOG.md', 'VERSION', 'LICENSE', 'model_pricing.json', '.gitignore', '.gitattributes')
+$excludeFiles = @('README.md', 'CHANGELOG.md', 'VERSION', 'LICENSE', '.gitignore', '.gitattributes')
 
 $items = Get-ChildItem -Path $SourceFolder -Recurse -Force | Where-Object {
     $exclude = $false

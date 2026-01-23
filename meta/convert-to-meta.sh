@@ -111,7 +111,6 @@ if command -v rsync &>/dev/null; then
     --exclude='CHANGELOG.md' \
     --exclude='VERSION' \
     --exclude='LICENSE' \
-    --exclude='model_pricing.json' \
     --exclude='.gitignore' \
     --exclude='.gitattributes' \
     "$SOURCE_FOLDER/" "$TARGET_FOLDER/"
@@ -122,7 +121,7 @@ else
          "$TARGET_FOLDER/.marge_meta" "$TARGET_FOLDER/meta_marge" "$TARGET_FOLDER/cli" \
          "$TARGET_FOLDER/meta" "$TARGET_FOLDER/assets" "$TARGET_FOLDER/.github" 2>/dev/null || true
   rm -f "$TARGET_FOLDER/README.md" "$TARGET_FOLDER/CHANGELOG.md" "$TARGET_FOLDER/VERSION" \
-        "$TARGET_FOLDER/LICENSE" "$TARGET_FOLDER/model_pricing.json" \
+        "$TARGET_FOLDER/LICENSE" \
         "$TARGET_FOLDER/.gitignore" "$TARGET_FOLDER/.gitattributes" 2>/dev/null || true
 fi
 
