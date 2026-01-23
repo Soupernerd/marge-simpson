@@ -5,7 +5,7 @@ Read the AGENTS.md file in the .meta_marge folder and follow it.
 Instructions::
 - Audit the .meta_marge assessment and tasklist files. look for solid reasoning in the actions taken
 - audit marge-simpson and compare it to your assessment and tasklist file audit above, make sure all actions taken were good decisions
-- find an expert for the above, in the experts files of .mets_marge folder
+- find an expert for the above, in the experts files of .meta_marge folder
 audit the newly added cli functions, make sure they are up to part with the intended functionality. reference whatever docs you need to acertsian inteded functionality
 - figure something out with the prd.md file in root. I dont know what that file is but perhaps it belongs in planning_docs folder? Ill let you decide. check what requires it also to make sure we need it and or whatever system that uses it is working well. its new so Im unfamiliar with it, I suspect its part of the recently merged cli features from another dev
 - when conflicts exist, pick the option that makes the most sense, not based on ease of implementation but based on what makes a more robust system as a hole. or look at the audit and infer which conflict if any wins out

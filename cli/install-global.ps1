@@ -91,13 +91,23 @@ if (Test-Path $verifyConfig) {
     Copy-Item -Force $verifyConfig "$InstallDir\templates\"
 }
 
-# Install marge-init script
+# Install marge-init scripts
 Copy-Item -Force (Join-Path $SrcDir "marge-init.ps1") "$InstallDir\marge-init.ps1"
+$margeInitBash = Join-Path $SrcDir "marge-init"
+if (Test-Path $margeInitBash) {
+    Copy-Item -Force $margeInitBash "$InstallDir\marge-init"
+}
 
 # Install marge CLI wrapper (bash script - works in WSL/Git Bash)
 $margeCli = Join-Path $SrcDir "marge"
 if (Test-Path $margeCli) {
     Copy-Item -Force $margeCli "$InstallDir\marge"
+}
+
+# Install marge CLI wrapper (PowerShell - native Windows)
+$margePs1 = Join-Path $SrcDir "marge.ps1"
+if (Test-Path $margePs1) {
+    Copy-Item -Force $margePs1 "$InstallDir\marge.ps1"
 }
 
 # Validate installation

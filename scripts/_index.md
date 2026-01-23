@@ -12,7 +12,6 @@
 | **cleanup.ps1 / .sh** | Remove generated files | Before commits, fresh start |
 | **status.ps1 / .sh** | Dashboard view | Quick health check |
 | **decay.ps1 / .sh** | Find stale knowledge entries | Periodic maintenance |
-| **marge.ps1** | Simple CLI wrapper (Windows) | Alternative to cli/marge.ps1 |
 
 ## Common Commands
 

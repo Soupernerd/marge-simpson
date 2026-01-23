@@ -107,9 +107,14 @@ fi
 cp "$SRC_DIR/marge-init" "$INSTALL_DIR/marge-init"
 chmod +x "$INSTALL_DIR/marge-init"
 
-# Install marge CLI wrapper
+# Install marge CLI wrapper (bash)
 cp "$SRC_DIR/marge" "$INSTALL_DIR/marge"
 chmod +x "$INSTALL_DIR/marge"
+
+# Install marge CLI wrapper (PowerShell - for Windows/WSL users)
+if [[ -e "$SRC_DIR/marge.ps1" ]]; then
+    cp "$SRC_DIR/marge.ps1" "$INSTALL_DIR/marge.ps1"
+fi
 
 # Create convenience symlinks in ~/.local/bin if it exists or can be created
 LOCAL_BIN="${HOME}/.local/bin"
