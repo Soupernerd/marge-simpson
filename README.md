@@ -241,8 +241,8 @@ marge meta "run self-improvement"      # Shortcut for meta development
 
 # PRD mode (run tasks from planning_docs/PRD.md)
 marge                                  # Run all tasks from planning_docs/PRD.md
-marge --parallel --max-parallel 3      # Run tasks in parallel
-marge --branch-per-task --create-pr    # Git workflow automation
+marge --parallel --max-parallel 3      # Run tasks in parallel (bash only)
+marge --branch-per-task --create-pr    # Git workflow automation (bash only)
 
 # Loop mode
 marge "full cleanup" --loop            # Iterate until complete
@@ -264,13 +264,14 @@ marge config                           # Show config file
 | `--model <model>` | Override model (sonnet, opus, haiku) |
 | `--engine <e>` | AI engine: claude, opencode, codex, aider |
 | `--fast` | Skip verification steps |
+| `--full` | Force full AGENTS.md (even for one-off tasks) |
 | `--loop` | Keep iterating until task complete |
 | `--max-iterations N` | Max iterations (default: 20) |
 | `--max-retries N` | Max retries per task (default: 3) |
-| `--parallel` | Run tasks in parallel using git worktrees |
-| `--max-parallel N` | Max concurrent tasks (default: 3) |
-| `--branch-per-task` | Create separate git branch for each task |
-| `--create-pr` | Create PR when done (requires gh CLI) |
+| `--parallel` | Run tasks in parallel using git worktrees *(bash only)* |
+| `--max-parallel N` | Max concurrent tasks (default: 3) *(bash only)* |
+| `--branch-per-task` | Create separate git branch for each task *(bash only)* |
+| `--create-pr` | Create PR when done (requires gh CLI) *(bash only)* |
 | `--no-commit` | Disable auto-commit |
 | `-v, --verbose` | Debug output |
 | `--version` | Show version |

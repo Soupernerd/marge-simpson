@@ -104,6 +104,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `.meta_marge/` - Self-development working copy (gitignored)
 - Changes flow: `marge_simpson/` → `.meta_marge/` → validate → back to `marge_simpson/`
 
+[1.3.0]: https://github.com/Soupernerd/marge-simpson/compare/v1.2.2...v1.3.0
 [1.2.2]: https://github.com/Soupernerd/marge-simpson/compare/v1.2.1...v1.2.2
 [1.2.1]: https://github.com/Soupernerd/marge-simpson/compare/v1.1.0...v1.2.1
 [1.1.0]: https://github.com/Soupernerd/marge-simpson/compare/v1.0.0...v1.1.0

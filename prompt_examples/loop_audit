@@ -1,13 +1,17 @@
-Read the AGENTS.md file in this folder and follow it.
+Read the .meta_marge/AGENTS.md file and follow it.
 
 Instructions:
-- Audit the assessment and tasklist files in planning_docs/. Look for solid reasoning in the actions taken
-- Audit the workspace and compare it to your assessment and tasklist audit above, make sure all actions taken were good decisions
-- Find an expert for the above in the experts/ folder
+- do not audit .meta_marge, but do reference its tasklist and assessment files
+- Find an expert for for every audit task in the experts folder
+- Audit the new features added and exiting features
+- Audit the workspace and compare it to meta assessment and tasklist audit, make sure all actions that would benefit us, were taken. list them here if there are any
+- Make sure all actions taken, benefited us
 - Audit CLI functions, ensure they match intended functionality. Reference docs as needed.
 - When conflicts exist, pick the option that makes the most sense based on what creates a more robust system, not ease of implementation
+- bring all supporting documentation up to date. dont change supporting docs in any major way as I like the way they all are atm, simply amedn or lightly eit to bring them up to date/up to par
+- Great end user experience and access to funcitonality is the paramount directive
 
-Read-only, update assessment.md and tasklist.md (etc) as you go
+update assessment.md and tasklist.md (etc) as you go
 
 Loop until clean, minimum 20 iterations.
 
