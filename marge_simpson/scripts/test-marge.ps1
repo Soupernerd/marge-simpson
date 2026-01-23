@@ -231,21 +231,36 @@ if ($bashAvailable) {
     }
     
     if ($shellcheckAvailable) {
-        Test-Assert "verify.sh passes shellcheck" {
-            $shPath = (Join-Path $ScriptsDir "verify.sh") -replace '\\', '/'
-            if ($shPath -match '^([A-Za-z]):(.*)$') {
-                $shPath = "/" + $Matches[1].ToLower() + $Matches[2]
+        # Test all shell scripts in scripts/ folder
+        $shellScripts = @("verify.sh", "cleanup.sh", "decay.sh", "status.sh", "test-marge.sh")
+        foreach ($script in $shellScripts) {
+            $scriptPath = Join-Path $ScriptsDir $script
+            if (Test-Path $scriptPath) {
+                Test-Assert "$script passes shellcheck" {
+                    $shPath = $scriptPath -replace '\\', '/'
+                    if ($shPath -match '^([A-Za-z]):(.*)$') {
+                        $shPath = "/" + $Matches[1].ToLower() + $Matches[2]
+                    }
+                    $result = & shellcheck $shPath 2>&1
+                    $LASTEXITCODE -eq 0
+                }
             }
-            $result = & shellcheck $shPath 2>&1
-            $LASTEXITCODE -eq 0
         }
-        Test-Assert "cleanup.sh passes shellcheck" {
-            $shPath = (Join-Path $ScriptsDir "cleanup.sh") -replace '\\', '/'
-            if ($shPath -match '^([A-Za-z]):(.*)$') {
-                $shPath = "/" + $Matches[1].ToLower() + $Matches[2]
+        
+        # Also check root-level CLI scripts
+        $rootScripts = @("marge", "marge-init", "install.sh", "install-global.sh", "convert-to-meta.sh")
+        foreach ($script in $rootScripts) {
+            $scriptPath = Join-Path $RepoRoot $script
+            if (Test-Path $scriptPath) {
+                Test-Assert "$script passes shellcheck" {
+                    $shPath = $scriptPath -replace '\\', '/'
+                    if ($shPath -match '^([A-Za-z]):(.*)$') {
+                        $shPath = "/" + $Matches[1].ToLower() + $Matches[2]
+                    }
+                    $result = & shellcheck $shPath 2>&1
+                    $LASTEXITCODE -eq 0
+                }
             }
-            $result = & shellcheck $shPath 2>&1
-            $LASTEXITCODE -eq 0
         }
     } else {
         Write-Host "    [SKIP] " -NoNewline -ForegroundColor DarkYellow

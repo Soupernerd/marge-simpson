@@ -65,6 +65,33 @@ VERIFY_SYNTAX=$(bash -n "$SCRIPTS_DIR/verify.sh" 2>&1 && echo 0 || echo 1)
 test_assert "verify.sh valid syntax" "$VERIFY_SYNTAX" || true
 CLEANUP_SYNTAX=$(bash -n "$SCRIPTS_DIR/cleanup.sh" 2>&1 && echo 0 || echo 1)
 test_assert "cleanup.sh valid syntax" "$CLEANUP_SYNTAX" || true
+DECAY_SYNTAX=$(bash -n "$SCRIPTS_DIR/decay.sh" 2>&1 && echo 0 || echo 1)
+test_assert "decay.sh valid syntax" "$DECAY_SYNTAX" || true
+STATUS_SYNTAX=$(bash -n "$SCRIPTS_DIR/status.sh" 2>&1 && echo 0 || echo 1)
+test_assert "status.sh valid syntax" "$STATUS_SYNTAX" || true
+
+# ShellCheck linting (if available)
+if command -v shellcheck &>/dev/null; then
+    echo ""
+    echo "[2b/6] ShellCheck linting..."
+    for script in "$SCRIPTS_DIR"/*.sh; do
+        if [[ -f "$script" ]]; then
+            script_name=$(basename "$script")
+            SHELLCHECK_RESULT=$(shellcheck "$script" 2>&1 && echo 0 || echo 1)
+            test_assert "$script_name passes shellcheck" "$SHELLCHECK_RESULT" || true
+        fi
+    done
+    # Root-level CLI scripts
+    for script in "$REPO_ROOT/marge" "$REPO_ROOT/marge-init" "$REPO_ROOT/install.sh" "$REPO_ROOT/install-global.sh" "$REPO_ROOT/convert-to-meta.sh"; do
+        if [[ -f "$script" ]]; then
+            script_name=$(basename "$script")
+            SHELLCHECK_RESULT=$(shellcheck "$script" 2>&1 && echo 0 || echo 1)
+            test_assert "$script_name passes shellcheck" "$SHELLCHECK_RESULT" || true
+        fi
+    done
+else
+    echo "  [SKIP] ShellCheck not installed (optional: apt install shellcheck)"
+fi
 echo ""
 
 # Test 3: Folder name detection
