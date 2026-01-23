@@ -193,32 +193,46 @@ foreach ($file in $files) {
 
 Write-Host "  $TransformedCount files transformed, $SkippedCount skipped (binary/non-text)"
 
-# Transform prompt_examples to use explicit .meta_marge paths
+# Transform prompt_examples and README.md to use explicit .meta_marge paths
+# This ensures embedded prompt templates reference the correct locations
+function MetaTransformFile {
+    param([string]$FilePath)
+    
+    if (-not (Test-Path $FilePath)) { return }
+    
+    try {
+        $content = Get-Content -Path $FilePath -Raw -ErrorAction Stop
+        $originalContent = $content
+        
+        # Make AGENTS.md reference explicit for meta-development
+        $content = $content -replace 'Read the AGENTS\.md file in this folder', 'Read the .meta_marge/AGENTS.md file'
+        $content = $content -replace 'AGENTS\.md file in this folder', '.meta_marge/AGENTS.md file'
+        
+        # Make planning_docs paths explicit
+        $content = $content -replace '(?<!\.)planning_docs/', '.meta_marge/planning_docs/'
+        
+        if ($content -ne $originalContent) {
+            Set-Content -Path $FilePath -Value $content -NoNewline
+            $relativePath = $FilePath.Substring($TargetFolder.Length + 1)
+            Write-Host "  Meta-transformed: $relativePath"
+        }
+    } catch {
+        # Skip files that can't be read
+    }
+}
+
+# Transform prompt_examples/
 $PromptExamplesDir = Join-Path $TargetFolder "prompt_examples"
 if (Test-Path $PromptExamplesDir) {
     $promptFiles = Get-ChildItem -Path $PromptExamplesDir -File -Recurse | Where-Object { $_.Extension -match '\.(md|txt)$' -or $_.Extension -eq '' }
     foreach ($file in $promptFiles) {
-        try {
-            $content = Get-Content -Path $file.FullName -Raw -ErrorAction Stop
-            $originalContent = $content
-            
-            # Make AGENTS.md reference explicit for meta-development
-            $content = $content -replace 'Read the AGENTS\.md file in this folder', 'Read the .meta_marge/AGENTS.md file'
-            $content = $content -replace 'AGENTS\.md file in this folder', '.meta_marge/AGENTS.md file'
-            
-            # Make planning_docs paths explicit
-            $content = $content -replace '(?<!\.)planning_docs/', '.meta_marge/planning_docs/'
-            
-            if ($content -ne $originalContent) {
-                Set-Content -Path $file.FullName -Value $content -NoNewline
-                $relativePath = $file.FullName.Substring($TargetFolder.Length + 1)
-                Write-Host "  Meta-transformed: $relativePath"
-            }
-        } catch {
-            # Skip files that can't be read
-        }
+        MetaTransformFile -FilePath $file.FullName
     }
 }
+
+# Transform README.md (has embedded prompt templates)
+$ReadmePath = Join-Path $TargetFolder "README.md"
+MetaTransformFile -FilePath $ReadmePath
 
 # Reset work queues for fresh meta-development
 Write-Host "[4/5] Resetting work queues..."

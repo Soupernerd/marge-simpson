@@ -182,31 +182,41 @@ done < <(find "$TARGET_FOLDER" -type f -print0)
 
 echo "  $TRANSFORMED_COUNT files transformed, $SKIPPED_COUNT skipped (binary/non-text)"
 
-# Transform prompt_examples to use explicit .meta_marge paths
+# Transform prompt_examples and README.md to use explicit .meta_marge paths
+# This ensures embedded prompt templates reference the correct locations
+meta_transform_file() {
+  local file="$1"
+  if [[ -f "$file" ]]; then
+    content=$(cat "$file" 2>/dev/null) || return
+    original_content="$content"
+    
+    # Make AGENTS.md reference explicit for meta-development
+    content=${content//"Read the AGENTS.md file in this folder"/"Read the .meta_marge/AGENTS.md file"}
+    content=${content//"AGENTS.md file in this folder"/".meta_marge/AGENTS.md file"}
+    
+    # Make planning_docs paths explicit (only if not already prefixed)
+    content=$(echo "$content" | sed -E 's/([^.])planning_docs\//\1.meta_marge\/planning_docs\//g')
+    content=$(echo "$content" | sed -E 's/^planning_docs\//.meta_marge\/planning_docs\//g')
+    
+    if [[ "$content" != "$original_content" ]]; then
+      echo "$content" > "$file"
+      rel_path="${file#"$TARGET_FOLDER"/}"
+      echo "  Meta-transformed: $rel_path"
+    fi
+  fi
+}
+
+# Transform prompt_examples/
 PROMPT_EXAMPLES_DIR="$TARGET_FOLDER/prompt_examples"
 if [[ -d "$PROMPT_EXAMPLES_DIR" ]]; then
   while IFS= read -r -d '' file; do
-    if [[ -f "$file" ]]; then
-      content=$(cat "$file" 2>/dev/null) || continue
-      original_content="$content"
-      
-      # Make AGENTS.md reference explicit for meta-development
-      content=${content//"Read the AGENTS.md file in this folder"/"Read the .meta_marge/AGENTS.md file"}
-      content=${content//"AGENTS.md file in this folder"/".meta_marge/AGENTS.md file"}
-      
-      # Make planning_docs paths explicit (only if not already prefixed)
-      # Use sed for this more complex replacement
-      content=$(echo "$content" | sed -E 's/([^.])planning_docs\//\1.meta_marge\/planning_docs\//g')
-      content=$(echo "$content" | sed -E 's/^planning_docs\//.meta_marge\/planning_docs\//g')
-      
-      if [[ "$content" != "$original_content" ]]; then
-        echo "$content" > "$file"
-        rel_path="${file#"$TARGET_FOLDER"/}"
-        echo "  Meta-transformed: $rel_path"
-      fi
-    fi
+    meta_transform_file "$file"
   done < <(find "$PROMPT_EXAMPLES_DIR" -type f \( -name "*.md" -o -name "*.txt" -o ! -name "*.*" \) -print0)
 fi
+
+# Transform README.md (has embedded prompt templates)
+README_PATH="$TARGET_FOLDER/README.md"
+meta_transform_file "$README_PATH"
 
 # Reset work queues for fresh meta-development
 echo "[4/5] Resetting work queues..."
