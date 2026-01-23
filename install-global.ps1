@@ -97,6 +97,12 @@ if (Test-Path $margeCli) {
     Copy-Item -Force $margeCli "$InstallDir\marge"
 }
 
+# Install marge PowerShell CLI
+$margePs1 = Join-Path $Src "scripts\marge.ps1"
+if (Test-Path $margePs1) {
+    Copy-Item -Force $margePs1 "$InstallDir\marge.ps1"
+}
+
 # Validate installation
 Write-Host "Validating installation..."
 $Required = @(
