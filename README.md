@@ -10,23 +10,31 @@
 
 ---
 
+## Two Ways to Use Marge
+
+| Method | Best For | How |
+|--------|----------|-----|
+| 💬 **IDE Chat Prompts** | Interactive work, questions, debugging | Paste prompts into VS Code Copilot, Cursor, etc. |
+| 🖥️ **CLI (Terminal)** | Automation, batch tasks, headless runs | Run `marge "task"` from terminal |
+
+---
+
 ## Install (30 seconds)
 
-### Option A: Drop-in (per-project)
+### Option A: Drop-in (per-project) — for 💬 Chat Prompts
 
 1. Copy just the **`marge_simpson/`** folder into your repo root
-2. Use a prompt template below
+2. Use a prompt template from the [Chat Prompts](#-ide-chat-prompts) section below
 
 > **💡 Renamed the folder?** Replace `marge_simpson` with your folder name in prompts.
 
-### Option B: Global Install (multi-project)
+### Option B: Global Install (multi-project) — for 🖥️ CLI
 
 For users working across multiple repos who want:
 - **Clean repos** — `marge_simpson/` is gitignored, not committed
 - **Shared resources** — experts, workflows, and knowledge shared globally
 - **Per-project tracking** — MS-IDs and logs isolated per project
 
-**Install globally:**
 ```bash
 # macOS/Linux
 ./install-global.sh
@@ -35,12 +43,23 @@ For users working across multiple repos who want:
 .\install-global.ps1
 ```
 
-**Use the CLI:**
+---
+
+# 🖥️ CLI (Terminal Commands)
+
+> **Use when:** You want headless automation, batch processing, or to run tasks without opening an IDE.
+
+## Basic Usage
+
 ```bash
 # Single task mode
 marge "fix the login bug"              # Run task with spinner + timer
 marge "add dark mode" --model opus     # Override model
 marge "audit codebase" --dry-run       # Preview without executing
+
+# Target different folders
+marge --folder meta_marge "run audit"  # Use meta_marge instead of marge_simpson
+marge meta "run self-improvement"      # Shortcut for --folder meta_marge
 
 # PRD mode (run tasks from PRD.md)
 marge                                  # Run all tasks from PRD.md
@@ -58,9 +77,11 @@ marge resume                           # Resume from saved progress
 marge config                           # Show config file
 ```
 
-**Options:**
+## CLI Options
+
 | Flag | Description |
 |------|-------------|
+| `--folder <dir>` | Target Marge folder (default: marge_simpson) |
 | `--dry-run` | Preview prompt without launching claude |
 | `--model <model>` | Override model (sonnet, opus, haiku) |
 | `--engine <e>` | AI engine: claude, opencode, codex, aider |
@@ -76,14 +97,18 @@ marge config                           # Show config file
 | `-v, --verbose` | Debug output |
 | `--version` | Show version |
 
+**Environment Variables:**
+- `MARGE_HOME` — Installation directory (default: `~/.marge`)
+- `MARGE_FOLDER` — Default target folder (default: `marge_simpson`)
+
+## How the CLI Works
+
 The `marge` command:
 1. Auto-initializes `marge_simpson/` if not present
 2. Launches `claude` in non-interactive mode (`-p` flag)
 3. Shows a spinner with timer while working (Simpsons-themed colors!)
 4. Displays token usage and cost after completion
 5. Claude follows AGENTS.md rules, tracks work with MS-IDs, verifies changes
-
----
 
 ## PRD Mode (Task Lists)
 
@@ -108,9 +133,7 @@ marge --parallel         # Runs tasks in parallel (git worktrees)
 marge --dry-run          # Preview tasks without executing
 ```
 
----
-
-## Config File
+## CLI Config File
 
 Place `.marge/config.yaml` in your project to set defaults:
 
@@ -120,9 +143,8 @@ model: ""                # sonnet, opus, haiku (or leave empty)
 max_iterations: 20
 max_retries: 3
 auto_commit: true
+folder: marge_simpson    # default target folder
 ```
-
----
 
 ## Progress & Resume
 
@@ -133,7 +155,15 @@ marge status             # Check current progress
 marge resume             # Continue from where you left off
 ```
 
----
+## CLI UX Features
+
+| Feature | Description |
+|---------|-------------|
+| **Spinner** | Animated progress indicator with Marge's hair blue 💙 |
+| **Timer** | Shows elapsed time `[MM:SS]` |
+| **Step Detection** | Working → Reading → Writing → Testing → Committing |
+| **Token Display** | Shows input/output tokens and cost after completion |
+| **Notifications** | Desktop notifications on completion (Linux/macOS) |
 
 ## Smart Project Detection
 
@@ -144,24 +174,13 @@ Marge auto-detects your project type:
 - **Python** — `requirements.txt` or `pyproject.toml`
 - **Ruby** — `Gemfile`
 
----
+## Global Install Structure
 
-## UX Features
-
-| Feature | Description |
-|---------|-------------|
-| **Spinner** | Animated progress indicator with Marge's hair blue 💙 |
-| **Timer** | Shows elapsed time `[MM:SS]` |
-| **Step Detection** | Working → Reading → Writing → Testing → Committing |
-| **Token Display** | Shows input/output tokens and cost after completion |
-| **Notifications** | Desktop notifications on completion (Linux/macOS) |
-
-This creates `marge_simpson/` with:
+After `install-global.sh`, running `marge-init` in any project creates `marge_simpson/` with:
 - **Symlinks** to `~/.marge/shared/` (AGENTS.md, experts, workflows, scripts)
 - **Local copies** of tracking files (assessment.md, tasklist.md, verify.config.json)
 - Auto-adds `marge_simpson/` to `.gitignore`
 
-**Structure:**
 ```
 ~/.marge/
 ├── shared/           # Symlinked to all projects
@@ -174,7 +193,7 @@ This creates `marge_simpson/` with:
 │   ├── assessment.md
 │   ├── tasklist.md
 │   └── verify.config.json
-├── marge             # CLI wrapper (marge run, marge status, etc.)
+├── marge             # CLI wrapper
 └── marge-init        # Project initialization script
 ```
 
@@ -182,9 +201,13 @@ This creates `marge_simpson/` with:
 
 ---
 
-## Iterative Loop Mode (optional, for when you want to have some fun)
+# 💬 IDE Chat Prompts
 
-Add a loop phrase to any prompt and Marge will keep iterating until the work is complete.
+> **Use when:** You're working interactively in VS Code, Cursor, or another IDE with AI chat. Copy-paste these prompts into your chat window.
+
+## 💬 Iterative Loop Mode (optional)
+
+Add a loop phrase to any chat prompt and Marge will keep iterating until the work is complete.
 
 > **🔄 Quick start:** Add `loop until clean` to any prompt template below.
 >
@@ -194,7 +217,7 @@ Add a loop phrase to any prompt and Marge will keep iterating until the work is 
 
 ---
 
-## Prompt Templates
+## 💬 Prompt Templates
 
 ### 🔍 System Audit
 *Use first, or periodically to refresh the plan.*
@@ -273,7 +296,7 @@ Output using the Response Format (include IDs created).
 ---
 
 ### 📝 Have MARGE Suggest Features
-*Give direct instructions without needing a feature/issue format.*
+*Let Marge propose new features based on your codebase.*
 
 ```
 Read and follow the rules in `marge_simpson/AGENTS.md`.
@@ -285,7 +308,7 @@ Goal: Propose new features for this project.
 Requirements:
 - Suggest 3–8 viable feature ideas.
 - Rank them highest → lowest by end-user UX / value (UX/value is the primary decision factor).
-- Do not prioritize “easy to build” unless it also clearly improves UX/value.
+- Do not prioritize "easy to build" unless it also clearly improves UX/value.
 - Do not treat anything as approved—these are proposals only.
 
 For each feature (keep it concise):
@@ -297,7 +320,7 @@ For each feature (keep it concise):
 
 Output format:
 1) Ranked list of features
-2) A short “Top pick summary” (2–4 lines) explaining why the #1–#2 options win on UX/value
+2) A short "Top pick summary" (2–4 lines) explaining why the #1–#2 options win on UX/value
 
 Update/append/create tracking doc:
 - marge_simpson/recommended_features.md (with the bullet points created per feature)
@@ -332,6 +355,26 @@ Output using the Response Format (include IDs created).
 
 ---
 
+## 💬 Pro Tips for Chat
+
+### Deep Reasoning ("Ultrathink")
+For complex problems, debugging, or architectural decisions, you can request extended reasoning:
+- "Think extra hard about this"
+- "Take your time reasoning through this"
+- "Use extended thinking for this problem"
+
+This prompts the model to reason more deeply before responding.
+
+### Fresh Context for Long Sessions
+After very long conversations (50+ exchanges), reasoning quality may degrade due to context accumulation. Consider:
+- Starting a fresh conversation for new major features
+- Using session_end workflow to capture knowledge before restarting
+- Keeping focused conversations (one major topic per chat)
+
+---
+
+# Reference
+
 ## What It Does
 
 | Behavior | Description |
@@ -345,9 +388,7 @@ Output using the Response Format (include IDs created).
 - `tasklist.md` — what's left / doing / done
 - `assessment.md` — root cause notes + verification evidence
 
----
-
-## What's Inside
+## What's Inside marge_simpson/
 
 | File | Purpose |
 |------|---------|
@@ -358,9 +399,7 @@ Output using the Response Format (include IDs created).
 | `scripts/test-marge.ps1` / `test-marge.sh` | Self-test suite |
 | `prompt_examples/` | Ready-to-copy templates |
 
----
-
-## Configuration
+## Test Configuration
 
 Custom test commands in `verify.config.json`:
 

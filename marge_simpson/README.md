@@ -1,6 +1,6 @@
 # Marge Simpson - sMITten Recursive Context + Experts
 
-# Includes Automated Testing 🛠️
+# Includes Automated Testing 
 
 **Full Featured - Drop-in AI workflow for automated audits, bug fixes, new feature suggestion/implementation and testing - for any codebase.**
 
@@ -13,27 +13,31 @@
 ## Install (30 seconds)
 
 1. Copy just the **`marge_simpson/`** folder into your repo root
-2. Use a prompt template below
+2. Use a prompt template from the [Chat Prompts](#-ide-chat-prompts) section below
 
-> **💡 Renamed the folder?** Replace `marge_simpson` with your folder name in prompts.
-
----
-
-## Iterative Loop Mode (optional, for when you want to have some fun)
-
-Add a loop phrase to any prompt and Marge will keep iterating until the work is complete.
-
-> **🔄 Quick start:** Add `loop until clean` to any prompt template below.
->
-> **⚙️ Control iterations:** Add `min 3` or `max 10` to set bounds.
->
-> See [prompt_examples/](marge_simpson/prompt_examples/) for ready-to-use templates with looping.
+> ** Renamed the folder?** Replace `marge_simpson` with your folder name in prompts.
 
 ---
 
-## Prompt Templates
+#  IDE Chat Prompts
 
-### 🔍 System Audit
+> **Use when:** You're working interactively in VS Code, Cursor, or another IDE with AI chat. Copy-paste these prompts into your chat window.
+
+##  Iterative Loop Mode (optional)
+
+Add a loop phrase to any chat prompt and Marge will keep iterating until the work is complete.
+
+> ** Quick start:** Add `loop until clean` to any prompt template below.
+>
+> ** Control iterations:** Add `min 3` or `max 10` to set bounds.
+>
+> See [prompt_examples/](./prompt_examples/) for ready-to-use templates with looping.
+
+---
+
+##  Prompt Templates
+
+###  System Audit
 *Use first, or periodically to refresh the plan.*
 
 ```
@@ -48,14 +52,14 @@ Update/create tracking docs:
 - marge_simpson/assessment.md (snapshot + findings + new MS issues)
 - marge_simpson/tasklist.md (prioritized tasks with DoD + verification)
 
-After finished above, search for and list remaining unchecked items (if any exist) in marge_simpson/tasklist.md (P0 → P1 → P2). Suggest order of operations.
+After finished above, search for and list remaining unchecked items (if any exist) in marge_simpson/tasklist.md (P0  P1  P2). Suggest order of operations.
 
 Output using the Response Format (include IDs created).
 ```
 
 ---
 
-### 🐛 Features & Issues
+###  Features & Issues
 *Report bugs or request features. Each becomes tracked work.*
 
 ```
@@ -66,14 +70,14 @@ New Feature / Issues:
 - Example / New Issue: "The right hand side nav is not expanding as expected"
 - Example / Existing issue not fixed: "MS-0046 is still exhibiting [insert issue here]"
 
-After finished above, search for and list remaining unchecked items (if any exist) in marge_simpson/tasklist.md (P0 → P1 → P2). Suggest order of operations.
+After finished above, search for and list remaining unchecked items (if any exist) in marge_simpson/tasklist.md (P0  P1  P2). Suggest order of operations.
 
 Output using the Response Format (include IDs created).
 ```
 
 ---
 
-### 📝 Instructions
+###  Instructions
 *Give direct instructions without needing a feature/issue format.*
 
 ```
@@ -83,14 +87,14 @@ Instruction:
 - (your instruction here)
 - (another instruction here)
 
-After finished above, search for and list remaining unchecked items (if any exist) in marge_simpson/tasklist.md (P0 → P1 → P2). Suggest order of operations.
+After finished above, search for and list remaining unchecked items (if any exist) in marge_simpson/tasklist.md (P0  P1  P2). Suggest order of operations.
 
 Output using the Response Format (include IDs created).
 ```
 
 ---
 
-### ❓ Questions & Confirmations
+###  Questions & Confirmations
 *Ask questions or confirm fixes. Quick answers grounded in code.*
 
 ```
@@ -102,15 +106,15 @@ Questions / Confirmations:
 3. Example Confirmation: "MS-00xx fixed"
 4. Example Question: "Are there alternatives to codemirror?"
 
-After finished above, search for and list remaining unchecked items (if any exist) in marge_simpson/tasklist.md (P0 → P1 → P2). Suggest order of operations.
+After finished above, search for and list remaining unchecked items (if any exist) in marge_simpson/tasklist.md (P0  P1  P2). Suggest order of operations.
 
 Output using the Response Format (include IDs created).
 ```
 
 ---
 
-### 📝 Have MARGE Suggest Features
-*Give direct instructions without needing a feature/issue format.*
+###  Have MARGE Suggest Features
+*Let Marge propose new features based on your codebase.*
 
 ```
 Read and follow the rules in `marge_simpson/AGENTS.md`.
@@ -120,21 +124,21 @@ MODE: PLANNING ONLY (no code changes, no patches, no execution).
 Goal: Propose new features for this project.
 
 Requirements:
-- Suggest 3–8 viable feature ideas.
-- Rank them highest → lowest by end-user UX / value (UX/value is the primary decision factor).
-- Do not prioritize “easy to build” unless it also clearly improves UX/value.
-- Do not treat anything as approved—these are proposals only.
+- Suggest 38 viable feature ideas.
+- Rank them highest  lowest by end-user UX / value (UX/value is the primary decision factor).
+- Do not prioritize "easy to build" unless it also clearly improves UX/value.
+- Do not treat anything as approvedthese are proposals only.
 
 For each feature (keep it concise):
 - Name (short)
-- What it does (1–2 sentences)
+- What it does (12 sentences)
 - Who it helps / why it matters (1 sentence)
 - Biggest risk or dependency (1 bullet)
 - How you would validate success (1 bullet; user-facing metric or acceptance criteria)
 
 Output format:
 1) Ranked list of features
-2) A short “Top pick summary” (2–4 lines) explaining why the #1–#2 options win on UX/value
+2) A short "Top pick summary" (24 lines) explaining why the #1#2 options win on UX/value
 
 Update/append/create tracking doc:
 - marge_simpson/recommended_features.md (with the bullet points created per feature)
@@ -144,7 +148,7 @@ Minimize follow-up questions. If info is missing, make reasonable assumptions an
 
 ---
 
-### 🔀 Combined Prompts (mix and match at will)
+###  Combined Prompts (mix and match at will)
 *Mix questions and issues in one prompt for efficiency.*
 
 ```
@@ -162,25 +166,45 @@ New Feature / Issues:
 - (New Feature or Issue here)
 - (New Feature or Issue here)
 
-After finished above, search for and list remaining unchecked items (if any exist) in marge_simpson/tasklist.md (P0 → P1 → P2). Suggest order of operations.
+After finished above, search for and list remaining unchecked items (if any exist) in marge_simpson/tasklist.md (P0  P1  P2). Suggest order of operations.
 
 Output using the Response Format (include IDs created).
 ```
 
 ---
 
+##  Pro Tips for Chat
+
+### Deep Reasoning ("Ultrathink")
+For complex problems, debugging, or architectural decisions, you can request extended reasoning:
+- "Think extra hard about this"
+- "Take your time reasoning through this"
+- "Use extended thinking for this problem"
+
+This prompts the model to reason more deeply before responding.
+
+### Fresh Context for Long Sessions
+After very long conversations (50+ exchanges), reasoning quality may degrade due to context accumulation. Consider:
+- Starting a fresh conversation for new major features
+- Using session_end workflow to capture knowledge before restarting
+- Keeping focused conversations (one major topic per chat)
+
+---
+
+# Reference
+
 ## What It Does
 
 | Behavior | Description |
 |----------|-------------|
 | **Reads first** | Opens files before making claims |
-| **Tracks work** | Every fix gets an ID (`MS-0001`, `MS-0002`, …) |
+| **Tracks work** | Every fix gets an ID (`MS-0001`, `MS-0002`, ) |
 | **Verifies** | Runs tests automatically after each fix |
 | **Stays focused** | Minimal diffs, root cause fixes |
 
 **Two source-of-truth files:**
-- `tasklist.md` — what's left / doing / done
-- `assessment.md` — root cause notes + verification evidence
+- `tasklist.md`  what's left / doing / done
+- `assessment.md`  root cause notes + verification evidence
 
 ---
 
@@ -190,7 +214,7 @@ Output using the Response Format (include IDs created).
 |------|---------|
 | `AGENTS.md` | Rules the assistant follows |
 | `assessment.md` | Findings + root cause + verification |
-| `tasklist.md` | Prioritized tasks (backlog → done) |
+| `tasklist.md` | Prioritized tasks (backlog  done) |
 | `plans/` | Feature plan files (one per feature) |
 | `scripts/verify.ps1` / `verify.sh` | Automated test runner |
 | `scripts/test-marge.ps1` / `test-marge.sh` | Self-test suite |
@@ -238,38 +262,20 @@ No config? Scripts auto-detect Node, Python, Go, Rust, .NET, Java.
 
 ---
 
-## Pro Tips
-
-### Deep Reasoning ("Ultrathink")
-For complex problems, debugging, or architectural decisions, you can request extended reasoning:
-- "Think extra hard about this"
-- "Take your time reasoning through this"
-- "Use extended thinking for this problem"
-
-This prompts the model to reason more deeply before responding.
-
-### Fresh Context for Long Sessions
-After very long conversations (50+ exchanges), reasoning quality may degrade due to context accumulation. Consider:
-- Starting a fresh conversation for new major features
-- Using session_end workflow to capture knowledge before restarting
-- Keeping focused conversations (one major topic per chat)
-
----
-
 ## Repository Architecture
 
 This repository has a **dual-folder architecture**:
 
 | Folder | Purpose | When to Use |
 |--------|---------|-------------|
-| `marge_simpson/` | **Production template** — copy this to your repos | End users installing Marge |
-| `meta_marge/` | **Development instance** — improve Marge here | Contributors developing Marge itself |
+| `marge_simpson/` | **Production template**  copy this to your repos | End users installing Marge |
+| `meta_marge/` | **Development instance**  improve Marge here | Contributors developing Marge itself |
 
 **Key Points:**
-- `marge_simpson/` is the **source of truth** — this is what gets distributed
+- `marge_simpson/` is the **source of truth**  this is what gets distributed
 - `meta_marge/` is a **working copy** with all paths/references transformed
 - The `convert-to-meta` scripts create `meta_marge/` from `marge_simpson/`
-- Changes flow: `marge_simpson/` → `meta_marge/` (via script) → test → manual copy back
+- Changes flow: `marge_simpson/`  `meta_marge/` (via script)  test  manual copy back
 
 **Why two folders?**
 Marge tracks work using relative paths (e.g., `./marge_simpson/tasklist.md`). To develop Marge *using* Marge, we need a separate instance with different paths so the tooling doesn't overwrite itself.
@@ -301,8 +307,8 @@ Want to improve Marge itself? Use the **meta development workflow**:
 4. Copy changes back to `marge_simpson/` when satisfied
 
 ### Versioning
-- `marge_simpson/VERSION` — bump when releasing template changes
-- `meta_marge/VERSION` — auto-updated by convert script
+- `marge_simpson/VERSION`  bump when releasing template changes
+- `meta_marge/VERSION`  auto-updated by convert script
 - Semantic: **major** (breaking) / **minor** (features) / **patch** (fixes)
 
 ---
