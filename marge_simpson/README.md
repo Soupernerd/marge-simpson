@@ -1,6 +1,6 @@
 # Marge Simpson - sMITten Recursive Context + Experts
 
-# Includes Automated Testing 
+# Includes Automated Testing
 
 **Full Featured - Drop-in AI workflow for automated audits, bug fixes, new feature suggestion/implementation and testing - for any codebase.**
 
@@ -10,12 +10,72 @@
 
 ---
 
-## Install (30 seconds)
+## Install
+
+### Option A: CLI Tool (Recommended)
+
+```bash
+# Clone and install globally
+git clone https://github.com/arbuthnot-eth/marge-simpson.git
+cd marge-simpson
+./install.sh  # or install.ps1 on Windows
+```
+
+Then use `marge` from anywhere:
+
+```bash
+# One-off tasks (lite mode - minimal tokens)
+marge "fix the login bug"
+marge "say hello" "what is 2+2"  # Chain multiple tasks
+
+# Full workflow mode
+marge --full "complex refactor"
+
+# In a project with .marge/ folder
+marge init                       # Set up project tracking
+marge "add user auth"            # Uses full AGENTS.md
+marge clean                      # Remove local .marge/
+```
+
+### Option B: Drop-in Folder
 
 1. Copy just the **`.marge/`** folder into your repo root
 2. Use a prompt template from the [Chat Prompts](#-ide-chat-prompts) section below
 
-> ** Renamed the folder?** Replace `marge_simpson` with your folder name in prompts.
+> **Renamed the folder?** Replace `marge_simpson` with your folder name in prompts.
+
+---
+
+## CLI Reference (v1.1.3)
+
+### Modes
+
+| Mode | When | Token Cost | Tracking |
+|------|------|------------|----------|
+| **lite** | No local `.marge/`, one-off tasks | ~200 tokens | None |
+| **full** | `--full` flag or local `.marge/` exists | ~15k tokens | Full workflow |
+
+### Commands
+
+```bash
+marge "<task>"              # Run task (lite mode if no .marge/)
+marge "<t1>" "<t2>" ...     # Chain multiple tasks
+marge --full "<task>"       # Force full AGENTS.md
+marge init                  # Initialize .marge/ in current project
+marge clean                 # Remove local .marge/ folder
+marge status                # Show progress
+marge --help                # Full options list
+```
+
+### Key Options
+
+| Option | Description |
+|--------|-------------|
+| `--full` | Use full global AGENTS.md (instead of lite) |
+| `--loop` | Repeat until task complete |
+| `--dry-run` | Preview without executing |
+| `--engine <e>` | claude, opencode, codex, aider |
+| `-v, --verbose` | Show detailed output |
 
 ---
 

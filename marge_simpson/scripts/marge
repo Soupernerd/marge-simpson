@@ -6,11 +6,11 @@
 set -eo pipefail
 
 # ============================================
-# Marge v1.1.2 - Autonomous AI Coding Loop
+# Marge v1.1.3 - Autonomous AI Coding Loop
 # ============================================
 
 MARGE_HOME="${MARGE_HOME:-$HOME/.marge}"
-VERSION="1.1.2"
+VERSION="1.1.3"
 
 # Defaults
 DRY_RUN=false
@@ -30,6 +30,7 @@ PARALLEL=false
 MAX_PARALLEL=${MAX_PARALLEL:-3}
 PRD_FILE="PRD.md"
 MARGE_FOLDER="${MARGE_FOLDER:-.marge}"
+FULL_MODE=false
 
 # State
 iteration=0
@@ -64,21 +65,30 @@ print_usage() {
 ${BOLD}marge${RESET} v$VERSION - Autonomous AI coding loop
 
 ${BOLD}USAGE:${RESET}
-  marge [options]              Run PRD tasks from PRD.md
-  marge "<task>" [options]     Run a single task
+  marge [options]                    Run PRD tasks from PRD.md
+  marge "<task>" [options]           Run a single task
+  marge "<task1>" "<task2>" ...      Chain multiple tasks
 
 ${BOLD}EXAMPLES:${RESET}
   marge "fix the login bug"
+  marge "say hello" "what is 2+2"    # Chain multiple one-off tasks
+  marge --full "complex refactor"    # Use full AGENTS.md for one-off
   marge --loop --auto
   marge --parallel --max-parallel 3
   marge --engine aider --loop
-  marge --branch-per-task --create-pr
+
+${BOLD}ONE-OFF TASKS:${RESET}
+  When no local .marge/ folder exists, marge runs in "lite" mode:
+  - Minimal prompt, lower token cost
+  - No tracking files created
+  - Use --full to enable full AGENTS.md workflow
 
 ${BOLD}OPTIONS:${RESET}
   --auto              Auto-approve for non-claude engines
   --dry-run           Preview without running
   --model <model>     Model override
   --fast              Skip verification
+  --full              Use full global AGENTS.md (instead of lite mode)
   --loop              Loop until complete
   --engine <e>        Engine: claude, opencode, codex, aider
   --max-iterations N  Max iterations (default: $MAX_ITER)
@@ -96,6 +106,7 @@ ${BOLD}OPTIONS:${RESET}
 
 ${BOLD}COMMANDS:${RESET}
   init [--force]      Initialize .marge/ folder (--force to overwrite)
+  clean               Remove local .marge/ folder (won't touch global install)
   meta "<task>"       Run task using .marge/meta folder (for self-development)
   status              Show current status and progress
   config              Show config file contents
@@ -347,14 +358,50 @@ get_token_summary() {
         cost=$(awk -v it="$input_tokens" -v ot="$output_tokens" -v ir="$input_rate" -v or="$output_rate" \
             'BEGIN {printf "%.4f", (it * ir + ot * or) / 1000000}')
 
-        # Update totals for summary
-        total_input_tokens=$((total_input_tokens + input_tokens))
-        total_output_tokens=$((total_output_tokens + output_tokens))
-
-        # Return compact summary string
-        echo " · ${input_tokens}/${output_tokens}tok · \$${cost}"
+        # Output format: input|output|summary (caller parses to update totals)
+        echo "${input_tokens}|${output_tokens}| · ${input_tokens}/${output_tokens}tok · \$${cost}"
+    else
+        echo "0|0|"
     fi
-    # Return empty string if no tokens available
+}
+
+get_changed_files() {
+    local output_file="$1"
+    local files=""
+
+    if [[ -f "$output_file" ]]; then
+        # Parse Claude's stream-json output for Write and Edit tool calls
+        # Look for "tool":"Write" or "tool":"Edit" and extract file_path
+        files=$(grep -oE '"tool"\s*:\s*"(Write|Edit)"[^}]*"file_path"\s*:\s*"[^"]+"|"file_path"\s*:\s*"[^"]+"[^}]*"tool"\s*:\s*"(Write|Edit)"' "$output_file" 2>/dev/null | \
+            grep -oE '"file_path"\s*:\s*"[^"]+"' | \
+            sed 's/"file_path"\s*:\s*"//;s/"$//' | \
+            sort -u) || true
+    fi
+
+    echo "$files"
+}
+
+get_response_text() {
+    local output_file="$1"
+    local engine="${2:-claude}"
+    local max_lines="${3:-20}"
+
+    [[ ! -f "$output_file" ]] && return
+
+    case "$engine" in
+        claude)
+            # Extract text from stream-json format
+            # Look for text_delta content and concatenate
+            grep -oE '"text"\s*:\s*"[^"]*"' "$output_file" 2>/dev/null | \
+                sed 's/"text"\s*:\s*"//;s/"$//' | \
+                sed 's/\\n/\n/g; s/\\t/\t/g; s/\\"/"/g; s/\\\\/\\/g' | \
+                tail -n "$max_lines"
+            ;;
+        *)
+            # For other engines, just show raw output
+            tail -n "$max_lines" "$output_file" 2>/dev/null
+            ;;
+    esac
 }
 
 build_engine_cmd() {
@@ -412,25 +459,53 @@ run_task() {
 
     # Only show task info in verbose mode - spinner shows task info
     log_debug "Task $num: $task"
-    save_progress "$num" "running"
 
-    if [[ ! -d "$workdir/$MARGE_FOLDER" ]]; then
+    # Determine which AGENTS.md to use: local .marge/, global full, or lite for one-off tasks
+    local agents_path="$workdir/$MARGE_FOLDER/AGENTS.md"
+    local use_lite=false
+
+    if [[ ! -f "$workdir/$MARGE_FOLDER/AGENTS.md" ]]; then
         if [[ "$MARGE_FOLDER" == ".marge" ]]; then
-            "$MARGE_HOME/marge-init" >/dev/null 2>&1
-            log_debug "Initialized $MARGE_FOLDER/"
-        else
-            log_error "Folder '$MARGE_FOLDER' not found. Create it first or use default .marge/"
+            if [[ "$FULL_MODE" == true ]] && [[ -f "$MARGE_HOME/shared/AGENTS.md" ]]; then
+                # --full flag: use global full AGENTS.md
+                agents_path="$MARGE_HOME/shared/AGENTS.md"
+                log_debug "Using global AGENTS.md (--full mode)"
+            elif [[ -f "$MARGE_HOME/AGENTS-lite.md" ]]; then
+                # Default: use lite version for one-off tasks - much lower token cost
+                agents_path="$MARGE_HOME/AGENTS-lite.md"
+                use_lite=true
+                log_debug "Using AGENTS-lite.md for one-off task"
+            fi
+        elif [[ "$MARGE_FOLDER" != ".marge" ]]; then
+            log_error "Folder '$MARGE_FOLDER' not found or missing AGENTS.md"
             return 1
         fi
     fi
 
+    # Only save progress for project tasks (not one-off lite tasks)
+    [[ "$use_lite" != true ]] && save_progress "$num" "running"
+
+    local loop_suffix=""
+    [[ "$LOOP" == true ]] && loop_suffix=" Loop until complete." || true
+
     local prompt
-    prompt="Read the AGENTS.md file in the $MARGE_FOLDER folder and follow it.
+    if [[ "$use_lite" == true ]]; then
+        prompt="ONE-OFF TASK. You get ONE response to the user. No follow-ups, no clarifications. Be concise and direct.
+
+Task: ${task}${loop_suffix}"
+    elif [[ "$FULL_MODE" == true ]] && [[ ! -f "$workdir/$MARGE_FOLDER/AGENTS.md" ]]; then
+        prompt="Read the AGENTS.md file at $agents_path and follow it.
 
 Instruction:
-- ${task}$([[ "$LOOP" == true ]] && echo " Loop until complete.")
+- ${task}${loop_suffix}"
+    else
+        prompt="Read the AGENTS.md file in the $MARGE_FOLDER folder and follow it.
+
+Instruction:
+- ${task}${loop_suffix}
 
 After finished, list remaining unchecked items in $MARGE_FOLDER/tasklist.md."
+    fi
 
     if [[ "$DRY_RUN" == true ]]; then
         echo "${CYAN}Would run:${RESET} $(build_engine_cmd "$ENGINE") \"<prompt>\""
@@ -477,34 +552,39 @@ After finished, list remaining unchecked items in $MARGE_FOLDER/tasklist.md."
             local duration_secs=$((task_duration % 60))
 
             # Single completion line with all info
-            local token_info=""
-            token_info=$(get_token_summary "$output_file")
+            local token_result token_info=""
+            token_result=$(get_token_summary "$output_file")
+            # Parse: input|output|summary
+            local task_input task_output
+            task_input=$(echo "$token_result" | cut -d'|' -f1)
+            task_output=$(echo "$token_result" | cut -d'|' -f2)
+            token_info=$(echo "$token_result" | cut -d'|' -f3-)
+            # Accumulate totals
+            total_input_tokens=$((total_input_tokens + task_input))
+            total_output_tokens=$((total_output_tokens + task_output))
             echo "${GREEN}✓${RESET} Task $num done ${CYAN}${duration_mins}m${duration_secs}s${RESET}${token_info}"
 
-            # Show changed files (if in a git repo)
-            if git -C "$workdir" rev-parse --git-dir &>/dev/null; then
-                # Get modified files (unstaged)
-                local modified
-                modified=$(git -C "$workdir" diff --name-only 2>/dev/null)
-                # Get staged files
-                local staged
-                staged=$(git -C "$workdir" diff --cached --name-only 2>/dev/null)
-                # Get new untracked files
-                local untracked
-                untracked=$(git -C "$workdir" ls-files --others --exclude-standard 2>/dev/null)
+            # Show changed files from Claude's output (works without git)
+            local all_changes
+            all_changes=$(get_changed_files "$output_file")
 
-                # Combine all changes
-                local all_changes
-                all_changes=$(printf '%s\n%s\n%s' "$modified" "$staged" "$untracked" | grep -v '^$' | sort -u | head -15)
-
-                if [[ -n "$all_changes" ]]; then
-                    local count
-                    count=$(echo "$all_changes" | wc -l)
-                    echo "  ${CYAN}Files changed (${count}):${RESET}"
-                    echo "$all_changes" | while IFS= read -r file; do
-                        if [[ -n "$file" ]]; then
-                            echo "    ${YELLOW}•${RESET} $file"
-                        fi
+            if [[ -n "$all_changes" ]]; then
+                local count
+                count=$(echo "$all_changes" | wc -l)
+                echo "  ${CYAN}Files changed (${count}):${RESET}"
+                echo "$all_changes" | head -15 | while IFS= read -r file; do
+                    if [[ -n "$file" ]]; then
+                        echo "    ${YELLOW}•${RESET} $file"
+                    fi
+                done
+            else
+                # No files changed - show the response text instead
+                local response_text
+                response_text=$(get_response_text "$output_file" "$ENGINE" 20)
+                if [[ -n "$response_text" ]]; then
+                    echo "  ${CYAN}Response:${RESET}"
+                    echo "$response_text" | while IFS= read -r line; do
+                        echo "    $line"
                     done
                 else
                     echo "  ${CYAN}No files changed${RESET}"
@@ -512,16 +592,16 @@ After finished, list remaining unchecked items in $MARGE_FOLDER/tasklist.md."
             fi
 
             auto_commit "$num"
-            save_progress "$num" "completed"
+            [[ "$use_lite" != true ]] && save_progress "$num" "completed"
             rm -f "$output_file"
             return 0
         fi
 
-        ((retry++))
+        ((++retry))
         [[ $retry -lt $MAX_RETRIES ]] && sleep "$RETRY_DELAY"
     done
 
-    save_progress "$num" "failed"
+    [[ "$use_lite" != true ]] && save_progress "$num" "failed"
     log_error "Task failed after $MAX_RETRIES retries"
     rm -f "$output_file"
     return 1
@@ -585,7 +665,7 @@ run_prd() {
 
             run_task_parallel "$task" "$num" "$slug" &
             pids+=($!)
-            ((running++))
+            ((++running))
         done
 
         for pid in "${pids[@]}"; do
@@ -595,7 +675,7 @@ run_prd() {
         cleanup_worktrees
     else
         for task in "${tasks[@]}"; do
-            ((iteration++))
+            ((++iteration))
 
             if [[ "$BRANCH_PER_TASK" == true ]]; then
                 local slug
@@ -633,8 +713,6 @@ print_session_summary() {
 
     echo "${BOLD}═══════════════════════════════════════════════════${RESET}"
     echo "${BOLD}Session Summary${RESET}"
-    echo "  ${CYAN}Duration:${RESET} ${total_mins}m ${total_secs}s"
-    echo "  ${CYAN}Iterations:${RESET} $iter_count"
 
     if [[ $total_input_tokens -gt 0 ]] || [[ $total_output_tokens -gt 0 ]]; then
         # Calculate total cost
@@ -662,27 +740,47 @@ print_session_summary() {
         echo "  ${CYAN}Tokens:${RESET} ${total_input_tokens} in / ${total_output_tokens} out"
         echo "  ${CYAN}Cost:${RESET} \$${total_cost}"
     fi
+
+    echo "  ${CYAN}Duration:${RESET} ${total_mins}m ${total_secs}s"
+    echo "  ${CYAN}Iterations:${RESET} $iter_count"
     echo "${BOLD}═══════════════════════════════════════════════════${RESET}"
 }
 
 run_single() {
-    local task="$1"
+    local -a tasks=("$@")
+    local task_count=${#tasks[@]}
 
-    # Minimal header - just version
-    echo "${BOLD}Marge v$VERSION${RESET}"
-
-    if [[ "$LOOP" == true ]]; then
-        while [[ $iteration -lt $MAX_ITER ]]; do
-            ((iteration++))
-            # Iteration info shown inline via spinner, no separate line
-            run_task "$task" "$iteration" || true
-            is_task_complete && break
-            sleep 1
-        done
-    else
-        iteration=1
-        run_task "$task" 1
+    # Determine which agents file will be used
+    local agents_label="AGENTS.md"
+    if [[ ! -f "./$MARGE_FOLDER/AGENTS.md" ]] && [[ "$MARGE_FOLDER" == ".marge" ]]; then
+        if [[ "$FULL_MODE" == true ]]; then
+            agents_label="full"
+        else
+            agents_label="lite"
+        fi
     fi
+
+    # Header with version, agents file, and task count if multiple
+    if [[ $task_count -gt 1 ]]; then
+        echo "${BOLD}Marge v$VERSION${RESET} · ${CYAN}${agents_label}${RESET} · ${task_count} tasks"
+    else
+        echo "${BOLD}Marge v$VERSION${RESET} · ${CYAN}${agents_label}${RESET}"
+    fi
+
+    for task in "${tasks[@]}"; do
+        ((++iteration))
+        if [[ "$LOOP" == true ]]; then
+            local loop_iter=0
+            while [[ $loop_iter -lt $MAX_ITER ]]; do
+                ((++loop_iter))
+                run_task "$task" "$iteration" || true
+                is_task_complete && break
+                sleep 1
+            done
+        else
+            run_task "$task" "$iteration"
+        fi
+    done
 
     echo ""
     print_session_summary "$iteration"
@@ -740,6 +838,7 @@ while [[ $# -gt 0 ]]; do
         --model) MODEL="$2"; shift 2 ;;
         --engine) ENGINE="$2"; shift 2 ;;
         --fast) FAST=true; shift ;;
+        --full) FULL_MODE=true; shift ;;
         --loop) LOOP=true; shift ;;
         --max-iterations) MAX_ITER="$2"; shift 2 ;;
         --max-retries) MAX_RETRIES="$2"; shift 2 ;;
@@ -761,6 +860,22 @@ while [[ $# -gt 0 ]]; do
             shift
             init_config "$@"
             exit 0
+            ;;
+        clean)
+            # Remove local .marge/ folder (not global MARGE_HOME)
+            local_marge="$(pwd)/.marge"
+            if [[ "$local_marge" == "$MARGE_HOME" ]]; then
+                log_error "Cannot clean global MARGE_HOME ($MARGE_HOME)"
+                log_error "Run from a project directory, not ~"
+                exit 1
+            elif [[ ! -d ".marge" ]]; then
+                log_info "No .marge/ folder found in $(pwd)"
+                exit 0
+            else
+                rm -rf .marge
+                log_success "Removed local .marge/ folder"
+                exit 0
+            fi
             ;;
         status)
             echo "${BOLD}Marge Status${RESET}"
@@ -787,7 +902,7 @@ done
 check_engine "$ENGINE" || exit 1
 
 if [[ ${#POSITIONAL[@]} -gt 0 ]]; then
-    run_single "${POSITIONAL[*]}"
+    run_single "${POSITIONAL[@]}"
 else
     run_prd
 fi
