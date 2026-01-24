@@ -7,10 +7,6 @@
 2. Audit the workspace/repo OUTSIDE this folder. Track findings HERE in `marge-simpson/planning_docs/` assessment.md and tasklist.md.
 3. Never create `marge-simpson` files outside this folder.
 
-**DO NOT create folders:** Never create `.marge/` or `planning_docs/` folders during chat prompting. Those folders are created only by CLI commands (`marge init`, `marge-init`). If the user needs them, tell them to run the CLI command.
-
-**Paths are explicit, not flexible:** All paths use the `marge-simpson/` prefix (e.g., `marge-simpson/planning_docs/`). We are not folder-agnostic. If someone renames folders, that's their problem to fix.
-
 ---
 
 ## Core Rules
@@ -75,10 +71,10 @@ IMPLEMENT → VERIFY → RECORD → COMPLETE
 
 ```bash
 # Windows
-./scripts/verify.ps1 fast -SkipIfNoTests
+marge-simpson/scripts/verify.ps1 fast -SkipIfNoTests
 
 # macOS/Linux
-./scripts/verify.sh fast --skip-if-no-tests
+marge-simpson/scripts/verify.sh fast --skip-if-no-tests
 ```
 
 **Never claim "tests passed" without raw output or log path.**

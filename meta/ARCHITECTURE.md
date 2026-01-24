@@ -2,15 +2,55 @@
 
 > Living document describing the system structure, design decisions, and data flow.
 > **Location:** `meta/ARCHITECTURE.md` (persists across `.meta_marge/` recreations)
-> **Last Updated:** 2026-01-23 | **Version:** 1.3.0
+> **Last Updated:** 2026-01-24 | **Version:** 1.3.0
+
+---
+
+## What is Marge?
+
+**Marge is a persistent knowledge base that keeps AI assistants informed across sessions.**
+
+Think of it as a "hard drive" for AI context — structured markdown files that AI reads at the start of each session to understand:
+- What rules to follow (`AGENTS.md`)
+- What work is in progress (`planning_docs/`)
+- What decisions have been made (`knowledge/`)
+- How to approach different task types (`workflows/`, `experts/`)
+
+### Key Concepts
+
+| Concept | What It Is | Purpose |
+|---------|------------|---------|
+| `AGENTS.md` | Operating rules AI reads first | Consistency across sessions |
+| `planning_docs/` | Persistent work state | AI remembers tasks between sessions |
+| `knowledge/` | Decisions, patterns, insights | AI doesn't repeat mistakes |
+| `workflows/` | Task-specific playbooks | AI follows proven processes |
+| `experts/` | Domain knowledge files | AI loads context on-demand |
+| `CLI (marge)` | Convenience wrapper | Optional — chat prompts work fine |
+
+### The Three Folder Types
+
+1. **`marge-simpson/`** (source repo) — What you clone. Contains all Marge files. You can rename it or copy just what you need.
+
+2. **`.marge/`** (per-project folder) — Created by `marge init` in YOUR projects. Contains symlinks to shared resources + local tracking files. Named `.marge` to follow convention (like `.git`, `.vscode`, `.claude`).
+
+3. **`.meta_marge/`** (meta-development) — Temporary folder for improving Marge itself. Created by `convert-to-meta`, deleted and recreated fresh each session. Uses source scripts.
+
+### Common Misunderstandings
+
+| Misconception | Reality |
+|---------------|---------|
+| "Marge runs code" | No — Marge is context. The AI runs your code via its tools. |
+| "I need the CLI" | No — Copy/paste prompts into chat works fine. CLI is convenience. |
+| ".marge/ should be committed" | No — It's runtime. The source repo files are what you share. |
+| ".meta_marge needs its own scripts" | No — It uses marge-simpson/scripts/ to test the source. |
 
 ---
 
 ## System Overview
 
-Marge is an AI-assisted workflow system that provides structured guidance for coding tasks. It can be used via:
-1. **Chat prompts** — Copy/paste into AI chat interfaces
-2. **CLI** — Command-line automation (`marge "task"`)
+Marge provides structured context that AI assistants read at the start of each session. It can be used via:
+1. **Chat prompts** — Copy/paste into AI chat interfaces (most common)
+2. **CLI** — Optional convenience wrapper (`marge "task"`)
 3. **Meta-development** — Self-improvement via `.meta_marge/`
 
 ```
@@ -169,11 +209,12 @@ Loaded based on task keywords (see `experts/_index.md`):
 
 ```
 1. Copy marge-simpson/ → .meta_marge/
-2. Exclude: cli/, meta/, assets/, .git, etc.
-3. Transform AGENTS.md scope to target marge-simpson/
-4. Reset planning_docs to clean state
-5. Copy ARCHITECTURE.md for reference
-6. Run verification
+2. Exclude: cli/, meta/, assets/, scripts/, .git, .marge, etc.
+   (scripts/ excluded — meta uses source scripts directly)
+3. Transform path references (marge-simpson → .meta_marge)
+4. Reset planning_docs to clean state  
+5. Rewrite AGENTS.md scope to target marge-simpson/
+6. Run verification (marge-simpson/scripts/verify.ps1, not .meta_marge)
 ```
 
 ---

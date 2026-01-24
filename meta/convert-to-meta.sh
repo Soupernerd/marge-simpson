@@ -40,11 +40,12 @@ fi
 echo "[1/4] Copying..."
 
 mkdir -p "$TARGET_FOLDER"
+# Exclusions: scripts/ excluded - meta_marge uses marge-simpson/scripts/ directly
 if command -v rsync &>/dev/null; then
     rsync -a \
         --exclude='.git' --exclude='node_modules' --exclude='.meta_marge' \
         --exclude='.marge' --exclude='cli' --exclude='meta' \
-        --exclude='assets' --exclude='.github' \
+        --exclude='assets' --exclude='.github' --exclude='scripts' \
         --exclude='README.md' --exclude='CHANGELOG.md' --exclude='VERSION' \
         --exclude='LICENSE' --exclude='.gitignore' --exclude='.gitattributes' \
         "$SOURCE_FOLDER/" "$TARGET_FOLDER/"
@@ -52,7 +53,7 @@ else
     cp -r "$SOURCE_FOLDER/." "$TARGET_FOLDER/"
     rm -rf "$TARGET_FOLDER/.git" "$TARGET_FOLDER/node_modules" "$TARGET_FOLDER/.meta_marge" \
            "$TARGET_FOLDER/.marge" "$TARGET_FOLDER/cli" "$TARGET_FOLDER/meta" \
-           "$TARGET_FOLDER/assets" "$TARGET_FOLDER/.github" 2>/dev/null || true
+           "$TARGET_FOLDER/assets" "$TARGET_FOLDER/.github" "$TARGET_FOLDER/scripts" 2>/dev/null || true
     rm -f "$TARGET_FOLDER/README.md" "$TARGET_FOLDER/CHANGELOG.md" "$TARGET_FOLDER/VERSION" \
           "$TARGET_FOLDER/LICENSE" "$TARGET_FOLDER/.gitignore" "$TARGET_FOLDER/.gitattributes" 2>/dev/null || true
 fi
@@ -150,9 +151,9 @@ awk -v new_scope="$NEW_SCOPE" '
 
 echo "  Reset assessment.md, tasklist.md, AGENTS.md"
 
-# [4/4] Verify
+# [4/4] Verify (uses source scripts, not meta_marge)
 echo "[4/4] Verifying..."
-VERIFY_SCRIPT="$TARGET_FOLDER/scripts/verify.sh"
+VERIFY_SCRIPT="$SOURCE_FOLDER/scripts/verify.sh"
 if [[ -x "$VERIFY_SCRIPT" ]]; then
     "$VERIFY_SCRIPT" fast
     exit_code=$?

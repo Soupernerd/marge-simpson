@@ -47,8 +47,8 @@ if (Test-Path $TargetFolder) {
 }
 Write-Host "[1/4] Copying..."
 
-# Exclusions
-$excludeDirs = @('.git', 'node_modules', '.meta_marge', '.marge', 'cli', 'meta', 'assets', '.github')
+# Exclusions (scripts/ excluded - meta_marge uses marge-simpson/scripts/ directly)
+$excludeDirs = @('.git', 'node_modules', '.meta_marge', '.marge', 'cli', 'meta', 'assets', '.github', 'scripts')
 $excludeFiles = @('README.md', 'CHANGELOG.md', 'VERSION', 'LICENSE', '.gitignore', '.gitattributes')
 
 # Copy with exclusions
@@ -172,9 +172,9 @@ $agentsContent = $agentsContent -replace '\*\*Scope \(CRITICAL\):\*\*\r?\n1\.[^\
 Set-Content -Path $AgentsPath -Value $agentsContent -NoNewline
 Write-Host "  Reset assessment.md, tasklist.md, AGENTS.md"
 
-# [4/4] Verify
+# [4/4] Verify (uses source scripts, not meta_marge)
 Write-Host "[4/4] Verifying..."
-$VerifyScript = Join-Path $TargetFolder "scripts\verify.ps1"
+$VerifyScript = Join-Path $SourceFolder "scripts\verify.ps1"
 if (Test-Path $VerifyScript) {
     & $VerifyScript fast
     $exitCode = $LASTEXITCODE

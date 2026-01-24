@@ -3,6 +3,9 @@
 .marge_meta/
 meta_marge/
 
+# Per-project CLI folder (runtime artifact)
+.marge/
+
 # OS / filesystem noise
 .DS_Store
 Thumbs.db

@@ -33,8 +33,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **PRD.md in marge-init output** - Tree display now shows PRD.md file that's copied
 - **[Unreleased] changelog link** - Added comparison link for unreleased changes
 - **Centralized fallback pricing constants** - `DEFAULT_INPUT_RATE`/`DEFAULT_OUTPUT_RATE` defined once, used everywhere
+- **`.marge/` in .gitignore** - Per-project CLI folder now properly excluded from version control
+
+### Changed
+- **README identity clarification** - Updated tagline from "drop-in workflow" to "persistent knowledge base that keeps AI assistants informed across sessions"
+- **ARCHITECTURE.md identity** - Describes Marge as a "hard drive for AI context" rather than "prompt engineering framework"
 
 ### Fixed
+- **P1: .marge/ created during tests** - `test-cli.ps1` "empty task" test now runs in temp directory, preventing `.marge/` folder from being created in source during verification
+- **P1: PRD.md is now a blank template** - Replaced filled-in test artifact with proper blank template users fill in to enable PRD mode
+- **P1: Ambiguous verify path in AGENTS.md** - Changed `./scripts/verify.ps1` to explicit `marge-simpson/scripts/verify.ps1`
+- **P1: Redundant .meta_marge/scripts/** - `convert-to-meta` now excludes `scripts/` folder (meta_marge uses source scripts directly)
 - **P0: Get-Slug truncation bug** - `marge.ps1` `Get-Slug` function now correctly truncates to 50 characters using `Substring()` instead of `Select-Object -First 50`
 - **P1: Premature loop termination** - `is_task_complete()` (bash) and `Test-TaskComplete` (PS1) now return false when files don't exist, preventing early loop exit
 - **P2: Path traversal validation** - Both CLI scripts now reject additional edge cases: trailing `..`, standalone `..`, and backslash-prefixed paths
