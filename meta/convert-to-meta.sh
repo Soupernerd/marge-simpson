@@ -58,7 +58,7 @@ else
           "$TARGET_FOLDER/LICENSE" "$TARGET_FOLDER/.gitignore" "$TARGET_FOLDER/.gitattributes" 2>/dev/null || true
 fi
 
-# [2/4] Transform: marge-simpson/ -> .meta_marge/
+# [2/4] Transform: relative paths (./) -> .meta_marge/ AND explicit verify paths
 echo "[2/4] Transforming paths..."
 count=0
 while IFS= read -r -d '' file; do
@@ -70,10 +70,19 @@ while IFS= read -r -d '' file; do
     content=$(cat "$file" 2>/dev/null) || continue
     original="$content"
     
-    # Protect GitHub URLs, transform, restore
+    # Transform relative paths to explicit .meta_marge/ paths
+    # But NOT ./scripts/ - those should point to source (marge-simpson/scripts/)
+    content=${content//".\/planning_docs\/"/".meta_marge/planning_docs/"}
+    content=${content//".\/workflows\/"/".meta_marge/workflows/"}
+    content=${content//".\/experts\/"/".meta_marge/experts/"}
+    content=${content//".\/knowledge\/"/".meta_marge/knowledge/"}
+    content=${content//".\/model_pricing.json"/".meta_marge/model_pricing.json"}
+    
+    # Scripts should use source folder for verification (test the source, not meta)
+    content=${content//".\/scripts\/"/"${SOURCE_NAME}/scripts/"}
+    
+    # Protect GitHub URLs
     content=$(echo "$content" | sed "s|github\.com/\([^/]*\)/${SOURCE_NAME}|github.com/\1/___GITHUB___|g")
-    content=${content//"$SOURCE_NAME/"/"$TARGET_NAME/"}
-    content=$(echo "$content" | sed -E "s/(^|[^[:alnum:]_./-])${SOURCE_NAME}([^[:alnum:]_]|\$)/\1${TARGET_NAME}\2/g")
     content=${content//___GITHUB___/"$SOURCE_NAME"}
     
     if [[ "$content" != "$original" ]]; then
@@ -131,18 +140,18 @@ EOF
 AGENTS_PATH="$TARGET_FOLDER/AGENTS.md"
 NEW_SCOPE="**Scope (CRITICAL):**
 1. The \`$TARGET_NAME/\` folder is **excluded from audits** -- it is the tooling, not the target.
-2. Audit the workspace/repo OUTSIDE this folder (e.g., \`marge-simpson/\`).
+2. Audit the workspace/repo OUTSIDE this folder (e.g., \`$SOURCE_NAME/\`).
 3. Track findings HERE in \`$TARGET_NAME/planning_docs/\` assessment.md and tasklist.md.
 4. Never create \`$TARGET_NAME\` files outside this folder.
 
 **Meta-Development Workflow:**
 \`\`\`
-  .meta_marge/AGENTS.md  ->  AI audits marge-simpson/  ->  Changes to marge-simpson/
-  Work tracked in .meta_marge/planning_docs/
+  $TARGET_NAME/AGENTS.md  ->  AI audits $SOURCE_NAME/  ->  Changes to $SOURCE_NAME/
+  Work tracked in $TARGET_NAME/planning_docs/
   When done: run convert-to-meta again to reset
 \`\`\`
 
-**IMPORTANT:** \`.meta_marge/\` is the control plane, NOT a sandbox."
+**IMPORTANT:** \`$TARGET_NAME/\` is the control plane, NOT a sandbox."
 
 awk -v new_scope="$NEW_SCOPE" '
     /^\*\*Scope \(CRITICAL\):\*\*/ { print new_scope; getline; getline; getline; next }

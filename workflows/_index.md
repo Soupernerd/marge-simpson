@@ -4,13 +4,13 @@
 
 ## Path Resolution
 
-All paths in this system use explicit folder prefixes:
-- `marge-simpson/planning_docs/` → tracking files
-- `marge-simpson/workflows/` → workflow files  
-- `marge-simpson/experts/` → domain expertise
-- `marge-simpson/knowledge/` → decisions and patterns
+All paths in this folder use relative prefixes (`./`):
+- `./planning_docs/` → tracking files
+- `./workflows/` → workflow files  
+- `./experts/` → domain expertise
+- `./knowledge/` → decisions and patterns
 
-When `.meta_marge/` exists, the `convert-to-meta` script transforms these to `.meta_marge/` paths.
+This allows the folder to be renamed to anything (`.marge`, `marge`, etc.).
 
 ## Quick Reference
 
@@ -32,18 +32,18 @@ User message received
     ├─ Just asking a question? → Answer directly, no ID needed
     │
     ├─ Planning/design discussion? (no code changes)
-    │   └─ Read marge-simpson/workflows/planning.md
+    │   └─ Read ./workflows/planning.md
     │
     ├─ Wants something done (fix/add/change)?
-    │   ├─ Read marge-simpson/workflows/work.md
-    │   └─ If "loop until clean" → Also read marge-simpson/workflows/loop.md
+    │   ├─ Read ./workflows/work.md
+    │   └─ If "loop until clean" → Also read ./workflows/loop.md
     │
     ├─ Wants codebase audit/review?
-    │   └─ Read marge-simpson/workflows/audit.md (discovery)
-    │   └─ Then marge-simpson/workflows/work.md (execution)
+    │   └─ Read ./workflows/audit.md (discovery)
+    │   └─ Then ./workflows/work.md (execution)
     │
     └─ Task complete / session ending?
-        └─ Read marge-simpson/workflows/session_end.md
+        └─ Read ./workflows/session_end.md
 ```
 
 ## Token Costs

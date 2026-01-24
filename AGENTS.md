@@ -3,9 +3,11 @@
 **Priority:** correctness > safety > minimal diffs > speed
 
 **Scope (CRITICAL):**
-1. The `marge-simpson/` folder is **excluded from audits** -- it is the tooling, not the target, unless `.meta_marge/` exists and is being used to update marge-simpson.
-2. Audit the workspace/repo OUTSIDE this folder. Track findings HERE in `marge-simpson/planning_docs/` assessment.md and tasklist.md.
-3. Never create `marge-simpson` files outside this folder.
+1. This folder is **excluded from audits** — it is the tooling, not the target.
+2. Audit the workspace/repo OUTSIDE this folder. Track findings in `./planning_docs/`.
+3. Never create files from this folder outside this folder.
+
+> **⚠️ Meta-dev?** If working in `.meta_marge/`, read `./meta/ARCHITECTURE.md` → "CONSTITUTIONAL RULES" section first. Paths behave differently in meta mode.
 
 ---
 
@@ -62,19 +64,19 @@ Spawn 2-5 agents for independent tasks, wait for all, then verify.
 
 | File | Purpose |
 |------|---------|
-| `marge-simpson/planning_docs/assessment.md` | Findings + root cause + verification evidence |
-| `marge-simpson/planning_docs/tasklist.md` | Work queue: backlog → in-progress → done |
-| `marge-simpson/planning_docs/[name]_MS-XXXX.md` | Feature plans (created for each feature) |
+| `./planning_docs/assessment.md` | Findings + root cause + verification evidence |
+| `./planning_docs/tasklist.md` | Work queue: backlog → in-progress → done |
+| `./planning_docs/[name]_MS-XXXX.md` | Feature plans (created for each feature) |
 ```
 IMPLEMENT → VERIFY → RECORD → COMPLETE
 ```
 
 ```bash
 # Windows
-marge-simpson/scripts/verify.ps1 fast -SkipIfNoTests
+./scripts/verify.ps1 fast -SkipIfNoTests
 
 # macOS/Linux
-marge-simpson/scripts/verify.sh fast --skip-if-no-tests
+./scripts/verify.sh fast --skip-if-no-tests
 ```
 
 **Never claim "tests passed" without raw output or log path.**
@@ -86,10 +88,10 @@ marge-simpson/scripts/verify.sh fast --skip-if-no-tests
 | Intent | Action |
 |--------|--------|
 | Question | Answer directly (no ID unless issue found) |
-| Work (fix, add, change) | Read `marge-simpson/workflows/work.md`, create MS-#### |
-| Audit | Read `marge-simpson/workflows/audit.md` first |
-| Planning mode (`PLANNING ONLY`, `plan only`) | Read `marge-simpson/workflows/planning.md` — NO code changes |
-| Loop mode (`loop until clean`) | Read `marge-simpson/workflows/loop.md` |
+| Work (fix, add, change) | Read `./workflows/work.md`, create MS-#### |
+| Audit | Read `./workflows/audit.md` first |
+| Planning mode (`PLANNING ONLY`, `plan only`) | Read `./workflows/planning.md` — NO code changes |
+| Loop mode (`loop until clean`) | Read `./workflows/loop.md` |
 
 **Mixed intent** (e.g., question + feature + bug): Answer questions inline (no ID unless issue found), then process each work item per `work.md` (each gets MS-####).
 
@@ -102,7 +104,7 @@ When delivering work, output:
 - Files modified
 - Verification evidence (raw output)
 
-See `marge-simpson/workflows/work.md` for full format.
+See `./workflows/work.md` for full format.
 
 ---
 
@@ -112,7 +114,7 @@ End every response with:
 
 `📊 ~In: X,XXX | Out: X,XXX | Est: $X.XXXX`
 
-Pricing in `marge-simpson/model_pricing.json`.
+Pricing in `./model_pricing.json`.
 
 ---
 
@@ -122,12 +124,12 @@ Pricing in `marge-simpson/model_pricing.json`.
 
 | Situation | Read First |
 |-----------|------------|
-| Any work task | `marge-simpson/knowledge/_index.md` → check for relevant decisions |
-| Domain-specific work | `marge-simpson/experts/_index.md` → load matching expert file |
-| Unsure which workflow | `marge-simpson/workflows/_index.md` → find the right one |
+| Any work task | `./knowledge/_index.md` → check for relevant decisions |
+| Domain-specific work | `./experts/_index.md` → load matching expert file |
+| Unsure which workflow | `./workflows/_index.md` → find the right one |
 
 **Quick keyword scan:**
-- Security/auth/compliance → `marge-simpson/experts/security.md`
-- Testing/QA/coverage → `marge-simpson/experts/testing.md`  
-- Deploy/CI-CD/infra → `marge-simpson/experts/devops.md`
-- Architecture/API/scale → `marge-simpson/experts/architecture.md`
+- Security/auth/compliance → `./experts/security.md`
+- Testing/QA/coverage → `./experts/testing.md`  
+- Deploy/CI-CD/infra → `./experts/devops.md`
+- Architecture/API/scale → `./experts/architecture.md`

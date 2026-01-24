@@ -55,6 +55,14 @@
 - **Alternatives:** "Framework", "toolkit", "system"
 - **Rationale:** Marge is more like a hard drive for AI context. It stores what AI needs to know (rules, work state, decisions) so each session starts informed. Not code, not prompts to run — just structured context AI reads.
 
+### [D-006] Relative paths in source, explicit paths in meta #paths #flexibility
+- **Date:** 2026-01-24
+- **Context:** Hardcoded `marge-simpson/` paths would break if users rename folder to `.marge` or anything else
+- **Decision:** Source files use relative paths (`./`) enabling folder renaming; convert-to-meta transforms `./` to explicit `.meta_marge/` paths
+- **Alternatives:** Keep hardcoded paths, require specific folder name, use environment variables
+- **Rationale:** Users may rename `marge-simpson/` to `.marge/` (common pattern), `marge/`, or custom names. Relative paths work regardless. Meta-development needs explicit paths to avoid ambiguity when both folders exist. Scripts path (`./scripts/`) transforms to source folder name (e.g., `marge-simpson/scripts/`) so verification always tests the source.
+- **Related:** D-002
+
 <!-- Example:
 ### [D-001] Use PostgreSQL over MongoDB #database #architecture
 - **Date:** 2026-01-12

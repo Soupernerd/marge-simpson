@@ -28,10 +28,10 @@
 
 ```bash
 # macOS/Linux
-./marge-simpson/scripts/verify.sh fast --skip-if-no-tests
-./marge-simpson/scripts/cleanup.sh --preview
-./marge-simpson/scripts/status.sh
-./marge-simpson/scripts/decay.sh --preview
+./scripts/verify.sh fast --skip-if-no-tests
+./scripts/cleanup.sh --preview
+./scripts/status.sh
+./scripts/decay.sh --preview
 ```
 
 ## Script Details

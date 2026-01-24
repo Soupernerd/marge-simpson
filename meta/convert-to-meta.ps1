@@ -72,7 +72,7 @@ Get-ChildItem -Path $SourceFolder -Recurse -Force | Where-Object {
     }
 }
 
-# [2/4] Transform: marge-simpson/ -> .meta_marge/
+# [2/4] Transform: relative paths (./) -> .meta_marge/ AND explicit verify paths
 Write-Host "[2/4] Transforming paths..."
 $TextExt = @('md','txt','json','yml','yaml','toml','ps1','sh','py','js','ts')
 $count = 0
@@ -86,11 +86,24 @@ Get-ChildItem -Path $TargetFolder -Recurse -File -Force | ForEach-Object {
         if (-not $content) { return }
         $original = $content
         
-        # Protect GitHub URLs
-        $content = $content -replace "(github\.com/[^/]+/)$([regex]::Escape($SourceName))", '$1___GITHUB___'
+        # Transform relative paths to explicit .meta_marge/ paths
+        # ./planning_docs/ -> .meta_marge/planning_docs/
+        # ./workflows/ -> .meta_marge/workflows/
+        # ./experts/ -> .meta_marge/experts/
+        # ./knowledge/ -> .meta_marge/knowledge/
+        # But NOT ./scripts/ - those should point to source (marge-simpson/scripts/)
+        $content = $content -replace '\./planning_docs/', '.meta_marge/planning_docs/'
+        $content = $content -replace '\./workflows/', '.meta_marge/workflows/'
+        $content = $content -replace '\./experts/', '.meta_marge/experts/'
+        $content = $content -replace '\./knowledge/', '.meta_marge/knowledge/'
+        $content = $content -replace '\./model_pricing\.json', '.meta_marge/model_pricing.json'
         
-        # Single word-boundary replacement for folder name
-        $content = $content -replace "(?<![a-zA-Z0-9_./])$([regex]::Escape($SourceName))(?![a-zA-Z0-9_])", $TargetName
+        # Scripts should use source folder for verification (test the source, not meta)
+        $content = $content -replace '\./scripts/', "$SourceName/scripts/"
+        
+        # Legacy: also handle any remaining explicit source folder references
+        # Protect GitHub URLs first
+        $content = $content -replace "(github\.com/[^/]+/)$([regex]::Escape($SourceName))", '$1___GITHUB___'
         
         # Restore GitHub URLs
         $content = $content -replace '___GITHUB___', $SourceName
@@ -147,21 +160,21 @@ _None_
 _None_
 "@ | Set-Content -Path (Join-Path $TargetFolder "planning_docs\tasklist.md")
 
-# Rewrite AGENTS.md scope section
+# Rewrite AGENTS.md scope section for meta-development
 $AgentsPath = Join-Path $TargetFolder "AGENTS.md"
 $agentsContent = Get-Content -Path $AgentsPath -Raw
 
 $newScope = @"
 **Scope (CRITICAL):**
-1. The ``$TargetName/`` folder is **excluded from audits** -- it is the tooling, not the target.
-2. Audit the workspace/repo OUTSIDE this folder (e.g., ``marge-simpson/``).
-3. Track findings HERE in ``$TargetName/planning_docs/`` assessment.md and tasklist.md.
-4. Never create ``$TargetName`` files outside this folder.
+1. This folder (``.meta_marge/``) is the **control plane** for improving ``$SourceName/``.
+2. Audit ``$SourceName/`` (the target). Track findings HERE in ``.meta_marge/planning_docs/``.
+3. Never create ``.meta_marge`` files outside this folder.
 
 **Meta-Development Workflow:**
 ``````
-  .meta_marge/AGENTS.md  ->  AI audits marge-simpson/  ->  Changes to marge-simpson/
+  .meta_marge/AGENTS.md  ->  AI audits $SourceName/  ->  Changes to $SourceName/
   Work tracked in .meta_marge/planning_docs/
+  Verify using: $SourceName/scripts/verify.ps1 fast
   When done: run convert-to-meta again to reset
 ``````
 

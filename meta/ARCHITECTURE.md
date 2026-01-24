@@ -6,6 +6,51 @@
 
 ---
 
+## ⚠️ CONSTITUTIONAL RULES — DO NOT CHANGE
+
+These invariants are fundamental to how Marge works. Changing them will break the system.
+
+### Path Strategy (D-006)
+
+| Context | Path Style | Example | Why |
+|---------|------------|---------|-----|
+| **Source files** (`marge-simpson/`) | **Relative** (`./`) | `./workflows/work.md` | Users can rename folder to `.marge`, `marge`, etc. |
+| **Meta-development** (`.meta_marge/`) | **Explicit** | `.meta_marge/workflows/work.md` | AI must not confuse meta files with source files |
+| **Verify scripts** (always) | **Source folder** | `marge-simpson/scripts/verify.ps1` | Tests run against source, not meta |
+
+**THE RULE:** Source is relative for flexibility. Meta is explicit to prevent confusion.
+
+The `convert-to-meta` scripts transform `./` → `.meta_marge/` paths automatically. This is intentional and required. Do NOT "fix" this by making everything relative or everything explicit.
+
+### Four Operating Modes
+
+| Mode | Folder | AGENTS Used | Path References |
+|------|--------|-------------|-----------------|
+| **IDE Chat** | Source folder open | Source `AGENTS.md` | Relative (`./`) |
+| **CLI Local** | `.marge/` in project | Symlinked `AGENTS.md` | Relative (`./`) |
+| **CLI Global** | `~/.marge/shared/` | Shared `AGENTS.md` | Relative (`./`) |
+| **Meta-dev** | `.meta_marge/` | Transformed copy | Explicit (`.meta_marge/`) |
+
+**WHY META IS DIFFERENT:** When `.meta_marge/` exists, AI is working ON the source folder. Using relative paths would be ambiguous — `./workflows/` could mean either folder. Explicit paths eliminate confusion.
+
+### Immutable Constraints
+
+1. **`.meta_marge/` has no `scripts/` folder** — It uses `marge-simpson/scripts/` to verify the source
+2. **Planning docs are the single source of work state** — `.marge/` is runtime, `planning_docs/` is tracked
+3. **PRD.md ships blank** — Filled content triggers PRD mode; users fill it in, not shipped with content
+4. **Verify evidence required** — Never claim "tests passed" without raw output
+
+### Anti-Patterns (DO NOT DO)
+
+| Bad Pattern | Why It's Wrong | Correct Approach |
+|-------------|----------------|------------------|
+| Making all paths relative | Breaks meta-development clarity | Source = relative, Meta = explicit |
+| Making all paths explicit | Prevents folder renaming | Source uses `./` |
+| Adding scripts/ to .meta_marge | Duplicates test infrastructure | Meta uses source scripts |
+| Hardcoding `marge-simpson` in source | Prevents user renaming | Use `./` in source files |
+
+---
+
 ## What is Marge?
 
 **Marge is a persistent knowledge base that keeps AI assistants informed across sessions.**

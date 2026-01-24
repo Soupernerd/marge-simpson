@@ -34,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **[Unreleased] changelog link** - Added comparison link for unreleased changes
 - **Centralized fallback pricing constants** - `DEFAULT_INPUT_RATE`/`DEFAULT_OUTPUT_RATE` defined once, used everywhere
 - **`.marge/` in .gitignore** - Per-project CLI folder now properly excluded from version control
+- **Path flexibility** - Source files now use relative paths (`./`) enabling users to rename folder; convert-to-meta dynamically transforms to explicit paths
 
 ### Changed
 - **README identity clarification** - Updated tagline from "drop-in workflow" to "persistent knowledge base that keeps AI assistants informed across sessions"
