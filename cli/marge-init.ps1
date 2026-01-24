@@ -197,6 +197,7 @@ Write-Host "  +-- knowledge\          -> $MargeHome\shared\ $(if($SymlinkFailed)
 Write-Host "  +-- planning_docs\"
 Write-Host "  |   +-- assessment.md   (local - per-project)"
 Write-Host "  |   +-- tasklist.md     (local - per-project)"
+Write-Host "  |   +-- PRD.md          (local - per-project)"
 Write-Host "  +-- verify.config.json  (local - per-project)"
 Write-Host ""
 Write-Host "Edit verify.config.json to configure your project's test commands."

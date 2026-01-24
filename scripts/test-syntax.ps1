@@ -1,3 +1,4 @@
+#!/usr/bin/env pwsh
 <#
 .SYNOPSIS
     Validates PowerShell and Bash script syntax, plus ShellCheck linting.

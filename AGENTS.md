@@ -7,6 +7,8 @@
 2. Audit the workspace/repo OUTSIDE this folder. Track findings HERE in `marge-simpson/planning_docs/` assessment.md and tasklist.md.
 3. Never create `marge-simpson` files outside this folder.
 
+**DO NOT create folders:** Never create `.marge/` or `planning_docs/` folders during chat prompting. Those folders are created only by CLI commands (`marge init`, `marge-init`). If the user needs them, tell them to run the CLI command.
+
 ---
 
 ## Core Rules
@@ -25,7 +27,9 @@
 
 ## AI Behavior (VS Code Copilot)
 
-**Subagents are your primary tool.** Use them liberally for any non-trivial work:
+**Subagents:** `ENABLED` _(user can say "no subagents" to disable)_
+
+Subagents are your primary tool. Use them liberally for any non-trivial work:
 
 ### Always Use Subagents For:
 - **Research** — Searching across many files, finding patterns, understanding codebase

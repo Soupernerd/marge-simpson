@@ -1,3 +1,4 @@
+#!/usr/bin/env pwsh
 <#
 .SYNOPSIS
     Marge Simpson Status Dashboard - instant project visibility.

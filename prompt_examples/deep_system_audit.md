@@ -19,28 +19,11 @@ Read the AGENTS.md file in this folder and follow it.
 
 ### Phase 1: Discovery (Use Subagents)
 
-**Spawn subagents for parallel research:**
+Spawn subagents per AGENTS.md guidance. Focus areas:
 
-1. **Code Quality Subagent:** Search for:
-   - Duplicated logic that should be consolidated
-   - Error handling gaps (missing try/catch, unhandled promises)
-   - Hardcoded values that should be configurable
-   - Dead code or unused exports
-   - Inconsistencies between similar components
-
-2. **Documentation Subagent:** Verify:
-   - README accuracy vs actual behavior
-   - CLI help text matches implementation
-   - Inline comments match code behavior
-   - Version numbers consistent across files
-   - Broken internal links
-
-3. **User Experience Subagent:** Identify:
-   - Confusing error messages
-   - Missing input validation
-   - Edge cases with poor UX
-   - Features that could be simplified
-   - Common user workflows that are harder than necessary
+1. **Code Quality:** Duplicated logic, error handling gaps, hardcoded values, dead code, inconsistencies
+2. **Documentation:** README accuracy, CLI help text, inline comments, version numbers, broken links
+3. **User Experience:** Confusing errors, missing validation, edge cases, unnecessary complexity
 
 ### Phase 2: Expert Consultation
 
@@ -207,15 +190,15 @@ No code logic changes unless fixing doc generation.
 
 1. **Fresh context:** Start a new chat session for deep audits
 2. **Patience:** Min 2 loops ensures thoroughness
-3. **Trust subagents:** They handle the breadth; you review the findings
-4. **Verify always:** Never claim "fixed" without test output
-5. **Document everything:** Future audits benefit from prior context
+3. **Verify always:** Never claim "fixed" without test output
+4. **Document everything:** Future audits benefit from prior context
 
-## Loop
+---
 
-Once you are done auditing:
-1. Fix all issues found, in the order you decide. Do not ask emd user or dev any questions
-2. For conflicts use your best judgement. Always put end user UX as the priority even if it means the fix is a bit harder. Dont assume the siple fix is always the best fix
-3. Make sure all id'sand issues have been fixed, then delete .meta_marge folder and recreate a meta marge.
-4. run this entire prompt again, for a total of 20 times. we are looping and we will be auditing, fixing, deleting meta marge, recreating meta marge, auditing, fixing etc 20 times in total.
-5. During all of the time looping, do not ask questions of the dev. use best jusgemdn as described above, usigin reasoning stated above.
+## Loop Behavior
+
+Looping follows `workflows/loop.md`. Key points:
+- Fix all P0/P1 issues before stopping
+- Use best judgment for conflicts (prioritize end-user UX)
+- Don't ask questions during loop execution — decide autonomously
+- After fixes: delete .meta_marge, recreate, continue auditing

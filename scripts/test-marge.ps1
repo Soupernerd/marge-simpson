@@ -1,3 +1,4 @@
+#!/usr/bin/env pwsh
 <#
 test-marge.ps1 - Marge Simpson Self-Test Suite (Slim Edition)
 

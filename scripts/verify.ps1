@@ -1,3 +1,4 @@
+#!/usr/bin/env pwsh
 <#
 verify.ps1 - Marge Simpson Verification Runner
 

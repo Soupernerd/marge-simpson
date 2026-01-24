@@ -1,3 +1,4 @@
+#!/usr/bin/env pwsh
 <#
 .SYNOPSIS
     Marge Simpson Knowledge Decay Scanner - identifies stale entries.

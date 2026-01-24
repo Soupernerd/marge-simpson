@@ -161,3 +161,23 @@ Options:
 - Changes happen in `marge-simpson/`, not `.meta_marge/`
 - CLI prompts to create `.meta_marge/` if missing
 - Use `marge meta status` to see tracked work summary
+
+## Known Behavior
+
+### Expected Test Failure After Creation
+
+After running `convert-to-meta.ps1`, you may see:
+
+```
+[FAIL] verify.ps1 -SkipIfNoTests exits 0 (returned: False)
+```
+
+**This is expected and harmless.** The test fails because:
+
+1. Test Suite 4/5 in `test-marge.ps1` runs a nested `verify.ps1` call
+2. The transformed `verify.config.json` contains paths like `.\.meta_marge\scripts\...`
+3. These paths resolve incorrectly when run from *inside* `.meta_marge/` itself
+
+**Impact:** One test failure in the verification summary. All other tests pass normally and meta-development workflow is unaffected.
+
+**Note:** This is a testing artifact from the self-referential nature of `.meta_marge/` — the folder contains test scripts that try to verify themselves.

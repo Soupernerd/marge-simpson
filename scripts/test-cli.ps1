@@ -1,3 +1,4 @@
+#!/usr/bin/env pwsh
 <#
 test-cli.ps1 - CLI Integration Tests
 

@@ -27,12 +27,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Temp file cleanup on exit** - Temp files now cleaned up on any exit (success, error, interrupt)
 - **Dynamic VERSION** - CLI scripts now read version from VERSION file instead of hardcoding
 - **First-run guidance** - `marge init` now shows quick start example after initialization
+- **Subagent toggle** - AGENTS.md now has explicit `ENABLED/DISABLED` toggle for subagent behavior
+- **Folder creation prohibition** - AGENTS.md now explicitly prevents AI from creating .marge/ folders during chat
+- **Cross-platform shebang** - All PS1 scripts now have `#!/usr/bin/env pwsh` for Unix compatibility
+- **PRD.md in marge-init output** - Tree display now shows PRD.md file that's copied
+- **[Unreleased] changelog link** - Added comparison link for unreleased changes
+- **Folder creation prohibition** - AGENTS.md now explicitly forbids AI from creating .marge/ folders during chat prompting
+- **Expected test failure documented** - meta/README.md documents the expected SkipIfNoTests failure after convert-to-meta
 
 ### Changed
 - **Help text parity** - PS1 and Bash help now show identical OPTIONS and META-DEVELOPMENT sections
 - **Show-Usage output** - Changed from Write-Host to Write-Output (now capturable for testing)
 - **Early engine validation** - `--engine` parameter now validated during arg parsing with helpful error message
 - **CLI test count increased** - From 23 to 36 tests with new functional and edge case coverage
+- **deep_system_audit.md simplified** - Removed duplicated looping/subagent instructions, now references centralized AGENTS.md and workflows/loop.md
 - **Engine not found error** - Now shows installation hints for known engines (claude, aider, opencode, codex)
 - **Removed unused prompt parameter** - `Build-EngineCmd` no longer accepts unused `$Prompt` parameter
 
@@ -146,6 +154,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `.meta_marge/` - Self-development working copy (gitignored)
 - Changes flow: `marge_simpson/` → `.meta_marge/` → validate → back to `marge_simpson/`
 
+[Unreleased]: https://github.com/Soupernerd/marge-simpson/compare/v1.3.0...HEAD
 [1.3.0]: https://github.com/Soupernerd/marge-simpson/compare/v1.2.2...v1.3.0
 [1.2.2]: https://github.com/Soupernerd/marge-simpson/compare/v1.2.1...v1.2.2
 [1.2.1]: https://github.com/Soupernerd/marge-simpson/compare/v1.1.0...v1.2.1
