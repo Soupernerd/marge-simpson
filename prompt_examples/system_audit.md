@@ -1,10 +1,3 @@
-# System Audit
-
-> Comprehensive read-only audit of the entire workspace/repo.
-
-## Prompt
-
-```
 Read the AGENTS.md file in this folder and follow it.
 
 **AUDIT MODE** - Read-only analysis, no code changes.
@@ -28,11 +21,4 @@ Read the AGENTS.md file in this folder and follow it.
    - Show unchecked items from tasklist.md (P0 → P1 → P2)
    - Suggest order of operations
 
-Output using the Response Format from AGENTS.md.
-```
-
-## Notes
-
-- This is a discovery phase - no fixes yet
-- Focus on high-impact issues that affect correctness or reliability
-- Low-priority style issues can be noted but shouldn't dominate the list
+Output using the Response Format from AGENTS.md, with detailed info.
