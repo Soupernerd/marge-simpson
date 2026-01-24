@@ -59,6 +59,16 @@ log_warn() { echo "${YELLOW}[WARN]${RESET} $*"; }
 log_error() { echo "${RED}[ERROR]${RESET} $*" >&2; }
 log_debug() { [[ "$VERBOSE" == true ]] && echo "[DEBUG] $*" || true; }
 
+# Validate positive integer
+validate_positive_int() {
+    local value="$1" name="$2"
+    if ! [[ "$value" =~ ^[1-9][0-9]*$ ]]; then
+        log_error "$name must be a positive integer, got: $value"
+        return 1
+    fi
+    return 0
+}
+
 print_usage() {
     cat <<EOF
 ${BOLD}marge${RESET} v$VERSION - Autonomous AI coding loop
@@ -703,6 +713,7 @@ model: ""
 max_iterations: 20
 max_retries: 3
 auto_commit: true
+folder: .marge
 EOF
 
     [[ ! -f "planning_docs/PRD.md" ]] && cat > planning_docs/PRD.md <<'EOF'
@@ -736,11 +747,11 @@ while [[ $# -gt 0 ]]; do
         --fast) FAST=true; shift ;;
         --full) FULL_MODE=true; shift ;;
         --loop) LOOP=true; shift ;;
-        --max-iterations) MAX_ITER="$2"; shift 2 ;;
-        --max-retries) MAX_RETRIES="$2"; shift 2 ;;
+        --max-iterations) validate_positive_int "$2" "--max-iterations" || exit 1; MAX_ITER="$2"; shift 2 ;;
+        --max-retries) validate_positive_int "$2" "--max-retries" || exit 1; MAX_RETRIES="$2"; shift 2 ;;
         --no-commit) AUTO_COMMIT=false; shift ;;
         --parallel) PARALLEL=true; shift ;;
-        --max-parallel) MAX_PARALLEL="$2"; shift 2 ;;
+        --max-parallel) validate_positive_int "$2" "--max-parallel" || exit 1; MAX_PARALLEL="$2"; shift 2 ;;
         --branch-per-task) BRANCH_PER_TASK=true; shift ;;
         --create-pr) CREATE_PR=true; shift ;;
         -v|--verbose) VERBOSE=true; shift ;;

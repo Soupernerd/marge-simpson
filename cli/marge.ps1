@@ -92,6 +92,15 @@ function Write-Warn { param([string]$Message) Write-Host "[WARN] " -ForegroundCo
 function Write-Err { param([string]$Message) Write-Host "[ERROR] " -ForegroundColor Red -NoNewline; Write-Host $Message }
 function Write-Debug-Msg { param([string]$Message) if ($script:VERBOSE_OUTPUT) { Write-Host "[DEBUG] $Message" } }
 
+function Test-PositiveInt {
+    param([string]$Value, [string]$Name)
+    if ($Value -notmatch '^[1-9][0-9]*$') {
+        Write-Err "$Name must be a positive integer, got: $Value"
+        return $false
+    }
+    return $true
+}
+
 function Show-Usage {
     $usage = @"
 
@@ -797,6 +806,32 @@ function Show-Status {
     }
 }
 
+function Get-ModelPricing {
+    # Default Claude Sonnet pricing
+    $inputRate = 3.00
+    $outputRate = 15.00
+    
+    # Try to read from model_pricing.json
+    $pricingFile = "./$script:MARGE_FOLDER/model_pricing.json"
+    if (-not (Test-Path $pricingFile)) {
+        $pricingFile = Join-Path $script:MARGE_HOME "shared\model_pricing.json"
+    }
+    
+    if (Test-Path $pricingFile) {
+        try {
+            $pricing = Get-Content $pricingFile -Raw | ConvertFrom-Json
+            $modelName = if ($script:MODEL -match "opus") { "Claude Opus" } else { "Claude Sonnet" }
+            $modelPricing = $pricing.models | Where-Object { $_.name -match $modelName } | Select-Object -First 1
+            if ($modelPricing) {
+                $inputRate = $modelPricing.input_per_1m
+                $outputRate = $modelPricing.output_per_1m
+            }
+        } catch { }
+    }
+    
+    return @{ InputRate = $inputRate; OutputRate = $outputRate }
+}
+
 function Show-SessionSummary {
     param([int]$IterCount = 0)
 
@@ -806,10 +841,8 @@ function Show-SessionSummary {
     Write-Host "  Folder: $script:MARGE_FOLDER"
 
     if ($script:total_input_tokens -gt 0 -or $script:total_output_tokens -gt 0) {
-        # Calculate cost (default Claude Sonnet pricing)
-        $inputRate = 3.00
-        $outputRate = 15.00
-        $totalCost = (($script:total_input_tokens * $inputRate) + ($script:total_output_tokens * $outputRate)) / 1000000
+        $pricing = Get-ModelPricing
+        $totalCost = (($script:total_input_tokens * $pricing.InputRate) + ($script:total_output_tokens * $pricing.OutputRate)) / 1000000
         
         Write-Host "  Tokens: " -NoNewline
         Write-Host "$script:total_input_tokens in / $script:total_output_tokens out" -ForegroundColor Cyan
@@ -842,11 +875,11 @@ while ($i -lt $Arguments.Count) {
     elseif ($arg -match '^(-Fast|--fast)$') { $script:FAST = $true; $matched = $true }
     elseif ($arg -match '^(-Full|--full)$') { $script:FULL_MODE = $true; $matched = $true }
     elseif ($arg -match '^(-Loop|--loop)$') { $script:LOOP = $true; $matched = $true }
-    elseif ($arg -match '^(-MaxIterations|--max-iterations)$') { $i++; $script:MAX_ITER = [int]$Arguments[$i]; $matched = $true }
-    elseif ($arg -match '^(-MaxRetries|--max-retries)$') { $i++; $script:MAX_RETRIES = [int]$Arguments[$i]; $matched = $true }
+    elseif ($arg -match '^(-MaxIterations|--max-iterations)$') { $i++; if (-not (Test-PositiveInt $Arguments[$i] "--max-iterations")) { exit 1 }; $script:MAX_ITER = [int]$Arguments[$i]; $matched = $true }
+    elseif ($arg -match '^(-MaxRetries|--max-retries)$') { $i++; if (-not (Test-PositiveInt $Arguments[$i] "--max-retries")) { exit 1 }; $script:MAX_RETRIES = [int]$Arguments[$i]; $matched = $true }
     elseif ($arg -match '^(-NoCommit|--no-commit)$') { $script:AUTO_COMMIT = $false; $matched = $true }
     elseif ($arg -match '^(-Parallel|--parallel)$') { $script:PARALLEL = $true; $matched = $true }
-    elseif ($arg -match '^(-MaxParallel|--max-parallel)$') { $i++; $script:MAX_PARALLEL = [int]$Arguments[$i]; $matched = $true }
+    elseif ($arg -match '^(-MaxParallel|--max-parallel)$') { $i++; if (-not (Test-PositiveInt $Arguments[$i] "--max-parallel")) { exit 1 }; $script:MAX_PARALLEL = [int]$Arguments[$i]; $matched = $true }
     elseif ($arg -match '^(-BranchPerTask|--branch-per-task)$') { $script:BRANCH_PER_TASK = $true; $matched = $true }
     elseif ($arg -match '^(-CreatePR|--create-pr)$') { $script:CREATE_PR = $true; $matched = $true }
     elseif ($arg -match '^(-Folder|--folder)$') { $i++; $script:MARGE_FOLDER = $Arguments[$i]; $matched = $true }
