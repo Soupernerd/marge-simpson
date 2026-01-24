@@ -41,4 +41,4 @@ For architecture changes, schema changes, or API contract changes:
 
 If pricing visibility is useful, end with:
 
-`📊 ~In: X,XXX | Out: X,XXX | Est: $X.XX`
+`📊 ~In: X,XXX | Out: X,XXX | Est: $X.XXXX`

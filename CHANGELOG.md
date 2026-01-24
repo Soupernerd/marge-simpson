@@ -35,6 +35,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Centralized fallback pricing constants** - `DEFAULT_INPUT_RATE`/`DEFAULT_OUTPUT_RATE` defined once, used everywhere
 
 ### Fixed
+- **P0: Get-Slug truncation bug** - `marge.ps1` `Get-Slug` function now correctly truncates to 50 characters using `Substring()` instead of `Select-Object -First 50`
+- **P1: Premature loop termination** - `is_task_complete()` (bash) and `Test-TaskComplete` (PS1) now return false when files don't exist, preventing early loop exit
+- **P2: Path traversal validation** - Both CLI scripts now reject additional edge cases: trailing `..`, standalone `..`, and backslash-prefixed paths
+- **P2: marge-init symlink indicator** - Bash version now shows "(copy)" vs "(symlink)" status like PS1 version
+- **P2: Token estimate format** - AGENTS-lite.md now uses `$X.XXXX` format consistent with AGENTS.md
+- **P2: Cross-platform verification docs** - work.md now shows both `.ps1` and `.sh` commands
+- **P3: Grammar** - "README.md's" corrected to "README.md" in deep_system_audit.md
+- **P3: loop.md accuracy** - Removed false claim about word-to-number parsing (only digits supported)
+- **Removed unused variables** - Cleaned up `$usingFallback`/`using_fallback` dead code from CLI scripts
+
+### Fixed
 - **Security: Path traversal in --folder** - Now validates folder path is relative and within project
 - **Security: Code injection in load_progress** - Bash version now parses progress file explicitly instead of using `source`
 
@@ -46,8 +57,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **deep_system_audit.md simplified** - Removed duplicated looping/subagent instructions, now references centralized AGENTS.md and workflows/loop.md
 - **Engine not found error** - Now shows installation hints for known engines (claude, aider, opencode, codex)
 - **Removed unused prompt parameter** - `Build-EngineCmd` no longer accepts unused `$Prompt` parameter
-
-### Fixed
 - **Bash invalid flag handling** - Now shows friendly "Unknown option" message with help suggestion
 - **README missing --auto** - Added --auto flag to CLI options table
 - **README missing utilities** - Added `marge doctor` and `marge clean` to Utilities section

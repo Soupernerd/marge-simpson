@@ -140,7 +140,7 @@ Before completing, ensure:
 - [x] assessment.md updated
 - [x] tasklist.md updated
 - [x] CHANGELOG.md updated (if fixes applied)
-- [x] README.md's updated (if warranted. keep existing data and structure)
+- [x] README.md updated (if warranted, keep existing data and structure)
 - [x] VERSION bumped (if warranted)
 - [x] knowledge/*.md updated (if decisions made)
 

@@ -192,7 +192,9 @@ ENVIRONMENT:
 
 function Get-Slug {
     param([string]$Text)
-    $Text.ToLower() -replace '[^a-z0-9]+', '-' -replace '^-|-$', '' | Select-Object -First 50
+    $slug = $Text.ToLower() -replace '[^a-z0-9]+', '-' -replace '^-|-$', ''
+    if ($slug.Length -gt 50) { $slug = $slug.Substring(0, 50) }
+    return $slug
 }
 
 function Load-Config {
@@ -352,7 +354,6 @@ function Write-TokenUsage {
         # Default Claude Sonnet-class pricing (fallback when file missing/invalid)
         $inputRate = $script:DEFAULT_INPUT_RATE
         $outputRate = $script:DEFAULT_OUTPUT_RATE
-        $usingFallback = $false
         
         # Try to read from model_pricing.json
         $pricingFile = "./$script:MARGE_FOLDER/model_pricing.json"
@@ -367,7 +368,6 @@ function Write-TokenUsage {
                 # Validate expected structure: must have 'models' array
                 if (-not $pricing.models -or $pricing.models -isnot [System.Array]) {
                     Write-Warn "model_pricing.json missing 'models' array - using fallback pricing (`$3/`$15 per 1M tokens)"
-                    $usingFallback = $true
                 }
                 else {
                     $modelName = if ($script:MODEL -match "opus") { "Claude Opus" } else { "Claude Sonnet" }
@@ -380,19 +380,16 @@ function Write-TokenUsage {
                         }
                         else {
                             Write-Warn "model_pricing.json entry missing pricing fields - using fallback pricing"
-                            $usingFallback = $true
                         }
                     }
                 }
             }
             catch {
                 Write-Warn "Failed to parse model_pricing.json: $($_.Exception.Message) - using fallback pricing (`$3/`$15 per 1M tokens)"
-                $usingFallback = $true
             }
         }
         else {
             Write-Debug-Msg "model_pricing.json not found - using fallback pricing"
-            $usingFallback = $true
         }
         
         $cost = (($tokens.Input * $inputRate) + ($tokens.Output * $outputRate)) / 1000000
@@ -516,14 +513,21 @@ function Test-TaskComplete {
     $tasklistPath = "./$script:MARGE_FOLDER/planning_docs/tasklist.md"
     $assessmentPath = "./$script:MARGE_FOLDER/planning_docs/assessment.md"
 
+    # If tasklist exists and has unchecked items, not complete
     if (Test-Path $tasklistPath) {
         $content = Get-Content $tasklistPath -Raw
         if ($content -match '\[ \]') { return $false }
     }
 
+    # If assessment exists and indicates completion, complete
     if (Test-Path $assessmentPath) {
         $content = Get-Content $assessmentPath -Raw
         if ($content -match '(clean|complete|no issues)') { return $true }
+    }
+
+    # If neither file exists, assume not complete (avoid premature loop termination)
+    if (-not (Test-Path $tasklistPath) -and -not (Test-Path $assessmentPath)) {
+        return $false
     }
 
     return $true
@@ -1526,7 +1530,11 @@ while ($i -lt $Arguments.Count) {
         $i++
         $folderValue = $Arguments[$i]
         # Security: Prevent path traversal outside project
-        if ($folderValue -match '^[/\\]' -or $folderValue -match '^\.\.[/\\]' -or $folderValue -match '[/\\]\.\.[/\\]') {
+        if ([string]::IsNullOrWhiteSpace($folderValue) -or 
+            $folderValue -match '^[/\\]' -or 
+            $folderValue -match '^\.\.[/\\]?' -or 
+            $folderValue -match '[/\\]\.\.[/\\]?' -or 
+            $folderValue -eq '..') {
             Write-Err "--folder must be a relative path within the project (got: $folderValue)"
             exit 1
         }

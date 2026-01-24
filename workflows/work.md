@@ -71,7 +71,7 @@ Select-String -Path "knowledge/decisions.md" -Pattern "#auth|#api|#database"
    ### [MS-####] Short description
    - **Type:** bug | feature | improvement
    - **DoD:** What "done" looks like
-   - **Verification:** `./scripts/verify.ps1 fast`
+   - **Verification:** `./scripts/verify.ps1 fast` (Win) or `./scripts/verify.sh fast` (Unix)
    - **Status:** [ ] Not started
    ```
 4. Increment `Next ID` in BOTH files
@@ -102,7 +102,8 @@ Select-String -Path "knowledge/decisions.md" -Pattern "#auth|#api|#database"
                ▼
 ┌─────────────────────────────────────┐
 │  2. VERIFY                          │
-│     - Run: ./scripts/verify.ps1 fast │
+│     - Run: verify.ps1 fast (Win)    │
+│            verify.sh fast (Unix)    │
 │     - Run any item-specific tests   │
 │     - Capture raw output            │
 └──────────────┬──────────────────────┘
