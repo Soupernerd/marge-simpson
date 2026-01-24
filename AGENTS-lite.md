@@ -34,3 +34,11 @@ Get it right the first time:
 For architecture changes, schema changes, or API contract changes:
 - Make your best judgment on small/medium changes
 - For large changes: outline the plan and what you'd change, but recommend using full mode with `--full` flag
+
+---
+
+## Token Estimate (Optional)
+
+If pricing visibility is useful, end with:
+
+`📊 ~In: X,XXX | Out: X,XXX | Est: $X.XX`

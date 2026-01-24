@@ -11,5 +11,5 @@
     ".\\marge-simpson\\scripts\\test-marge.ps1",
     ".\\marge-simpson\\scripts\\test-cli.ps1"
   ],
-  "_comment": "Marge core tests. Commands run from repo root (parent of this folder)."
+  "_comment": "Marge core tests. Commands run from repo root (parent of marge-simpson folder). Folder name must match actual directory."
 }

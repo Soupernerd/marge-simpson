@@ -76,6 +76,10 @@ $script:MARGE_FOLDER = if ($env:MARGE_FOLDER) { $env:MARGE_FOLDER } else { ".mar
 $script:PRD_FILE = "planning_docs/PRD.md"
 $script:CONFIG_FILE = ".marge\config.yaml"
 $script:PROGRESS_FILE = ".marge\progress.txt"
+$script:PARALLEL = $false
+$script:MAX_PARALLEL = if ($env:MAX_PARALLEL) { [int]$env:MAX_PARALLEL } else { 3 }
+$script:BRANCH_PER_TASK = $false
+$script:CREATE_PR = $false
 
 # State
 $script:iteration = 0
@@ -120,6 +124,10 @@ OPTIONS:
   -MaxIterations N   Max iterations (default: $script:MAX_ITER)
   -MaxRetries N      Max retries per task (default: $script:MAX_RETRIES)
   -NoCommit          Disable auto-commit
+  -Parallel          Run tasks in parallel using git worktrees
+  -MaxParallel N     Max parallel agents (default: $script:MAX_PARALLEL)
+  -BranchPerTask     Create branch per task
+  -CreatePR          Create PR when done
   -Verbose           Verbose output
   -Version           Show version
   -Help              Show help
@@ -198,6 +206,164 @@ function Load-Progress {
 
 function Clear-Progress {
     Remove-Item -Path $script:PROGRESS_FILE -ErrorAction SilentlyContinue
+}
+
+function Send-Notification {
+    param([string]$Message = "Marge complete")
+    
+    # Try Windows 10+ toast notification
+    try {
+        [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null
+        [Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, ContentType = WindowsRuntime] | Out-Null
+        
+        $template = @"
+<toast>
+    <visual>
+        <binding template="ToastText02">
+            <text id="1">Marge</text>
+            <text id="2">$Message</text>
+        </binding>
+    </visual>
+</toast>
+"@
+        $xml = New-Object Windows.Data.Xml.Dom.XmlDocument
+        $xml.LoadXml($template)
+        $toast = [Windows.UI.Notifications.ToastNotification]::new($xml)
+        [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier("Marge").Show($toast)
+    }
+    catch {
+        # Fallback: try BurntToast module if available
+        if (Get-Module -ListAvailable -Name BurntToast -ErrorAction SilentlyContinue) {
+            try {
+                New-BurntToastNotification -Text "Marge", $Message -ErrorAction SilentlyContinue
+            } catch { }
+        }
+    }
+}
+
+function Get-TokenUsage {
+    param([string]$OutputFile)
+    
+    $inputTokens = 0
+    $outputTokens = 0
+    
+    if (-not (Test-Path $OutputFile)) { return @{ Input = 0; Output = 0 } }
+    
+    $content = Get-Content $OutputFile -Raw -ErrorAction SilentlyContinue
+    if (-not $content) { return @{ Input = 0; Output = 0 } }
+    
+    # Pattern 1: "type": "result" with usage nested
+    if ($content -match '"type"\s*:\s*"result".*?"input_tokens"\s*:\s*(\d+)') {
+        $inputTokens = [int]$Matches[1]
+    }
+    if ($content -match '"type"\s*:\s*"result".*?"output_tokens"\s*:\s*(\d+)') {
+        $outputTokens = [int]$Matches[1]
+    }
+    
+    # Pattern 2: Look for usage object directly if above failed
+    if ($inputTokens -eq 0 -and $outputTokens -eq 0) {
+        if ($content -match '"input_tokens"\s*:\s*(\d+)') {
+            $inputTokens = [int]$Matches[1]
+        }
+        if ($content -match '"output_tokens"\s*:\s*(\d+)') {
+            $outputTokens = [int]$Matches[1]
+        }
+    }
+    
+    # Pattern 3: Check for total_tokens as fallback
+    if ($inputTokens -eq 0 -and $outputTokens -eq 0) {
+        if ($content -match '"total_tokens"\s*:\s*(\d+)') {
+            $total = [int]$Matches[1]
+            $inputTokens = [math]::Floor($total * 0.7)
+            $outputTokens = [math]::Floor($total * 0.3)
+        }
+    }
+    
+    return @{ Input = $inputTokens; Output = $outputTokens }
+}
+
+function Write-TokenUsage {
+    param([string]$OutputFile)
+    
+    $tokens = Get-TokenUsage $OutputFile
+    
+    if ($tokens.Input -gt 0 -or $tokens.Output -gt 0) {
+        # Default Claude Sonnet pricing
+        $inputRate = 3.00
+        $outputRate = 15.00
+        
+        # Try to read from model_pricing.json
+        $pricingFile = "./$script:MARGE_FOLDER/model_pricing.json"
+        if (-not (Test-Path $pricingFile)) {
+            $pricingFile = Join-Path $script:MARGE_HOME "shared\model_pricing.json"
+        }
+        
+        if (Test-Path $pricingFile) {
+            try {
+                $pricing = Get-Content $pricingFile -Raw | ConvertFrom-Json
+                $modelName = if ($script:MODEL -match "opus") { "Claude Opus" } else { "Claude Sonnet" }
+                $modelPricing = $pricing.models | Where-Object { $_.name -match $modelName } | Select-Object -First 1
+                if ($modelPricing) {
+                    $inputRate = $modelPricing.input_per_1m
+                    $outputRate = $modelPricing.output_per_1m
+                }
+            } catch { }
+        }
+        
+        $cost = (($tokens.Input * $inputRate) + ($tokens.Output * $outputRate)) / 1000000
+        Write-Host "  Tokens: " -NoNewline -ForegroundColor Cyan
+        Write-Host "$($tokens.Input) in / $($tokens.Output) out" -NoNewline
+        Write-Host " · Cost: " -NoNewline -ForegroundColor Cyan
+        Write-Host "`$$([math]::Round($cost, 4))"
+        
+        # Update totals
+        $script:total_input_tokens += $tokens.Input
+        $script:total_output_tokens += $tokens.Output
+    }
+    else {
+        Write-Host "  Token usage not available" -ForegroundColor Yellow
+    }
+}
+
+function New-Worktree {
+    param([string]$TaskSlug)
+    
+    $worktreeDir = "$script:MARGE_FOLDER/worktrees/$TaskSlug"
+    
+    if (-not (Test-Path $worktreeDir)) {
+        try {
+            git worktree add $worktreeDir -b "marge/$TaskSlug" 2>$null
+        }
+        catch {
+            try {
+                git worktree add $worktreeDir "marge/$TaskSlug" 2>$null
+            }
+            catch {
+                return $null
+            }
+        }
+    }
+    return $worktreeDir
+}
+
+function Remove-Worktrees {
+    try {
+        git worktree prune 2>$null
+        Remove-Item -Recurse -Force "$script:MARGE_FOLDER/worktrees" -ErrorAction SilentlyContinue
+    } catch { }
+}
+
+function Invoke-TaskParallel {
+    param([string]$Task, [int]$Num, [string]$Slug)
+    
+    $workDir = New-Worktree $Slug
+    if (-not $workDir) {
+        Write-Err "Failed to setup worktree for $Slug"
+        return $false
+    }
+    
+    Write-Info "Running task $Num in worktree: $workDir"
+    return Invoke-Task $Task $Num $workDir
 }
 
 function Test-Engine {
@@ -399,6 +565,7 @@ After finished, list remaining unchecked items in $script:MARGE_FOLDER/planning_
 
             if ($exitCode -eq 0) {
                 Write-Success "Task $Num completed"
+                Write-TokenUsage $outputFile
                 Invoke-AutoCommit $Num
                 Save-Progress $Num "completed"
                 Remove-Item $outputFile -ErrorAction SilentlyContinue
@@ -448,28 +615,97 @@ function Invoke-PrdMode {
     Write-Host "Marge v$script:VERSION" -ForegroundColor White
     Write-Host "Found $($tasks.Count) tasks in $script:PRD_FILE"
     Write-Host "Folder: $script:MARGE_FOLDER" -ForegroundColor Cyan
+    if ($script:PARALLEL) {
+        Write-Host "Mode: parallel (max $script:MAX_PARALLEL)" -ForegroundColor Cyan
+    }
     Write-Host ""
 
-    foreach ($task in $tasks) {
-        $script:iteration++
-
-        $result = Invoke-Task $task $script:iteration
-        if (-not $result -and -not $script:LOOP) { break }
-
-        if (Test-TaskComplete) {
-            Write-Success "All tasks complete!"
-            break
+    if ($script:DRY_RUN) {
+        Write-Host "Tasks:" -ForegroundColor White
+        $taskNum = 0
+        foreach ($task in $tasks) {
+            $taskNum++
+            Write-Host "  $taskNum. $task"
         }
+        return
+    }
 
-        if ($script:iteration -ge $script:MAX_ITER) {
-            Write-Warn "Max iterations reached"
-            break
+    if ($script:PARALLEL) {
+        # Parallel mode using jobs
+        $jobs = @()
+        $running = 0
+        $taskNum = 0
+        
+        foreach ($task in $tasks) {
+            $taskNum++
+            $slug = Get-Slug $task
+            
+            while ($running -ge $script:MAX_PARALLEL) {
+                $completed = Get-Job -State Completed
+                if ($completed) {
+                    $completed | ForEach-Object { Receive-Job $_; Remove-Job $_ }
+                    $running -= $completed.Count
+                }
+                Start-Sleep -Milliseconds 500
+            }
+            
+            $job = Start-Job -ScriptBlock {
+                param($TaskText, $TaskNum, $TaskSlug, $ScriptPath)
+                & $ScriptPath $TaskText -Folder ".marge"
+            } -ArgumentList $task, $taskNum, $slug, $MyInvocation.MyCommand.Path
+            
+            $jobs += $job
+            $running++
+        }
+        
+        # Wait for all jobs to complete
+        $jobs | Wait-Job | ForEach-Object { Receive-Job $_; Remove-Job $_ }
+        Remove-Worktrees
+        $script:iteration = $taskNum
+    }
+    else {
+        foreach ($task in $tasks) {
+            $script:iteration++
+
+            if ($script:BRANCH_PER_TASK) {
+                $slug = Get-Slug $task
+                try {
+                    git checkout -b "marge/$slug" 2>$null
+                } catch {
+                    try { git checkout "marge/$slug" 2>$null } catch { }
+                }
+            }
+
+            $result = Invoke-Task $task $script:iteration
+            if (-not $result -and -not $script:LOOP) { break }
+
+            if (Test-TaskComplete) {
+                Write-Success "All tasks complete!"
+                break
+            }
+
+            if ($script:iteration -ge $script:MAX_ITER) {
+                Write-Warn "Max iterations reached"
+                break
+            }
+        }
+    }
+
+    if ($script:CREATE_PR) {
+        Write-Info "Creating PR..."
+        $prTitle = "Marge: Completed $script:iteration tasks"
+        $prBody = "Automated PR by marge v$script:VERSION"
+        try {
+            gh pr create --title $prTitle --body $prBody 2>$null
+        } catch {
+            Write-Warn "PR creation failed (gh CLI may not be installed)"
         }
     }
 
     Clear-Progress
     Write-Host ""
     Show-SessionSummary $script:iteration
+    Send-Notification "Completed $script:iteration tasks"
 }
 
 function Invoke-SingleTask {
@@ -509,6 +745,7 @@ function Invoke-SingleTask {
 
     Write-Host ""
     Show-SessionSummary $script:iteration
+    Send-Notification "Task complete"
 }
 
 function Initialize-Config {
@@ -608,6 +845,10 @@ while ($i -lt $Arguments.Count) {
     elseif ($arg -match '^(-MaxIterations|--max-iterations)$') { $i++; $script:MAX_ITER = [int]$Arguments[$i]; $matched = $true }
     elseif ($arg -match '^(-MaxRetries|--max-retries)$') { $i++; $script:MAX_RETRIES = [int]$Arguments[$i]; $matched = $true }
     elseif ($arg -match '^(-NoCommit|--no-commit)$') { $script:AUTO_COMMIT = $false; $matched = $true }
+    elseif ($arg -match '^(-Parallel|--parallel)$') { $script:PARALLEL = $true; $matched = $true }
+    elseif ($arg -match '^(-MaxParallel|--max-parallel)$') { $i++; $script:MAX_PARALLEL = [int]$Arguments[$i]; $matched = $true }
+    elseif ($arg -match '^(-BranchPerTask|--branch-per-task)$') { $script:BRANCH_PER_TASK = $true; $matched = $true }
+    elseif ($arg -match '^(-CreatePR|--create-pr)$') { $script:CREATE_PR = $true; $matched = $true }
     elseif ($arg -match '^(-Folder|--folder)$') { $i++; $script:MARGE_FOLDER = $Arguments[$i]; $matched = $true }
     elseif ($arg -match '^(-Verbose|--verbose|-v)$') { $script:VERBOSE_OUTPUT = $true; $matched = $true }
     elseif ($arg -match '^(-Version|--version)$') { Write-Host "marge $script:VERSION"; exit 0 }
@@ -678,6 +919,7 @@ if ($positional.Count -gt 0) {
         }
         
         Show-SessionSummary $taskNum
+        Send-Notification "Completed $taskNum tasks"
     }
     else {
         Invoke-SingleTask $positional[0]
