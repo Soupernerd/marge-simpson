@@ -163,6 +163,10 @@ META-DEVELOPMENT:
     3. Changes made DIRECTLY to marge-simpson/
     4. Work tracked in .meta_marge/planning_docs/
 
+PRD FORMAT:
+  Tasks are parsed from planning_docs/PRD.md using "### Task N: Title" format.
+  See 'marge init' for a template.
+
 CONFIG FILE:
   Place .marge\config.yaml in your project:
     engine: claude

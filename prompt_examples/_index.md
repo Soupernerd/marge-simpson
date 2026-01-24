@@ -12,7 +12,7 @@
 | Questions or confirmations | [questions_confirmations.md](questions_confirmations.md) | Ask questions, confirm fixes |
 | Feature brainstorming | [suggest_features_marge.md](suggest_features_marge.md) | PLANNING ONLY mode proposal |
 | Codebase audit | [system_audit.md](system_audit.md) | Full system review |
-| Iterative loop audit | [loop_audit](loop_audit) | Loop until clean with min/max iterations |
+| **Deep continuous audit** | [deep_system_audit.md](deep_system_audit.md) | **Subagents + loop + experts** |
 
 ## When to Use Each
 
@@ -21,4 +21,4 @@
 - **Want ideas without code changes?** → `suggest_features_marge.md`
 - **Full codebase review?** → `system_audit.md`
 - **Multiple things at once?** → `multiple_prompts.md`
-- **Iterative deep audit?** → `loop_audit`
+- **Comprehensive continuous improvement?** → `deep_system_audit.md` ⭐

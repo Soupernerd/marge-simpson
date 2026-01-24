@@ -23,6 +23,16 @@
 
 ---
 
+## AI Behavior (VS Code Copilot)
+
+When working in VS Code Copilot Chat:
+- **Use subagents** for research tasks requiring searches across many files
+- **Use subagents** for audits or pattern-finding across the codebase
+- **Prefer subagents** over sequential file reads when exploring unfamiliar areas
+- **Direct tools** are fine for targeted edits or known file locations
+
+---
+
 ## Tracking
 
 | File | Purpose |

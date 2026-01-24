@@ -515,7 +515,7 @@ initialize_meta() {
     
     # Create minimal AGENTS.md
     cat > ".meta_marge/AGENTS.md" << 'AGENTSEOF'
-# AGENTS.md — Meta-Development Mode
+# AGENTS.md -- Meta-Development Mode
 
 This is a minimal .meta_marge/ setup. For full meta-development:
 1. Clone the marge repo
@@ -889,6 +889,7 @@ print_session_summary() {
     echo "${BOLD}═══════════════════════════════════════════════════${RESET}"
     echo "${BOLD}Session Summary${RESET}"
     echo "  Iterations: $iter_count"
+    echo "  Folder: $MARGE_FOLDER"
 
     if [[ $total_input_tokens -gt 0 ]] || [[ $total_output_tokens -gt 0 ]]; then
         # Calculate total cost
@@ -1100,7 +1101,7 @@ if [[ ${#POSITIONAL[@]} -gt 0 ]]; then
         task_num=0
         for task in "${POSITIONAL[@]}"; do
             ((task_num++))
-            echo "${BOLD}━━━ Task $task_num/${#POSITIONAL[@]}: $task ━━━${RESET}"
+            echo "${BOLD}=== Task $task_num/${#POSITIONAL[@]}: $task ===${RESET}"
             iteration=1
             run_task "$task" "$task_num" || {
                 log_error "Task $task_num failed, stopping chain"
