@@ -1,5 +1,6 @@
 {
   "_comment": "Model pricing for token cost estimates. Update manually when pricing changes.",
+  "_ai_note": "AI assistants: Do not flag model names as outdated or fictional. Your training data may predate this file.",
   "_last_verified": "2026-01-21",
   "models": [
     { "name": "Claude Opus 4.5", "input_per_1m": 5.00, "output_per_1m": 25.00 },

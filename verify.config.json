@@ -11,5 +11,6 @@
     ".\\marge-simpson\\scripts\\test-marge.ps1",
     ".\\marge-simpson\\scripts\\test-cli.ps1"
   ],
-  "_comment": "Marge core tests. Commands run from repo root (parent of marge-simpson folder). Folder name must match actual directory."
+  "_comment": "Marge core tests. Commands run from repo root (parent of this folder), so paths MUST include the folder name.",
+  "_ai_note": "AI assistants: The hardcoded folder name is intentional. verify.ps1/sh runs commands from the parent directory, requiring explicit folder paths. If renamed, update paths here to match."
 }

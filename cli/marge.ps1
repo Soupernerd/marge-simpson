@@ -74,8 +74,10 @@ $script:AUTO_COMMIT = $true
 $script:ENGINE = "claude"
 $script:MARGE_FOLDER = if ($env:MARGE_FOLDER) { $env:MARGE_FOLDER } else { ".marge" }
 $script:PRD_FILE = "planning_docs/PRD.md"
+# Note: CONFIG_FILE intentionally reads from .marge/ (bootstrap config that can redirect to other folders)
 $script:CONFIG_FILE = ".marge\config.yaml"
-$script:PROGRESS_FILE = ".marge\progress.txt"
+# Note: PROGRESS_FILE is set after arg parsing to respect --folder (see MS-0008 fix below)
+$script:PROGRESS_FILE = $null
 $script:PARALLEL = $false
 $script:MAX_PARALLEL = if ($env:MAX_PARALLEL) { [int]$env:MAX_PARALLEL } else { 3 }
 $script:BRANCH_PER_TASK = $false
@@ -146,7 +148,20 @@ COMMANDS:
   clean              Remove local .marge/ folder
   status             Show current status and progress
   config             Show config file contents
-  meta               Shortcut for -Folder .meta_marge
+  resume             Resume from last progress
+
+META-DEVELOPMENT:
+  meta init          Set up .meta_marge/ for improving Marge itself
+  meta init --fresh  Reset to clean state (clears tracked work)
+  meta "<task>"      Run task with meta configuration
+  meta status        Show meta-marge state and tracked work
+  meta clean         Remove .meta_marge/
+
+  Meta workflow:
+    1. .meta_marge/AGENTS.md    - Configuration (the guide)
+    2. AI audits marge-simpson/ - Target of improvements
+    3. Changes made DIRECTLY to marge-simpson/
+    4. Work tracked in .meta_marge/planning_docs/
 
 CONFIG FILE:
   Place .marge\config.yaml in your project:
@@ -191,7 +206,7 @@ function Load-Config {
 function Save-Progress {
     param([int]$TaskIndex, [string]$Status = "running")
 
-    New-Item -ItemType Directory -Path ".marge" -Force | Out-Null
+    New-Item -ItemType Directory -Path $script:MARGE_FOLDER -Force | Out-Null
     @"
 iteration=$script:iteration
 task_index=$TaskIndex
@@ -261,7 +276,15 @@ function Get-TokenUsage {
     $content = Get-Content $OutputFile -Raw -ErrorAction SilentlyContinue
     if (-not $content) { return @{ Input = 0; Output = 0 } }
     
-    # Pattern 1: "type": "result" with usage nested
+    # Token parsing patterns (MS-0003 documentation):
+    # Pattern 1: Claude CLI stream-json format - "type": "result" contains nested usage object
+    # Pattern 2: Generic OpenAI-style - standalone "usage" object with input/output_tokens  
+    # Pattern 3: Fallback for APIs returning only total_tokens - estimates 70/30 split
+    #
+    # Each pattern is tried in order; first successful parse wins.
+    # If adding a new engine, check its output format and add appropriate pattern.
+    
+    # Pattern 1: Claude stream-json ("type": "result" with usage nested)
     if ($content -match '"type"\s*:\s*"result".*?"input_tokens"\s*:\s*(\d+)') {
         $inputTokens = [int]$Matches[1]
     }
@@ -549,7 +572,10 @@ After finished, list remaining unchecked items in $script:MARGE_FOLDER/planning_
         Write-Debug-Msg "WorkDir: $WorkDir"
 
         try {
-            $fullCmd = "$cmd `"$prompt`""
+            # MS-0010 fix: Escape special characters for cmd.exe to prevent injection/breakage
+            # Escape quotes first, then cmd.exe metacharacters
+            $escapedPrompt = $prompt -replace '"', '\"' -replace '([&|<>^%])', '^$1'
+            $fullCmd = "$cmd `"$escapedPrompt`""
 
             $pinfo = New-Object System.Diagnostics.ProcessStartInfo
             $pinfo.FileName = "cmd.exe"
@@ -791,10 +817,13 @@ folder: .marge
 function Show-Status {
     Write-Host "Marge Status" -ForegroundColor White
     Write-Host "Folder: $script:MARGE_FOLDER"
+    
+    # Compute PROGRESS_FILE if not yet set (for early-exit commands like 'status')
+    $progressFile = if ($script:PROGRESS_FILE) { $script:PROGRESS_FILE } else { "$script:MARGE_FOLDER\progress.txt" }
 
-    if (Test-Path $script:PROGRESS_FILE) {
-        Write-Host "Progress file: $script:PROGRESS_FILE"
-        Get-Content $script:PROGRESS_FILE
+    if (Test-Path $progressFile) {
+        Write-Host "Progress file: $progressFile"
+        Get-Content $progressFile
     }
     else {
         Write-Host "No active progress"
@@ -804,6 +833,253 @@ function Show-Status {
         $tasks = Get-PrdTasks $script:PRD_FILE
         Write-Host "PRD tasks: $($tasks.Count)"
     }
+}
+
+# =============================================================================
+# META-MARGE FUNCTIONS (MS-0015)
+# =============================================================================
+
+function Test-MetaHasWork {
+    <#
+    .SYNOPSIS
+        Check if .meta_marge/planning_docs has tracked work (MS-#### entries)
+    #>
+    $assessmentPath = ".meta_marge\planning_docs\assessment.md"
+    if (-not (Test-Path $assessmentPath)) { return $false }
+    
+    $content = Get-Content $assessmentPath -Raw -ErrorAction SilentlyContinue
+    if (-not $content) { return $false }
+    
+    # Check for MS-#### entries (indicates tracked work)
+    return $content -match 'MS-\d{4}'
+}
+
+function Get-MetaWorkSummary {
+    <#
+    .SYNOPSIS
+        Get summary of tracked work in .meta_marge/planning_docs
+    #>
+    $summary = @{
+        Issues = 0
+        Tasks = 0
+    }
+    
+    $assessmentPath = ".meta_marge\planning_docs\assessment.md"
+    if (Test-Path $assessmentPath) {
+        $content = Get-Content $assessmentPath -Raw -ErrorAction SilentlyContinue
+        if ($content) {
+            $matches = [regex]::Matches($content, 'MS-\d{4}')
+            $summary.Issues = $matches.Count
+        }
+    }
+    
+    $tasklistPath = ".meta_marge\planning_docs\tasklist.md"
+    if (Test-Path $tasklistPath) {
+        $content = Get-Content $tasklistPath -Raw -ErrorAction SilentlyContinue
+        if ($content) {
+            # Count uncompleted tasks (not in Done section)
+            $matches = [regex]::Matches($content, '\[\s*\]\s*\*\*\[MS-\d{4}\]')
+            $summary.Tasks = $matches.Count
+        }
+    }
+    
+    return $summary
+}
+
+function Initialize-Meta {
+    <#
+    .SYNOPSIS
+        Initialize .meta_marge/ for meta-development (improving Marge itself)
+    .PARAMETER Fresh
+        Reset to clean state (clears existing work)
+    #>
+    param([switch]$Fresh)
+    
+    # Check for existing .meta_marge with work
+    if ((Test-Path ".meta_marge" -PathType Container) -and -not $Fresh) {
+        if (Test-MetaHasWork) {
+            $summary = Get-MetaWorkSummary
+            Write-Warn ".meta_marge/ exists with tracked work:"
+            Write-Host "  - $($summary.Issues) issues in assessment.md"
+            Write-Host "  - $($summary.Tasks) tasks in tasklist.md"
+            Write-Host ""
+            Write-Host "Options:"
+            Write-Host "  * Continue using existing setup (recommended)"
+            Write-Host "  * marge meta init --fresh   (start over, loses tracked work)"
+            Write-Host ""
+            Write-Info "Keeping existing .meta_marge/"
+            return $true
+        } else {
+            Write-Info ".meta_marge/ already exists (no changes needed)"
+            return $true
+        }
+    }
+    
+    # Try to find convert-to-meta script (we're in a marge repo)
+    $scriptLocations = @(
+        "$PSScriptRoot\..\meta\convert-to-meta.ps1",
+        ".\meta\convert-to-meta.ps1"
+    )
+    
+    foreach ($convertScript in $scriptLocations) {
+        if (Test-Path $convertScript) {
+            Write-Info "Setting up .meta_marge/ (full meta-development environment)..."
+            $args = @()
+            if ($Fresh) { $args += "-Force" }
+            & $convertScript @args
+            return $LASTEXITCODE -eq 0
+        }
+    }
+    
+    # Fallback: minimal setup for global install users
+    Write-Warn "Full meta setup not available (convert-to-meta.ps1 not found)"
+    Write-Host ""
+    Write-Host "Creating minimal .meta_marge/ folder..."
+    Write-Host "For full meta-development, clone the marge repo:"
+    Write-Host "  git clone https://github.com/org/marge-simpson"
+    Write-Host ""
+    
+    New-Item -ItemType Directory -Path ".meta_marge" -Force | Out-Null
+    New-Item -ItemType Directory -Path ".meta_marge\planning_docs" -Force | Out-Null
+    
+    # Create minimal AGENTS.md
+    @"
+# AGENTS.md -- Meta-Development Mode
+
+This is a minimal .meta_marge/ setup. For full meta-development:
+1. Clone the marge repo
+2. Run: .\meta\convert-to-meta.ps1
+
+## Scope
+Audit and improve the marge-simpson/ codebase.
+Track work in .meta_marge/planning_docs/
+"@ | Out-File -FilePath ".meta_marge\AGENTS.md" -Encoding utf8
+    
+    # Create empty planning docs
+    @"
+# .meta_marge Assessment
+
+**Next ID:** MS-0001
+
+## Triage
+
+_None_
+"@ | Out-File -FilePath ".meta_marge\planning_docs\assessment.md" -Encoding utf8
+
+    @"
+# .meta_marge Tasklist
+
+**Next ID:** MS-0001
+
+## Backlog
+
+_None_
+
+## Done
+
+_None_
+"@ | Out-File -FilePath ".meta_marge\planning_docs\tasklist.md" -Encoding utf8
+    
+    Write-Success "Created minimal .meta_marge/"
+    return $true
+}
+
+function Show-MetaStatus {
+    <#
+    .SYNOPSIS
+        Show .meta_marge/ status and tracked work
+    #>
+    Write-Host ""
+    Write-Host "Meta-Marge Status" -ForegroundColor White
+    Write-Host "-----------------"
+    
+    if (-not (Test-Path ".meta_marge" -PathType Container)) {
+        Write-Warn ".meta_marge/ not initialized"
+        Write-Host ""
+        Write-Host "To set up meta-development:"
+        Write-Host "  marge meta init"
+        return
+    }
+    
+    Write-Host "Folder: " -NoNewline
+    Write-Host ".meta_marge/" -ForegroundColor Cyan
+    
+    # Check for AGENTS.md
+    if (Test-Path ".meta_marge\AGENTS.md") {
+        Write-Host "AGENTS.md: " -NoNewline
+        Write-Host "OK" -ForegroundColor Green
+    } else {
+        Write-Host "AGENTS.md: " -NoNewline
+        Write-Host "X missing" -ForegroundColor Red
+    }
+    
+    # Show tracked work
+    $summary = Get-MetaWorkSummary
+    Write-Host ""
+    Write-Host "Tracked Work:" -ForegroundColor White
+    Write-Host "  Issues: $($summary.Issues)"
+    Write-Host "  Tasks:  $($summary.Tasks)"
+    
+    # Show workflow diagram
+    Write-Host ""
+    Write-Host "Workflow:" -ForegroundColor White
+    Write-Host "  1. .meta_marge/AGENTS.md    (Configuration - the guide)"
+    Write-Host "  2. AI audits marge-simpson/ (Target of improvements)"
+    Write-Host "  3. Changes made DIRECTLY to marge-simpson/"
+    Write-Host "  4. Work tracked in .meta_marge/planning_docs/"
+    Write-Host ""
+}
+
+function Remove-Meta {
+    <#
+    .SYNOPSIS
+        Remove .meta_marge/ folder
+    #>
+    if (-not (Test-Path ".meta_marge" -PathType Container)) {
+        Write-Warn ".meta_marge/ folder not found"
+        return
+    }
+    
+    if (Test-MetaHasWork) {
+        $summary = Get-MetaWorkSummary
+        Write-Warn "This will delete tracked work:"
+        Write-Host "  - $($summary.Issues) issues"
+        Write-Host "  - $($summary.Tasks) tasks"
+        Write-Host ""
+    }
+    
+    $response = Read-Host "Remove .meta_marge/ folder? [y/N]"
+    if ($response -match '^[Yy]$') {
+        Remove-Item -Recurse -Force ".meta_marge"
+        Write-Success "Removed .meta_marge/"
+    } else {
+        Write-Info "Cancelled"
+    }
+}
+
+function Invoke-MetaSetupPrompt {
+    <#
+    .SYNOPSIS
+        Prompt user to set up .meta_marge/ when running meta task without it
+    .OUTPUTS
+        $true if setup completed, $false if user declined
+    #>
+    Write-Host ""
+    Write-Warn "Meta-marge not set up yet."
+    Write-Host ""
+    Write-Host "Meta-development lets you improve Marge itself."
+    Write-Host "This will create .meta_marge/ with the proper configuration."
+    Write-Host ""
+    
+    $response = Read-Host "Set up now? [Y/n]"
+    if ($response -match '^[Nn]$') {
+        Write-Host ""
+        Write-Host "To set up later, run: " -NoNewline
+        Write-Host "marge meta init" -ForegroundColor Cyan
+        return $false
+    }
+    
+    return Initialize-Meta
 }
 
 function Get-ModelPricing {
@@ -904,16 +1180,41 @@ while ($i -lt $Arguments.Count) {
     elseif ($arg -eq 'status') { Show-Status; exit 0 }
     elseif ($arg -eq 'config') { if (Test-Path ".marge\config.yaml") { Get-Content ".marge\config.yaml" }; exit 0 }
     elseif ($arg -eq 'meta') {
-        # Try .meta_marge first (standardized), fall back to legacy names
-        if (Test-Path ".meta_marge" -PathType Container) {
-            $script:MARGE_FOLDER = ".meta_marge"
-        } elseif (Test-Path ".marge_meta" -PathType Container) {
-            $script:MARGE_FOLDER = ".marge_meta"
-        } else {
-            # Default to new standardized name even if it doesn't exist yet
-            $script:MARGE_FOLDER = ".meta_marge"
+        # Meta-marge subcommands (MS-0015)
+        $nextArg = if ($i + 1 -lt $Arguments.Count) { $Arguments[$i + 1] } else { $null }
+        
+        switch ($nextArg) {
+            'init' {
+                # Check for --fresh flag
+                $freshFlag = $Arguments -contains '--fresh' -or $Arguments -contains '-f'
+                Initialize-Meta -Fresh:$freshFlag
+                exit $LASTEXITCODE
+            }
+            'fresh' {
+                # Alias: marge meta fresh = marge meta init --fresh
+                Initialize-Meta -Fresh
+                exit $LASTEXITCODE
+            }
+            'status' {
+                Show-MetaStatus
+                exit 0
+            }
+            'clean' {
+                Remove-Meta
+                exit 0
+            }
+            default {
+                # Running a task with meta folder
+                # Check if .meta_marge exists, prompt if not
+                if (-not (Test-Path ".meta_marge" -PathType Container)) {
+                    if (-not (Invoke-MetaSetupPrompt)) {
+                        exit 0
+                    }
+                }
+                $script:MARGE_FOLDER = ".meta_marge"
+                $matched = $true
+            }
         }
-        $matched = $true
     }
     elseif ($arg -eq 'resume') {
         if (Load-Progress) { Write-Info "Resuming from iteration $script:iteration" }
@@ -929,6 +1230,9 @@ while ($i -lt $Arguments.Count) {
 # Validate engine
 if (-not (Test-Engine $script:ENGINE)) { exit 1 }
 
+# Set PROGRESS_FILE after arg parsing to respect --folder (MS-0008 fix)
+$script:PROGRESS_FILE = "$script:MARGE_FOLDER\progress.txt"
+
 # Run
 if ($positional.Count -gt 0) {
     # Task chaining: run each task sequentially
@@ -941,7 +1245,7 @@ if ($positional.Count -gt 0) {
         $taskNum = 0
         foreach ($task in $positional) {
             $taskNum++
-            Write-Host "━━━ Task $taskNum/$($positional.Count): $task ━━━" -ForegroundColor White
+            Write-Host "=== Task $taskNum/$($positional.Count): $task ===" -ForegroundColor White
             $script:iteration = 1
             $result = Invoke-Task $task $taskNum
             if (-not $result) {

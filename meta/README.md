@@ -8,23 +8,76 @@ Meta-development means improving the Marge system while using it. The `.meta_mar
 
 **Key concept:** You don't edit files in `.meta_marge/` and copy them back. Instead, `.meta_marge/AGENTS.md` tells the AI to audit and improve `marge-simpson/` directly, while tracking work in `.meta_marge/planning_docs/`.
 
+## Architecture
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│                                                                │
+│   Chat/IDE Mode              CLI Mode                          │
+│   ─────────────              ────────                          │
+│                                                          ┌───┐ │
+│   convert-to-meta.ps1        marge meta init ←───────────│ S │ │
+│          │                         │                     │ A │ │
+│          │                         │                     │ M │ │
+│          └────────────┬────────────┘                     │ E │ │
+│                       ▼                                  │   │ │
+│       ┌───────────────────────────────────┐              │ L │ │
+│       │  .meta_marge/ (SINGLE SOURCE)     │──────────────│ O │ │
+│       │  ├── AGENTS.md     (transformed)  │              │ G │ │
+│       │  ├── planning_docs/ (preserved!)  │              │ I │ │
+│       │  └── ...                          │              │ C │ │
+│       └───────────────────────────────────┘              └───┘ │
+│                                                                │
+└────────────────────────────────────────────────────────────────┘
+```
+
+Both **Chat/IDE mode** and **CLI mode** use the same `.meta_marge/` folder as the single source of truth. Work tracked in planning_docs/ is preserved when switching between modes.
+
 ## Quick Start
 
+### Option 1: CLI (Recommended)
+
 ```bash
-# 1. Create meta guide folder
+# Set up meta-development
+marge meta init
+
+# Run a meta task
+marge meta "run self-audit"
+
+# Check status
+marge meta status
+
+# Reset to clean state (when starting fresh)
+marge meta init --fresh
+```
+
+### Option 2: Scripts (Full Control)
+
+```bash
+# Create meta guide folder
 ./meta/convert-to-meta.sh
 # Creates: .meta_marge/ (gitignored)
 
-# 2. Ask AI to improve Marge using the meta guide
-./cli/marge --folder .meta_marge "run self-audit"
-# OR: ./cli/marge meta "run self-audit"
-# OR in chat: "Read AGENTS.md in .meta_marge and run a self-audit"
-
-# 3. AI reads .meta_marge/AGENTS.md which tells it to:
-#    - Audit marge-simpson/ (not .meta_marge/)
-#    - Make improvements directly to marge-simpson/
-#    - Track findings in .meta_marge/planning_docs/
+# Run task
+./cli/marge meta "run self-audit"
 ```
+
+### Option 3: Chat/IDE
+
+```
+Read the .meta_marge/AGENTS.md file and follow it.
+Run a self-audit on the marge-simpson codebase.
+```
+
+## CLI Commands
+
+| Command | Description |
+|---------|-------------|
+| `marge meta init` | Set up `.meta_marge/` (idempotent, preserves existing work) |
+| `marge meta init --fresh` | Reset to clean state (clears tracked work) |
+| `marge meta "task"` | Run task using `.meta_marge/` (prompts if missing) |
+| `marge meta status` | Show meta-marge state and tracked work |
+| `marge meta clean` | Remove `.meta_marge/` entirely |
 
 ## How It Works
 
@@ -48,16 +101,27 @@ Makes fixes directly to marge-simpson/
 Tracks work in .meta_marge/planning_docs/
 ```
 
-## The Conversion Process
+## State Preservation
 
-`convert-to-meta.sh` does:
+The `.meta_marge/planning_docs/` folder preserves your work across sessions:
 
-1. **Creates** `.meta_marge/` inside your workspace
-2. **Copies** all Marge files into it (excluding .git, node_modules)
-3. **Transforms** AGENTS.md scope to target `marge-simpson/` instead of external repos
-4. **Resets** planning_docs/ to clean state for new meta-dev session
+- `marge meta init` — Won't overwrite existing work
+- `marge meta init --fresh` — Explicit reset (you chose this)
+- Switching between CLI and Chat/IDE — State is shared
 
-## Commands
+If you run `marge meta init` with existing work, you'll see:
+
+```
+⚠ .meta_marge/ exists with tracked work:
+  - 3 issues in assessment.md
+  - 2 tasks in tasklist.md
+
+Options:
+  • Continue using existing setup (recommended)
+  • marge meta init --fresh   (start over, loses tracked work)
+```
+
+## Scripts Reference
 
 ### Create Meta Guide
 ```bash
@@ -73,10 +137,10 @@ Tracks work in .meta_marge/planning_docs/
 
 ## Best Practices
 
-1. **Always start fresh** — Run `convert-to-meta.sh` before each meta session
-2. **Commit frequently** — Small, focused commits to marge-simpson/ make review easier
-3. **Run tests** — Use `./scripts/verify.ps1 fast` after changes
-4. **Track work** — The AI uses `.meta_marge/planning_docs/` to track findings
+1. **Use `marge meta init`** — It handles setup automatically
+2. **Don't reset unnecessarily** — Work state is valuable
+3. **Commit frequently** — Small, focused commits to marge-simpson/ make review easier
+4. **Run tests** — Use `./scripts/verify.ps1 fast` after changes
 
 ## Folder Structure
 
@@ -93,7 +157,7 @@ Tracks work in .meta_marge/planning_docs/
 
 ## Tips
 
-- Use `./cli/marge meta "task"` as shortcut for `--folder .meta_marge`
 - The `.meta_marge/` folder is gitignored — won't pollute commits
 - Changes happen in `marge-simpson/`, not `.meta_marge/`
-- All meta folders use the same name (`.meta_marge/`) regardless of source
+- CLI prompts to create `.meta_marge/` if missing
+- Use `marge meta status` to see tracked work summary

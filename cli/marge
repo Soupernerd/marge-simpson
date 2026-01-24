@@ -37,7 +37,8 @@ MARGE_FOLDER="${MARGE_FOLDER:-.marge}"
 iteration=0
 total_input_tokens=0
 total_output_tokens=0
-PROGRESS_FILE=".marge/progress.txt"
+# Note: PROGRESS_FILE is set after arg parsing to respect --folder
+# CONFIG_FILE intentionally reads from .marge/ (bootstrap config that can redirect to other folders)
 CONFIG_FILE=".marge/config.yaml"
 
 # Colors
@@ -116,7 +117,24 @@ ${BOLD}COMMANDS:${RESET}
   status              Show current status and progress
   config              Show config file contents
   resume              Resume from saved progress
-  meta                Shortcut for --folder .meta_marge
+
+${BOLD}META-DEVELOPMENT:${RESET}
+  meta init           Set up .meta_marge/ for improving Marge itself
+  meta init --fresh   Reset to clean state (clears tracked work)
+  meta "<task>"       Run task with meta configuration
+  meta status         Show meta-marge state and tracked work
+  meta clean          Remove .meta_marge/
+
+  Meta-development workflow:
+  ┌─────────────────────────────────────────────────────────────┐
+  │  .meta_marge/AGENTS.md    <- Configuration (the guide)      │
+  │         |                                                   │
+  │  AI audits marge-simpson/ <- Target of improvements         │
+  │         |                                                   │
+  │  Changes made DIRECTLY to marge-simpson/                    │
+  │         |                                                   │
+  │  Work tracked in .meta_marge/planning_docs/                 │
+  └─────────────────────────────────────────────────────────────┘
 
 ${BOLD}CONFIG FILE:${RESET}
   Place .marge/config.yaml in your project:
@@ -220,7 +238,7 @@ load_config() {
 }
 
 save_progress() {
-    mkdir -p .marge
+    mkdir -p "$MARGE_FOLDER"
     cat > "$PROGRESS_FILE" <<EOF
 iteration=$iteration
 task_index=${1:-0}
@@ -288,11 +306,15 @@ parse_token_usage() {
     local output_tokens=0
 
     if [[ -f "$output_file" ]]; then
-        # Parse stream-json output for token usage
-        # Claude outputs JSON lines, look for usage data in result or usage objects
-        # Try multiple patterns since format may vary
+        # Token parsing patterns (MS-0003 documentation):
+        # Pattern 1: Claude CLI stream-json format - "type": "result" contains nested usage object
+        # Pattern 2: Generic OpenAI-style - standalone "usage" object with input/output_tokens
+        # Pattern 3: Fallback for APIs returning only total_tokens - estimates 70/30 split
+        #
+        # Each pattern is tried in order; first successful parse wins.
+        # If adding a new engine, check its output format and add appropriate pattern.
 
-        # Pattern 1: "type": "result" with usage nested
+        # Pattern 1: Claude stream-json ("type": "result" with usage nested)
         local result_line
         result_line=$(grep -E '"type"\s*:\s*"result"' "$output_file" 2>/dev/null | tail -1) || true
 
@@ -402,6 +424,235 @@ is_task_complete() {
     [[ -f "$tasklist" ]] && grep -q "\[ \]" "$tasklist" && return 1
     [[ -f "$assessment" ]] && grep -iqE "(clean|complete|no issues)" "$assessment" && return 0
     return 0
+}
+
+# =============================================================================
+# META-MARGE FUNCTIONS (MS-0015)
+# =============================================================================
+
+test_meta_has_work() {
+    # Check if .meta_marge/planning_docs has tracked work (MS-#### entries)
+    local assessment=".meta_marge/planning_docs/assessment.md"
+    [[ ! -f "$assessment" ]] && return 1
+    grep -qE 'MS-[0-9]{4}' "$assessment" 2>/dev/null
+}
+
+get_meta_work_summary() {
+    # Output: "issues:N tasks:N"
+    local issues=0 tasks=0
+    
+    local assessment=".meta_marge/planning_docs/assessment.md"
+    if [[ -f "$assessment" ]]; then
+        issues=$(grep -oE 'MS-[0-9]{4}' "$assessment" 2>/dev/null | wc -l | tr -d ' ')
+    fi
+    
+    local tasklist=".meta_marge/planning_docs/tasklist.md"
+    if [[ -f "$tasklist" ]]; then
+        tasks=$(grep -cE '\[\s*\]\s*\*\*\[MS-[0-9]{4}\]' "$tasklist" 2>/dev/null || echo 0)
+    fi
+    
+    echo "$issues $tasks"
+}
+
+initialize_meta() {
+    # Initialize .meta_marge/ for meta-development
+    # Args: $1 = "fresh" to reset (optional)
+    local fresh="${1:-}"
+    
+    # Check for existing .meta_marge with work
+    if [[ -d ".meta_marge" ]] && [[ "$fresh" != "fresh" ]]; then
+        if test_meta_has_work; then
+            local summary
+            summary=$(get_meta_work_summary)
+            local issues tasks
+            issues=$(echo "$summary" | awk '{print $1}')
+            tasks=$(echo "$summary" | awk '{print $2}')
+            
+            log_warn ".meta_marge/ exists with tracked work:"
+            echo "  - $issues issues in assessment.md"
+            echo "  - $tasks tasks in tasklist.md"
+            echo ""
+            echo "Options:"
+            echo "  * Continue using existing setup (recommended)"
+            echo "  * marge meta init --fresh   (start over, loses tracked work)"
+            echo ""
+            log_info "Keeping existing .meta_marge/"
+            return 0
+        else
+            log_info ".meta_marge/ already exists (no changes needed)"
+            return 0
+        fi
+    fi
+    
+    # Try to find convert-to-meta script (we're in a marge repo)
+    local script_dir
+    script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    
+    local convert_scripts=(
+        "$script_dir/../meta/convert-to-meta.sh"
+        "./meta/convert-to-meta.sh"
+    )
+    
+    for convert_script in "${convert_scripts[@]}"; do
+        if [[ -f "$convert_script" ]]; then
+            log_info "Setting up .meta_marge/ (full meta-development environment)..."
+            local args=()
+            [[ "$fresh" == "fresh" ]] && args+=("-f")
+            bash "$convert_script" "${args[@]}"
+            return $?
+        fi
+    done
+    
+    # Fallback: minimal setup for global install users
+    log_warn "Full meta setup not available (convert-to-meta.sh not found)"
+    echo ""
+    echo "Creating minimal .meta_marge/ folder..."
+    echo "For full meta-development, clone the marge repo:"
+    echo "  git clone https://github.com/org/marge-simpson"
+    echo ""
+    
+    mkdir -p ".meta_marge/planning_docs"
+    
+    # Create minimal AGENTS.md
+    cat > ".meta_marge/AGENTS.md" << 'AGENTSEOF'
+# AGENTS.md — Meta-Development Mode
+
+This is a minimal .meta_marge/ setup. For full meta-development:
+1. Clone the marge repo
+2. Run: ./meta/convert-to-meta.sh
+
+## Scope
+Audit and improve the marge-simpson/ codebase.
+Track work in .meta_marge/planning_docs/
+AGENTSEOF
+
+    # Create empty planning docs
+    cat > ".meta_marge/planning_docs/assessment.md" << 'ASSESSEOF'
+# .meta_marge Assessment
+
+**Next ID:** MS-0001
+
+## Triage
+
+_None_
+ASSESSEOF
+
+    cat > ".meta_marge/planning_docs/tasklist.md" << 'TASKEOF'
+# .meta_marge Tasklist
+
+**Next ID:** MS-0001
+
+## Backlog
+
+_None_
+
+## Done
+
+_None_
+TASKEOF
+    
+    log_success "Created minimal .meta_marge/"
+    return 0
+}
+
+show_meta_status() {
+    # Show .meta_marge/ status and tracked work
+    echo ""
+    echo "${BOLD}Meta-Marge Status${RESET}"
+    echo "─────────────────"
+    
+    if [[ ! -d ".meta_marge" ]]; then
+        log_warn ".meta_marge/ not initialized"
+        echo ""
+        echo "To set up meta-development:"
+        echo "  marge meta init"
+        return
+    fi
+    
+    echo "Folder: ${CYAN}.meta_marge/${RESET}"
+    
+    # Check for AGENTS.md
+    if [[ -f ".meta_marge/AGENTS.md" ]]; then
+        echo "AGENTS.md: ${GREEN}✓${RESET}"
+    else
+        echo "AGENTS.md: ${RED}✗ missing${RESET}"
+    fi
+    
+    # Show tracked work
+    local summary
+    summary=$(get_meta_work_summary)
+    local issues tasks
+    issues=$(echo "$summary" | awk '{print $1}')
+    tasks=$(echo "$summary" | awk '{print $2}')
+    
+    echo ""
+    echo "${BOLD}Tracked Work:${RESET}"
+    echo "  Issues: $issues"
+    echo "  Tasks:  $tasks"
+    
+    # Show workflow diagram
+    echo ""
+    echo "${BOLD}Workflow:${RESET}"
+    echo "  ┌─────────────────────────────────────────────────────────┐"
+    echo "  │  .meta_marge/AGENTS.md    <- Configuration (the guide)  │"
+    echo "  │         |                                               │"
+    echo "  │  AI audits marge-simpson/ <- Target of improvements     │"
+    echo "  │         |                                               │"
+    echo "  │  Changes made DIRECTLY to marge-simpson/                │"
+    echo "  │         |                                               │"
+    echo "  │  Work tracked in .meta_marge/planning_docs/             │"
+    echo "  └─────────────────────────────────────────────────────────┘"
+    echo ""
+}
+
+remove_meta() {
+    # Remove .meta_marge/ folder
+    if [[ ! -d ".meta_marge" ]]; then
+        log_warn ".meta_marge/ folder not found"
+        return
+    fi
+    
+    if test_meta_has_work; then
+        local summary
+        summary=$(get_meta_work_summary)
+        local issues tasks
+        issues=$(echo "$summary" | awk '{print $1}')
+        tasks=$(echo "$summary" | awk '{print $2}')
+        
+        log_warn "This will delete tracked work:"
+        echo "  - $issues issues"
+        echo "  - $tasks tasks"
+        echo ""
+    fi
+    
+    read -r -p "Remove .meta_marge/ folder? [y/N] " REPLY
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        rm -rf ".meta_marge"
+        log_success "Removed .meta_marge/"
+    else
+        log_info "Cancelled"
+    fi
+}
+
+invoke_meta_setup_prompt() {
+    # Prompt user to set up .meta_marge/ when running meta task without it
+    # Returns: 0 if setup completed, 1 if user declined
+    echo ""
+    log_warn "Meta-marge not set up yet."
+    echo ""
+    echo "Meta-development lets you improve Marge itself."
+    echo "This will create .meta_marge/ with the proper configuration."
+    echo ""
+    
+    read -r -p "Set up now? [Y/n] " REPLY
+    if [[ $REPLY =~ ^[Nn]$ ]]; then
+        echo ""
+        echo "To set up later, run: ${CYAN}marge meta init${RESET}"
+        return 1
+    fi
+    
+    initialize_meta
+    return $?
 }
 
 parse_prd() {
@@ -774,16 +1025,42 @@ while [[ $# -gt 0 ]]; do
             exit 0
             ;;
         meta)
-            # Try .meta_marge first (standardized), fall back to legacy names
-            if [[ -d ".meta_marge" ]]; then
-                MARGE_FOLDER=".meta_marge"
-            elif [[ -d ".marge_meta" ]]; then
-                MARGE_FOLDER=".marge_meta"
-            else
-                # Default to new standardized name even if it doesn't exist yet
-                MARGE_FOLDER=".meta_marge"
-            fi
-            shift ;;
+            # Meta-marge subcommands (MS-0015)
+            shift
+            case "${1:-}" in
+                init)
+                    # Check for --fresh flag
+                    if [[ "${2:-}" == "--fresh" ]] || [[ "${2:-}" == "-f" ]]; then
+                        initialize_meta "fresh"
+                    else
+                        initialize_meta
+                    fi
+                    exit $?
+                    ;;
+                fresh)
+                    # Alias: marge meta fresh = marge meta init --fresh
+                    initialize_meta "fresh"
+                    exit $?
+                    ;;
+                status)
+                    show_meta_status
+                    exit 0
+                    ;;
+                clean)
+                    remove_meta
+                    exit 0
+                    ;;
+                *)
+                    # Running a task with meta folder
+                    # Check if .meta_marge exists, prompt if not
+                    if [[ ! -d ".meta_marge" ]]; then
+                        invoke_meta_setup_prompt || exit 0
+                    fi
+                    MARGE_FOLDER=".meta_marge"
+                    # Don't shift - the remaining arg is the task
+                    ;;
+            esac
+            ;;
         status)
             echo "${BOLD}Marge Status${RESET}"
             echo "Project type: $(detect_project)"
@@ -808,6 +1085,9 @@ while [[ $# -gt 0 ]]; do
 done
 
 check_engine "$ENGINE" || exit 1
+
+# Set PROGRESS_FILE after arg parsing to respect --folder (MS-0008 fix)
+PROGRESS_FILE="$MARGE_FOLDER/progress.txt"
 
 if [[ ${#POSITIONAL[@]} -gt 0 ]]; then
     # Task chaining: run each task sequentially
