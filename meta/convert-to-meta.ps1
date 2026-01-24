@@ -20,8 +20,38 @@
 #>
 
 param(
-    [switch]$Force
+    [switch]$Force,
+    [switch]$Help
 )
+
+if ($Help) {
+    Write-Host @"
+convert-to-meta - Create .meta_marge/ for meta-development
+
+USAGE:
+  .\meta\convert-to-meta.ps1 [options]
+
+OPTIONS:
+  -Force  Overwrite existing .meta_marge/ folder
+  -Help   Show this help
+
+DESCRIPTION:
+  Creates a .meta_marge/ folder for improving Marge itself.
+  The AI reads .meta_marge/AGENTS.md and makes changes directly
+  to marge-simpson/ (the target), NOT to .meta_marge/.
+
+  Workflow:
+    1. Run this script to create .meta_marge/
+    2. Use VS Code Copilot or 'marge meta "task"' 
+    3. AI audits marge-simpson/ and applies fixes
+    4. Work tracked in .meta_marge/planning_docs/
+
+EXAMPLES:
+  .\meta\convert-to-meta.ps1
+  .\meta\convert-to-meta.ps1 -Force
+"@
+    exit 0
+}
 
 $ErrorActionPreference = "Stop"
 

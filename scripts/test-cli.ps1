@@ -120,7 +120,7 @@ function Test-Assert {
 Write-Banner
 
 # Test Suite 1: Version and Help Commands
-Write-Section "Test Suite 1/4: Version and Help Commands"
+Write-Section "Test Suite 1/5: Version and Help Commands"
 
 Test-Assert "marge.ps1 -Version runs without error" {
     try {
@@ -151,7 +151,7 @@ Test-Assert "marge.ps1 has Show-Usage function" {
 }
 
 # Test Suite 2: Status Command
-Write-Section "Test Suite 2/4: Status Command"
+Write-Section "Test Suite 2/5: Status Command"
 
 Test-Assert "marge.ps1 status runs without error" {
     try {
@@ -168,7 +168,7 @@ Test-Assert "marge.ps1 has Show-Status function" {
 }
 
 # Test Suite 3: DryRun and Mode Detection
-Write-Section "Test Suite 3/4: DryRun and Mode Detection"
+Write-Section "Test Suite 3/5: DryRun and Mode Detection"
 
 Test-Assert "marge.ps1 supports -DryRun parameter" {
     $content = Get-Content "$MsDir\cli\marge.ps1" -Raw
@@ -186,7 +186,7 @@ Test-Assert "marge.ps1 validates MARGE_HOME in lite mode" {
 }
 
 # Test Suite 4: AGENTS-lite.md in Shared Resources
-Write-Section "Test Suite 4/4: Shared Resources Check"
+Write-Section "Test Suite 4/5: Shared Resources Check"
 
 Test-Assert "AGENTS-lite.md exists in repo root" {
     Test-Path "$MsDir\AGENTS-lite.md"
@@ -210,6 +210,54 @@ Test-Assert "install-global.ps1 includes AGENTS-lite.md" {
 Test-Assert "install-global.sh includes AGENTS-lite.md" {
     $content = Get-Content "$MsDir\cli\install-global.sh" -Raw
     $content -match "AGENTS-lite\.md"
+}
+
+# Test Suite 5: Meta Commands (MS-0015)
+Write-Section "Test Suite 5/5: Meta Commands"
+
+Test-Assert "marge.ps1 has Initialize-Meta function" {
+    $content = Get-Content "$MsDir\cli\marge.ps1" -Raw
+    $content.Contains("function Initialize-Meta")
+}
+
+Test-Assert "marge.ps1 has Show-MetaStatus function" {
+    $content = Get-Content "$MsDir\cli\marge.ps1" -Raw
+    $content.Contains("function Show-MetaStatus")
+}
+
+Test-Assert "marge.ps1 has Remove-Meta function" {
+    $content = Get-Content "$MsDir\cli\marge.ps1" -Raw
+    $content.Contains("function Remove-Meta")
+}
+
+Test-Assert "marge (bash) has initialize_meta function" {
+    $content = Get-Content "$MsDir\cli\marge" -Raw
+    $content.Contains("initialize_meta()")
+}
+
+Test-Assert "marge (bash) has show_meta_status function" {
+    $content = Get-Content "$MsDir\cli\marge" -Raw
+    $content.Contains("show_meta_status()")
+}
+
+Test-Assert "marge (bash) has remove_meta function" {
+    $content = Get-Content "$MsDir\cli\marge" -Raw
+    $content.Contains("remove_meta()")
+}
+
+Test-Assert "marge.ps1 help includes meta commands" {
+    $help = & "$MsDir\cli\marge.ps1" @("-Help") 2>&1 | Out-String
+    $help -match "meta init" -and $help -match "meta status" -and $help -match "meta clean"
+}
+
+Test-Assert "install-global.ps1 has -Help parameter" {
+    $content = Get-Content "$MsDir\cli\install-global.ps1" -Raw
+    $content -match '\[switch\]\$Help'
+}
+
+Test-Assert "convert-to-meta.ps1 has -Help parameter" {
+    $content = Get-Content "$MsDir\meta\convert-to-meta.ps1" -Raw
+    $content -match '\[switch\]\$Help'
 }
 
 # ==============================================================================

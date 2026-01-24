@@ -263,6 +263,7 @@ marge config                           # Show config file
 | `--dry-run` | Preview prompt without launching claude |
 | `--model <model>` | Override model (sonnet, opus, haiku) |
 | `--engine <e>` | AI engine: claude, opencode, codex, aider |
+| `--auto` | Auto-approve prompts for non-claude engines |
 | `--fast` | Skip verification steps |
 | `--full` | Force full AGENTS.md (even for one-off tasks) |
 | `--loop` | Keep iterating until task complete |

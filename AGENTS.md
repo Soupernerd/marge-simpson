@@ -25,11 +25,34 @@
 
 ## AI Behavior (VS Code Copilot)
 
-When working in VS Code Copilot Chat:
-- **Use subagents** for research tasks requiring searches across many files
-- **Use subagents** for audits or pattern-finding across the codebase
-- **Prefer subagents** over sequential file reads when exploring unfamiliar areas
-- **Direct tools** are fine for targeted edits or known file locations
+**Subagents are your primary tool.** Use them liberally for any non-trivial work:
+
+### Always Use Subagents For:
+- **Research** — Searching across many files, finding patterns, understanding codebase
+- **Audits** — Code quality, security, documentation, test coverage scans
+- **Multi-file edits** — When changes span 3+ files, spawn subagents per file/area
+- **Implementation** — Complex features can be parallelized (UI, API, tests as separate agents)
+- **Fixes** — Multiple independent bugs → one subagent per bug
+- **Creation** — New modules, components, or test suites
+
+### Subagent Patterns:
+```
+# Research (read-only)
+"Find all usages of X pattern across the codebase. Return file paths and line numbers."
+
+# Implementation (writes code)
+"Implement Y in file Z. Make edits directly using replace_string_in_file. Return files modified."
+
+# Parallel work (multiple agents)
+Spawn 2-5 agents for independent tasks, wait for all, then verify.
+```
+
+### When Direct Tools Are Fine:
+- Single file, known location, simple edit
+- Running terminal commands
+- Quick file reads for context you'll use immediately
+
+**Default to subagents when in doubt.** The cost of parallelization is lower than sequential mistakes.
 
 ---
 

@@ -139,7 +139,7 @@ OPTIONS:
   -MaxParallel N     Max parallel agents (default: $script:MAX_PARALLEL)
   -BranchPerTask     Create branch per task
   -CreatePR          Create PR when done
-  -Verbose           Verbose output
+  -v, -Verbose       Verbose output
   -Version           Show version
   -Help              Show help
 
@@ -148,7 +148,8 @@ COMMANDS:
   clean              Remove local .marge/ folder
   status             Show current status and progress
   config             Show config file contents
-  resume             Resume from last progress
+  resume             Resume from saved progress
+  doctor             Run diagnostic checks for setup
 
 META-DEVELOPMENT:
   meta init          Set up .meta_marge/ for improving Marge itself
@@ -157,21 +158,22 @@ META-DEVELOPMENT:
   meta status        Show meta-marge state and tracked work
   meta clean         Remove .meta_marge/
 
-  Meta workflow:
-    1. .meta_marge/AGENTS.md    - Configuration (the guide)
-    2. AI audits marge-simpson/ - Target of improvements
-    3. Changes made DIRECTLY to marge-simpson/
-    4. Work tracked in .meta_marge/planning_docs/
-
-PRD FORMAT:
-  Tasks are parsed from planning_docs/PRD.md using "### Task N: Title" format.
-  See 'marge init' for a template.
+  Meta-development workflow:
+    .meta_marge/AGENTS.md    <- Configuration (the guide)
+           |
+    AI audits marge-simpson/ <- Target of improvements
+           |
+    Changes made DIRECTLY to marge-simpson/
+           |
+    Work tracked in .meta_marge/planning_docs/
 
 CONFIG FILE:
   Place .marge\config.yaml in your project:
     engine: claude
     model: ""
     max_iterations: 20
+    max_retries: 3
+    auto_commit: true
     folder: .marge
 
 ENVIRONMENT:
@@ -179,7 +181,7 @@ ENVIRONMENT:
   MARGE_FOLDER       Default folder (default: .marge)
 
 "@
-    Write-Host $usage
+    Write-Output $usage
 }
 
 function Get-Slug {
@@ -324,9 +326,10 @@ function Write-TokenUsage {
     $tokens = Get-TokenUsage $OutputFile
     
     if ($tokens.Input -gt 0 -or $tokens.Output -gt 0) {
-        # Default Claude Sonnet pricing
+        # Default Claude Sonnet-class pricing (fallback when file missing/invalid)
         $inputRate = 3.00
         $outputRate = 15.00
+        $usingFallback = $false
         
         # Try to read from model_pricing.json
         $pricingFile = "./$script:MARGE_FOLDER/model_pricing.json"
@@ -336,14 +339,37 @@ function Write-TokenUsage {
         
         if (Test-Path $pricingFile) {
             try {
-                $pricing = Get-Content $pricingFile -Raw | ConvertFrom-Json
-                $modelName = if ($script:MODEL -match "opus") { "Claude Opus" } else { "Claude Sonnet" }
-                $modelPricing = $pricing.models | Where-Object { $_.name -match $modelName } | Select-Object -First 1
-                if ($modelPricing) {
-                    $inputRate = $modelPricing.input_per_1m
-                    $outputRate = $modelPricing.output_per_1m
+                $pricing = Get-Content $pricingFile -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
+                
+                # Validate expected structure: must have 'models' array
+                if (-not $pricing.models -or $pricing.models -isnot [System.Array]) {
+                    Write-Warn "model_pricing.json missing 'models' array - using fallback pricing (`$3/`$15 per 1M tokens)"
+                    $usingFallback = $true
                 }
-            } catch { }
+                else {
+                    $modelName = if ($script:MODEL -match "opus") { "Claude Opus" } else { "Claude Sonnet" }
+                    $modelPricing = $pricing.models | Where-Object { $_.name -match $modelName } | Select-Object -First 1
+                    if ($modelPricing) {
+                        # Validate pricing fields exist and are numeric
+                        if ($null -ne $modelPricing.input_per_1m -and $null -ne $modelPricing.output_per_1m) {
+                            $inputRate = [double]$modelPricing.input_per_1m
+                            $outputRate = [double]$modelPricing.output_per_1m
+                        }
+                        else {
+                            Write-Warn "model_pricing.json entry missing pricing fields - using fallback pricing"
+                            $usingFallback = $true
+                        }
+                    }
+                }
+            }
+            catch {
+                Write-Warn "Failed to parse model_pricing.json: $($_.Exception.Message) - using fallback pricing (`$3/`$15 per 1M tokens)"
+                $usingFallback = $true
+            }
+        }
+        else {
+            Write-Debug-Msg "model_pricing.json not found - using fallback pricing"
+            $usingFallback = $true
         }
         
         $cost = (($tokens.Input * $inputRate) + ($tokens.Output * $outputRate)) / 1000000
@@ -839,6 +865,168 @@ function Show-Status {
     }
 }
 
+function Show-Doctor {
+    <#
+    .SYNOPSIS
+        Run diagnostic checks for Marge setup
+    #>
+    Write-Host ""
+    Write-Host "Marge Doctor - Diagnostics" -ForegroundColor White
+    Write-Host ""
+    
+    $warnings = 0
+    $errors = 0
+    
+    # Check engines
+    Write-Host "Engines:" -ForegroundColor White
+    $engines = @('claude', 'opencode', 'aider', 'codex')
+    foreach ($eng in $engines) {
+        $found = Get-Command $eng -ErrorAction SilentlyContinue
+        if ($found) {
+            Write-Host "  " -NoNewline
+            Write-Host ([char]0x2713) -ForegroundColor Green -NoNewline
+            Write-Host " $eng (found)"
+        } else {
+            Write-Host "  " -NoNewline
+            Write-Host ([char]0x2717) -ForegroundColor Red -NoNewline
+            Write-Host " $eng (not found)"
+        }
+    }
+    
+    # Check at least one engine available
+    $anyEngine = $engines | Where-Object { Get-Command $_ -ErrorAction SilentlyContinue }
+    if (-not $anyEngine) {
+        $errors++
+    }
+    
+    Write-Host ""
+    Write-Host "Config:" -ForegroundColor White
+    
+    # Check config file
+    $configPath = ".marge\config.yaml"
+    if (Test-Path $configPath) {
+        # Basic YAML validation - check for colon-separated key:value pairs
+        $configContent = Get-Content $configPath -Raw -ErrorAction SilentlyContinue
+        $validYaml = $true
+        if ($configContent) {
+            $lines = $configContent -split "`n" | Where-Object { $_.Trim() -and -not $_.Trim().StartsWith('#') }
+            foreach ($line in $lines) {
+                if ($line.Trim() -and -not ($line -match '^\s*\w+\s*:')) {
+                    $validYaml = $false
+                    break
+                }
+            }
+        }
+        if ($validYaml) {
+            Write-Host "  " -NoNewline
+            Write-Host ([char]0x2713) -ForegroundColor Green -NoNewline
+            Write-Host " .marge/config.yaml (valid)"
+        } else {
+            Write-Host "  " -NoNewline
+            Write-Host ([char]0x2717) -ForegroundColor Red -NoNewline
+            Write-Host " .marge/config.yaml (invalid YAML)"
+            $warnings++
+        }
+    } else {
+        Write-Host "  " -NoNewline
+        Write-Host "-" -ForegroundColor Yellow -NoNewline
+        Write-Host " .marge/config.yaml: not found"
+    }
+    
+    # Check MARGE_HOME
+    if ($env:MARGE_HOME) {
+        if (Test-Path $env:MARGE_HOME) {
+            Write-Host "  " -NoNewline
+            Write-Host ([char]0x2713) -ForegroundColor Green -NoNewline
+            Write-Host " MARGE_HOME: $env:MARGE_HOME"
+        } else {
+            Write-Host "  " -NoNewline
+            Write-Host ([char]0x2717) -ForegroundColor Red -NoNewline
+            Write-Host " MARGE_HOME: $env:MARGE_HOME (path not found)"
+            $warnings++
+        }
+    } else {
+        Write-Host "  " -NoNewline
+        Write-Host "-" -ForegroundColor Yellow -NoNewline
+        Write-Host " MARGE_HOME: not set"
+    }
+    
+    Write-Host ""
+    Write-Host "Files:" -ForegroundColor White
+    
+    # Check model_pricing.json
+    $pricingPaths = @(
+        "./$script:MARGE_FOLDER/model_pricing.json",
+        "./model_pricing.json",
+        (Join-Path $script:MARGE_HOME "shared\model_pricing.json"),
+        (Join-Path $script:MARGE_HOME "model_pricing.json")
+    )
+    $pricingFound = $false
+    $pricingValid = $false
+    $pricingPath = $null
+    
+    foreach ($path in $pricingPaths) {
+        if (Test-Path $path) {
+            $pricingFound = $true
+            $pricingPath = $path
+            try {
+                $null = Get-Content $path -Raw | ConvertFrom-Json
+                $pricingValid = $true
+            } catch {
+                $pricingValid = $false
+            }
+            break
+        }
+    }
+    
+    if ($pricingFound) {
+        if ($pricingValid) {
+            Write-Host "  " -NoNewline
+            Write-Host ([char]0x2713) -ForegroundColor Green -NoNewline
+            Write-Host " model_pricing.json (valid)"
+        } else {
+            Write-Host "  " -NoNewline
+            Write-Host ([char]0x2717) -ForegroundColor Red -NoNewline
+            Write-Host " model_pricing.json (invalid JSON)"
+            $warnings++
+        }
+    } else {
+        Write-Host "  " -NoNewline
+        Write-Host "-" -ForegroundColor Yellow -NoNewline
+        Write-Host " model_pricing.json: not found"
+    }
+    
+    # Check .marge folder
+    if (Test-Path $script:MARGE_FOLDER -PathType Container) {
+        Write-Host "  " -NoNewline
+        Write-Host ([char]0x2713) -ForegroundColor Green -NoNewline
+        Write-Host " $($script:MARGE_FOLDER)/ folder exists"
+    } else {
+        Write-Host "  " -NoNewline
+        Write-Host "-" -ForegroundColor Yellow -NoNewline
+        Write-Host " $($script:MARGE_FOLDER)/ folder: not found (will use lite mode)"
+    }
+    
+    Write-Host ""
+    
+    # Summary
+    if ($errors -gt 0) {
+        Write-Host "Status: " -NoNewline
+        Write-Host "Not ready" -ForegroundColor Red -NoNewline
+        Write-Host " ($errors critical issue$(if ($errors -ne 1) {'s'}))"
+        exit 1
+    } elseif ($warnings -gt 0) {
+        Write-Host "Status: " -NoNewline
+        Write-Host "Ready to use" -ForegroundColor Green -NoNewline
+        Write-Host " ($warnings warning$(if ($warnings -ne 1) {'s'}))"
+        exit 0
+    } else {
+        Write-Host "Status: " -NoNewline
+        Write-Host "Ready to use" -ForegroundColor Green
+        exit 0
+    }
+}
+
 # =============================================================================
 # META-MARGE FUNCTIONS (MS-0015)
 # =============================================================================
@@ -1182,6 +1370,7 @@ while ($i -lt $Arguments.Count) {
         exit 0
     }
     elseif ($arg -eq 'status') { Show-Status; exit 0 }
+    elseif ($arg -eq 'doctor') { Show-Doctor; exit 0 }
     elseif ($arg -eq 'config') { if (Test-Path ".marge\config.yaml") { Get-Content ".marge\config.yaml" }; exit 0 }
     elseif ($arg -eq 'meta') {
         # Meta-marge subcommands (MS-0015)

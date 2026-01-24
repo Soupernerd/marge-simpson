@@ -22,8 +22,34 @@
 
 param(
     [string]$InstallDir = "$env:USERPROFILE\.marge",
-    [switch]$Force
+    [switch]$Force,
+    [switch]$Help
 )
+
+if ($Help) {
+    Write-Host @"
+marge install-global - Install marge globally
+
+USAGE:
+  .\install-global.ps1 [options]
+
+OPTIONS:
+  -InstallDir <dir>  Installation directory (default: ~/.marge)
+  -Force             Overwrite existing installation
+  -Help              Show this help
+
+EXAMPLES:
+  .\install-global.ps1
+  .\install-global.ps1 -Force
+  .\install-global.ps1 -InstallDir "D:\tools\marge"
+
+AFTER INSTALL:
+  Add to your PowerShell profile:
+    `$env:MARGE_HOME = "$InstallDir"
+    `$env:PATH += ";`$env:MARGE_HOME"
+"@
+    exit 0
+}
 
 $ErrorActionPreference = "Stop"
 

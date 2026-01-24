@@ -5,6 +5,25 @@ All notable changes to the Marge project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **`marge doctor` command** - Diagnostics for troubleshooting (checks engines, config, environment)
+- **model_pricing.json validation** - Graceful fallback if JSON malformed or missing
+- **`-Help` parameter** for `install-global.ps1` and `convert-to-meta.ps1`
+- **Meta command test suite** - 9 new tests for meta init/status/clean commands
+- **Unix verify profiles** - `fast_sh` and `full_sh` profiles in verify.config.json
+- **Expanded subagent guidance** - AGENTS.md now encourages subagents for edits/creation, not just research
+- **verify.sh auto-profile selection** - Automatically uses `fast_sh` profile on Unix if available
+
+### Changed
+- **Help text parity** - PS1 and Bash help now show identical OPTIONS and META-DEVELOPMENT sections
+- **Show-Usage output** - Changed from Write-Host to Write-Output (now capturable for testing)
+
+### Fixed
+- **Bash invalid flag handling** - Now shows friendly "Unknown option" message with help suggestion
+- **README missing --auto** - Added --auto flag to CLI options table
+
 ## [1.3.0] - 2026-01-23
 
 ### Added

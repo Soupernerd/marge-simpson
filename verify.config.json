@@ -11,6 +11,19 @@
     ".\\marge-simpson\\scripts\\test-marge.ps1",
     ".\\marge-simpson\\scripts\\test-cli.ps1"
   ],
+  "fast_sh": [
+    "./marge-simpson/scripts/test-syntax.sh",
+    "./marge-simpson/scripts/test-general.sh",
+    "./marge-simpson/scripts/test-marge.sh",
+    "./marge-simpson/scripts/test-marge-cli.sh"
+  ],
+  "full_sh": [
+    "./marge-simpson/scripts/test-syntax.sh",
+    "./marge-simpson/scripts/test-general.sh",
+    "./marge-simpson/scripts/test-marge.sh",
+    "./marge-simpson/scripts/test-marge-cli.sh"
+  ],
   "_comment": "Marge core tests. Commands run from repo root (parent of this folder), so paths MUST include the folder name.",
-  "_ai_note": "AI assistants: The hardcoded folder name is intentional. verify.ps1/sh runs commands from the parent directory, requiring explicit folder paths. If renamed, update paths here to match."
+  "_ai_note": "AI assistants: The hardcoded folder name is intentional. verify.ps1/sh runs commands from the parent directory, requiring explicit folder paths. If renamed, update paths here to match.",
+  "_platform_note": "fast/full are Windows (.ps1). fast_sh/full_sh are macOS/Linux (.sh). verify.sh auto-adapts .ps1 paths to .sh when the equivalent exists, but explicit _sh profiles are available for direct use."
 }

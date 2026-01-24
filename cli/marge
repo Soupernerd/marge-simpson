@@ -117,6 +117,7 @@ ${BOLD}COMMANDS:${RESET}
   status              Show current status and progress
   config              Show config file contents
   resume              Resume from saved progress
+  doctor              Run diagnostic checks for setup
 
 ${BOLD}META-DEVELOPMENT:${RESET}
   meta init           Set up .meta_marge/ for improving Marge itself
@@ -126,15 +127,13 @@ ${BOLD}META-DEVELOPMENT:${RESET}
   meta clean          Remove .meta_marge/
 
   Meta-development workflow:
-  ┌─────────────────────────────────────────────────────────────┐
-  │  .meta_marge/AGENTS.md    <- Configuration (the guide)      │
-  │         |                                                   │
-  │  AI audits marge-simpson/ <- Target of improvements         │
-  │         |                                                   │
-  │  Changes made DIRECTLY to marge-simpson/                    │
-  │         |                                                   │
-  │  Work tracked in .meta_marge/planning_docs/                 │
-  └─────────────────────────────────────────────────────────────┘
+    .meta_marge/AGENTS.md    <- Configuration (the guide)
+           |
+    AI audits marge-simpson/ <- Target of improvements
+           |
+    Changes made DIRECTLY to marge-simpson/
+           |
+    Work tracked in .meta_marge/planning_docs/
 
 ${BOLD}CONFIG FILE:${RESET}
   Place .marge/config.yaml in your project:
@@ -352,23 +351,51 @@ parse_token_usage() {
     [[ ! "$output_tokens" =~ ^[0-9]+$ ]] && output_tokens=0
 
     # Calculate cost using model pricing
-    # Default to Claude Sonnet pricing: $3/1M input, $15/1M output
+    # Default to Claude Sonnet-class pricing: $3/1M input, $15/1M output (fallback when file missing/invalid)
     local input_rate=3.00
     local output_rate=15.00
+    local using_fallback=false
 
     # Try to read from model_pricing.json if available
     local pricing_file="./$MARGE_FOLDER/model_pricing.json"
     [[ ! -f "$pricing_file" ]] && pricing_file="$MARGE_HOME/shared/model_pricing.json"
 
-    if [[ -f "$pricing_file" ]] && command -v jq &>/dev/null; then
-        local model_name="Claude Sonnet"
-        [[ "$MODEL" == *"opus"* ]] && model_name="Claude Opus"
-        local rates
-        rates=$(jq -r --arg m "$model_name" '.models[] | select(.name | contains($m)) | "\(.input_per_1m) \(.output_per_1m)"' "$pricing_file" 2>/dev/null | head -1) || true
-        if [[ -n "$rates" ]]; then
-            input_rate=$(echo "$rates" | awk '{print $1}')
-            output_rate=$(echo "$rates" | awk '{print $2}')
+    if [[ -f "$pricing_file" ]]; then
+        if ! command -v jq &>/dev/null; then
+            log_warn "jq not installed - using fallback pricing (\$3/\$15 per 1M tokens)"
+            using_fallback=true
+        else
+            # Validate JSON is parseable
+            if ! jq empty "$pricing_file" 2>/dev/null; then
+                log_warn "model_pricing.json is malformed JSON - using fallback pricing (\$3/\$15 per 1M tokens)"
+                using_fallback=true
+            # Validate 'models' array exists
+            elif ! jq -e '.models | type == "array"' "$pricing_file" &>/dev/null; then
+                log_warn "model_pricing.json missing 'models' array - using fallback pricing (\$3/\$15 per 1M tokens)"
+                using_fallback=true
+            else
+                local model_name="Claude Sonnet"
+                [[ "$MODEL" == *"opus"* ]] && model_name="Claude Opus"
+                local rates
+                rates=$(jq -r --arg m "$model_name" '.models[] | select(.name | contains($m)) | "\(.input_per_1m) \(.output_per_1m)"' "$pricing_file" 2>/dev/null | head -1) || true
+                if [[ -n "$rates" ]]; then
+                    local parsed_input parsed_output
+                    parsed_input=$(echo "$rates" | awk '{print $1}')
+                    parsed_output=$(echo "$rates" | awk '{print $2}')
+                    # Validate rates are numeric
+                    if [[ "$parsed_input" =~ ^[0-9.]+$ ]] && [[ "$parsed_output" =~ ^[0-9.]+$ ]]; then
+                        input_rate=$parsed_input
+                        output_rate=$parsed_output
+                    else
+                        log_warn "model_pricing.json has invalid pricing values - using fallback pricing"
+                        using_fallback=true
+                    fi
+                fi
+            fi
         fi
+    else
+        log_debug "model_pricing.json not found - using fallback pricing"
+        using_fallback=true
     fi
 
     if [[ $input_tokens -gt 0 ]] || [[ $output_tokens -gt 0 ]]; then
@@ -603,6 +630,145 @@ show_meta_status() {
     echo "  │  Work tracked in .meta_marge/planning_docs/             │"
     echo "  └─────────────────────────────────────────────────────────┘"
     echo ""
+}
+
+show_doctor() {
+    # Run diagnostic checks for Marge setup
+    echo ""
+    echo "${BOLD}Marge Doctor - Diagnostics${RESET}"
+    echo ""
+    
+    local warnings=0
+    local errors=0
+    
+    # Check engines
+    echo "${BOLD}Engines:${RESET}"
+    local engines=("claude" "opencode" "aider" "codex")
+    local any_engine=false
+    
+    for eng in "${engines[@]}"; do
+        if command -v "$eng" &>/dev/null; then
+            echo "  ${GREEN}✓${RESET} $eng (found)"
+            any_engine=true
+        else
+            echo "  ${RED}✗${RESET} $eng (not found)"
+        fi
+    done
+    
+    if [[ "$any_engine" == false ]]; then
+        ((errors++))
+    fi
+    
+    echo ""
+    echo "${BOLD}Config:${RESET}"
+    
+    # Check config file
+    local config_path=".marge/config.yaml"
+    if [[ -f "$config_path" ]]; then
+        # Basic YAML validation - check for colon-separated key:value pairs
+        local valid_yaml=true
+        while IFS= read -r line; do
+            # Skip empty lines and comments
+            [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
+            # Check if line has key: format (basic YAML check)
+            if [[ ! "$line" =~ ^[[:space:]]*[a-zA-Z_][a-zA-Z0-9_]*[[:space:]]*: ]]; then
+                valid_yaml=false
+                break
+            fi
+        done < "$config_path"
+        
+        if [[ "$valid_yaml" == true ]]; then
+            echo "  ${GREEN}✓${RESET} .marge/config.yaml (valid)"
+        else
+            echo "  ${RED}✗${RESET} .marge/config.yaml (invalid YAML)"
+            ((warnings++))
+        fi
+    else
+        echo "  ${YELLOW}-${RESET} .marge/config.yaml: not found"
+    fi
+    
+    # Check MARGE_HOME
+    if [[ -n "$MARGE_HOME" ]]; then
+        if [[ -d "$MARGE_HOME" ]]; then
+            echo "  ${GREEN}✓${RESET} MARGE_HOME: $MARGE_HOME"
+        else
+            echo "  ${RED}✗${RESET} MARGE_HOME: $MARGE_HOME (path not found)"
+            ((warnings++))
+        fi
+    else
+        echo "  ${YELLOW}-${RESET} MARGE_HOME: not set"
+    fi
+    
+    echo ""
+    echo "${BOLD}Files:${RESET}"
+    
+    # Check model_pricing.json
+    local pricing_paths=(
+        "./$MARGE_FOLDER/model_pricing.json"
+        "./model_pricing.json"
+        "$MARGE_HOME/shared/model_pricing.json"
+        "$MARGE_HOME/model_pricing.json"
+    )
+    local pricing_found=false
+    local pricing_valid=false
+    local pricing_path=""
+    
+    for path in "${pricing_paths[@]}"; do
+        if [[ -f "$path" ]]; then
+            pricing_found=true
+            pricing_path="$path"
+            # Validate JSON
+            if command -v jq &>/dev/null; then
+                if jq empty "$path" 2>/dev/null; then
+                    pricing_valid=true
+                fi
+            elif command -v python3 &>/dev/null; then
+                if python3 -c "import json; json.load(open('$path'))" 2>/dev/null; then
+                    pricing_valid=true
+                fi
+            else
+                # No JSON validator available, assume valid if file exists
+                pricing_valid=true
+            fi
+            break
+        fi
+    done
+    
+    if [[ "$pricing_found" == true ]]; then
+        if [[ "$pricing_valid" == true ]]; then
+            echo "  ${GREEN}✓${RESET} model_pricing.json (valid)"
+        else
+            echo "  ${RED}✗${RESET} model_pricing.json (invalid JSON)"
+            ((warnings++))
+        fi
+    else
+        echo "  ${YELLOW}-${RESET} model_pricing.json: not found"
+    fi
+    
+    # Check marge folder
+    if [[ -d "$MARGE_FOLDER" ]]; then
+        echo "  ${GREEN}✓${RESET} $MARGE_FOLDER/ folder exists"
+    else
+        echo "  ${YELLOW}-${RESET} $MARGE_FOLDER/ folder: not found (will use lite mode)"
+    fi
+    
+    echo ""
+    
+    # Summary
+    if [[ $errors -gt 0 ]]; then
+        local issue_word="issue"
+        [[ $errors -ne 1 ]] && issue_word="issues"
+        echo "Status: ${RED}Not ready${RESET} ($errors critical $issue_word)"
+        exit 1
+    elif [[ $warnings -gt 0 ]]; then
+        local warn_word="warning"
+        [[ $warnings -ne 1 ]] && warn_word="warnings"
+        echo "Status: ${GREEN}Ready to use${RESET} ($warnings $warn_word)"
+        exit 0
+    else
+        echo "Status: ${GREEN}Ready to use${RESET}"
+        exit 0
+    fi
 }
 
 remove_meta() {
@@ -1073,6 +1239,7 @@ while [[ $# -gt 0 ]]; do
             [[ -f "$PRD_FILE" ]] && echo "PRD tasks: $(parse_prd "$PRD_FILE" | wc -l)"
             exit 0
             ;;
+        doctor) show_doctor; exit 0 ;;
         config) [[ -f .marge/config.yaml ]] && cat .marge/config.yaml; exit 0 ;;
         resume)
             load_progress && {
@@ -1080,7 +1247,11 @@ while [[ $# -gt 0 ]]; do
             } || log_warn "No progress to resume"
             shift
             ;;
-        -*) log_error "Unknown: $1"; exit 1 ;;
+        -*)
+            log_error "Unknown option: $1"
+            echo "Run 'marge --help' for usage information." >&2
+            exit 1
+            ;;
         *) POSITIONAL+=("$1"); shift ;;
     esac
 done
