@@ -11,10 +11,10 @@
 **Example:**
 ```powershell
 # Find decisions about authentication
-Select-String -Path "./knowledge/decisions.md" -Pattern "#auth"
+Select-String -Path "./system/knowledge/decisions.md" -Pattern "#auth"
 
 # Find all entries tagged with typescript
-Select-String -Path "./knowledge/*.md" -Pattern "#typescript"
+Select-String -Path "./system/knowledge/*.md" -Pattern "#typescript"
 ```
 
 ---
@@ -71,5 +71,5 @@ _None yet_
    - Update Tag Index
 
 **Quarterly review:**
-- Archive entries older than 6 months to `./knowledge/archive.md`
+- Archive entries older than 6 months to `./system/knowledge/archive.md`
 - Review and merge duplicate/similar entries

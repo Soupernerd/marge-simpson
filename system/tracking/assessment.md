@@ -8,7 +8,7 @@ AI/Agents must read `AGENTS.md` before working.
 
 ## Tracking (required)
 - **Next ID:** MS-0001
-  - Use this for the next new Issue/Task ID, then increment here AND in `tracking/tasklist.md`.
+  - Use this for the next new Issue/Task ID, then increment here AND in `system/tracking/tasklist.md`.
 
 ---
 
@@ -49,7 +49,7 @@ AI/Agents must read `AGENTS.md` before working.
 ### [MS-0001] Short title
 - **Reported:** YYYY-MM-DD
 - **Status:** Todo / Doing / Done
-- **Expert(s):** (optional) Relevant expert persona(s) from `marge-simpson/experts/_index.md`
+- **Expert(s):** (optional) Relevant expert persona(s) from `./system/experts/_index.md`
 - **Symptom:** What the user sees
 - **Root cause:** The actual cause (code-level)
 - **Fix:** What changed (brief)
@@ -57,7 +57,7 @@ AI/Agents must read `AGENTS.md` before working.
 - **Verification:**
   - Test(s) added/changed: ...
   - Commands executed:
-    - `./scripts/verify.sh fast` (or `./scripts/verify.ps1 fast`)
+    - `./system/scripts/verify.sh fast` (or `./system/scripts/verify.ps1 fast`)
     - (any targeted command)
   - Evidence: paste raw output
 - **Notes / follow-ups:** Any remaining risk or cleanup

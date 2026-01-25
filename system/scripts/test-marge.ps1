@@ -11,7 +11,7 @@ Validates core installation:
 6. Cleanup script runs in preview mode
 
 Usage:
-  powershell -ExecutionPolicy Bypass -File .\scripts\test-marge.ps1
+  powershell -ExecutionPolicy Bypass -File .\system\scripts\test-marge.ps1
 #>
 
 $ErrorActionPreference = "Stop"
@@ -19,9 +19,10 @@ $script:TestsPassed = 0
 $script:TestsFailed = 0
 $script:StartTime = Get-Date
 
-# Dynamic folder detection (scripts are now in scripts/ subfolder)
+# Dynamic folder detection (scripts are now in system/scripts/ subfolder)
 $ScriptsDir = $PSScriptRoot
-$MsDir = (Get-Item $ScriptsDir).Parent.FullName
+$SystemDir = (Get-Item $ScriptsDir).Parent.FullName
+$MsDir = (Get-Item $SystemDir).Parent.FullName
 $MsFolderName = Split-Path $MsDir -Leaf
 $RepoRoot = (Get-Item $MsDir).Parent.FullName
 

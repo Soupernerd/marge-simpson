@@ -11,11 +11,12 @@ set -euo pipefail
 # 2. tracking/tasklist.md    - Suggest archiving if large (no auto-modification)
 #
 # Usage:
-#   ./scripts/cleanup.sh                    # Analyze and report
+#   ./system/scripts/cleanup.sh              # Analyze and report
 
-# Dynamic folder detection (scripts are now in scripts/ subfolder)
+# Dynamic folder detection (scripts are now in system/scripts/ subfolder)
 SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-MARGE_DIR="$(cd "$SCRIPTS_DIR/.." && pwd)"
+SYSTEM_DIR="$(dirname "$SCRIPTS_DIR")"
+MARGE_DIR="$(dirname "$SYSTEM_DIR")"
 MS_FOLDER_NAME="$(basename "$MARGE_DIR")"
 REPO_ROOT="$(cd "$MARGE_DIR/.." && pwd)"
 

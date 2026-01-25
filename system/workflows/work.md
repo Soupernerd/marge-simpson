@@ -15,24 +15,24 @@ User wants something **done** - any of:
 
 ### 1. Check Experts (if task has domain keywords)
 
-Read `./experts/_index.md` and scan for keywords matching your task:
+Read `./system/experts/_index.md` and scan for keywords matching your task:
 
 | Task Keywords | Load File |
 |---------------|----------|
-| security, auth, GDPR | `./experts/security.md` |
-| test, coverage, QA | `./experts/testing.md` |
-| deploy, CI/CD, docker | `./experts/devops.md` |
-| architecture, API, scale | `./experts/architecture.md` |
-| UI, UX, accessibility | `./experts/design.md` |
+| security, auth, GDPR | `./system/experts/security.md` |
+| test, coverage, QA | `./system/experts/testing.md` |
+| deploy, CI/CD, docker | `./system/experts/devops.md` |
+| architecture, API, scale | `./system/experts/architecture.md` |
+| UI, UX, accessibility | `./system/experts/design.md` |
 
 **Skip if:** Simple bug fix or task doesn't match any domain keywords.
 
 ### 2. Check Knowledge (for prior decisions)
 
-Grep `./knowledge/decisions.md` for tags related to your task:
+Grep `./system/knowledge/decisions.md` for tags related to your task:
 
 ```powershell
-Select-String -Path "./knowledge/decisions.md" -Pattern "#auth|#api|#database"
+Select-String -Path "./system/knowledge/decisions.md" -Pattern "#auth|#api|#database"
 ```
 
 **Apply any relevant decisions** — don't contradict prior architectural choices without explicit approval.
@@ -44,41 +44,41 @@ Select-String -Path "./knowledge/decisions.md" -Pattern "#auth|#api|#database"
 ### For FEATURES (type: feature)
 
 1. Create the next MS-#### ID
-2. Create plan file: `./tracking/[feature-name]_MS-####.md`
-   - Copy from `./tracking/_template.md`
+2. Create plan file: `./system/tracking/[feature-name]_MS-####.md`
+   - Copy from `./system/tracking/_template.md`
    - Fill in: Goal, Approach, Why, Risks
    - List sub-tasks (each gets own MS-#### ID)
-3. Add entry to `./tracking/assessment.md` referencing the plan
-4. Add task(s) to `./tracking/tasklist.md` with parent reference
+3. Add entry to `./system/tracking/assessment.md` referencing the plan
+4. Add task(s) to `./system/tracking/tasklist.md` with parent reference
 5. Increment `Next ID` in BOTH files
 
 ### For BUGS/IMPROVEMENTS/REFACTORS
 
 1. Create the next MS-#### ID
-2. Add entry to `./tracking/assessment.md`:
+2. Add entry to `./system/tracking/assessment.md`:
    ```markdown
    ### [MS-####] Short description
    - **Type:** bug | feature | improvement | refactor
    - **Status:** In Progress
    - **Description:** What needs to be done
-   - **Expert(s):** (if using ./experts/ - optional)
+   - **Expert(s):** (if using ./system/experts/ - optional)
    - **Plan:** Steps to implement
    - **Verification:** How to confirm it works
    - **Files:** (fill in as you work)
    ```
-3. Add task to `./tracking/tasklist.md`:
+3. Add task to `./system/tracking/tasklist.md`:
    ```markdown
    ### [MS-####] Short description
    - **Type:** bug | feature | improvement
    - **DoD:** What "done" looks like
-   - **Verification:** `./scripts/verify.ps1 fast` (Win) or `./scripts/verify.sh fast` (Unix)
+   - **Verification:** `./system/scripts/verify.ps1 fast` (Win) or `./system/scripts/verify.sh fast` (Unix)
    - **Status:** [ ] Not started
    ```
 4. Increment `Next ID` in BOTH files
 
 ### For EXISTING work (ID already exists)
 
-1. Find the MS-#### in `./tracking/tasklist.md`
+1. Find the MS-#### in `./system/tracking/tasklist.md`
 2. Mark it `In Progress`
 3. Continue from where it left off
 
@@ -86,7 +86,7 @@ Select-String -Path "./knowledge/decisions.md" -Pattern "#auth|#api|#database"
 
 ### Work Order (priority)
 
-1. **First:** Existing unchecked P0/P1 items in `./tracking/tasklist.md`
+1. **First:** Existing unchecked P0/P1 items in `./system/tracking/tasklist.md`
 2. **Then:** Newly created items from this message
 3. **Finally:** Remaining items (P0 → P1 → P2)
 
@@ -96,7 +96,7 @@ Select-String -Path "./knowledge/decisions.md" -Pattern "#auth|#api|#database"
 ┌──────────────────────────────────────────────────┐
 │  1. IMPLEMENT                                    │
 │     - Make the smallest safe change              │
-│     - Update ./tracking/assessment.md       │
+│     - Update ./system/tracking/assessment.md     │
 └───────────────────────┬──────────────────────────┘
                ▼
 ┌─────────────────────────────────────┐
@@ -126,7 +126,7 @@ Select-String -Path "./knowledge/decisions.md" -Pattern "#auth|#api|#database"
 
 - Run the verification runner
 - Capture raw output (or log file path)
-- Record in ./tracking/assessment.md
+- Record in ./system/tracking/assessment.md
 - Only THEN mark complete
 
 ## Labels (for tracking, not routing)
@@ -195,7 +195,7 @@ When delivering work, output:
 
 After completing work (especially significant decisions or discoveries):
 
-1. Consider running `./workflows/session_end.md` to capture:
+1. Consider running `./system/workflows/session_end.md` to capture:
    - Decisions made during this work
    - Patterns observed in the codebase
    - User preferences expressed

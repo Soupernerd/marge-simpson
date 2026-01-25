@@ -16,9 +16,10 @@ YELLOW='\033[1;33m'
 CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
-# Find repo root
+# Find repo root (scripts are now in system/scripts/ subfolder, so go up twice)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(dirname "$SCRIPT_DIR")"
+SYSTEM_DIR="$(dirname "$SCRIPT_DIR")"
+REPO_ROOT="$(dirname "$SYSTEM_DIR")"
 
 echo ""
 echo -e "${CYAN}============================================================${NC}"

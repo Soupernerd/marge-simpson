@@ -6,7 +6,7 @@
 
 Meta-development means improving the Marge system while using it. The `.meta_marge/` folder contains a copy of Marge's AGENTS.md and supporting files that **guide the AI to make improvements directly to the parent `marge-simpson/` folder**.
 
-**Key concept:** You don't edit files in `.meta_marge/` and copy them back. Instead, `.meta_marge/AGENTS.md` tells the AI to audit and improve `marge-simpson/` directly, while tracking work in `.meta_marge/tracking/`.
+**Key concept:** You don't edit files in `.meta_marge/` and copy them back. Instead, `.meta_marge/AGENTS.md` tells the AI to audit and improve `marge-simpson/` directly, while tracking work in `.meta_marge/system/tracking/`.
 
 ## Architecture
 
@@ -86,11 +86,12 @@ Run a self-audit on the marge-simpson codebase.
 ```
 marge-simpson/              ← Target of improvements (committed to git)
 ├── AGENTS.md               ← Production instructions
-├── scripts/
-├── workflows/
+├── system/
+│   ├── scripts/
+│   └── workflows/
 └── .meta_marge/            ← Meta guide (gitignored)
     ├── AGENTS.md           ← Says "audit marge-simpson/, not me"
-    └── tracking/      ← Tracks meta-dev work
+    └── system/tracking/    ← Tracks meta-dev work
         ├── assessment.md   ← Issues found
         └── tasklist.md     ← Work queue
 
@@ -100,12 +101,12 @@ Audits marge-simpson/ folder
       ↓
 Makes fixes directly to marge-simpson/
       ↓
-Tracks work in .meta_marge/tracking/
+Tracks work in .meta_marge/system/tracking/
 ```
 
 ## State Preservation
 
-The `.meta_marge/tracking/` folder preserves your work across sessions:
+The `.meta_marge/system/tracking/` folder preserves your work across sessions:
 
 - `marge meta init` — Won't overwrite existing work
 - `marge meta init --fresh` — Explicit reset (you chose this)
@@ -142,22 +143,23 @@ Options:
 1. **Use `marge meta init`** — It handles setup automatically
 2. **Don't reset unnecessarily** — Work state is valuable
 3. **Commit frequently** — Small, focused commits to marge-simpson/ make review easier
-4. **Run tests** — Use `./scripts/verify.ps1 fast` after changes
+4. **Run tests** — Use `./system/scripts/verify.ps1 fast` after changes
 
 ## Folder Structure
 
 ```
 .meta_marge/                  ← Meta guide (gitignored, NOT edited directly)
 ├── AGENTS.md                 ← Guides AI to improve marge-simpson/
-├── workflows/                ← Reference for AI
-├── experts/                  ← Reference for AI
-├── knowledge/                ← Reference for AI
-└── tracking/            ← AI tracks meta-dev work here
-    ├── assessment.md         ← Issues found in marge-simpson/
-    └── tasklist.md           ← Work queue for improvements
+└── system/
+    ├── workflows/            ← Reference for AI
+    ├── experts/              ← Reference for AI
+    ├── knowledge/            ← Reference for AI
+    └── tracking/             ← AI tracks meta-dev work here
+        ├── assessment.md     ← Issues found in marge-simpson/
+        └── tasklist.md       ← Work queue for improvements
 ```
 
-> **Note:** `.meta_marge/` has no `scripts/` folder — it uses `marge-simpson/scripts/` directly.
+> **Note:** `.meta_marge/` has no `scripts/` folder — it uses `marge-simpson/system/scripts/` directly.
 
 ## Tips
 

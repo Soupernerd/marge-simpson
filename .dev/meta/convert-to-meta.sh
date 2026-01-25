@@ -17,20 +17,22 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Locate source folder - handle both repo and global install structures
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PARENT_DIR="$(dirname "$SCRIPT_DIR")"
-PARENT_NAME="$(basename "$PARENT_DIR")"
+# Script is at .dev/meta/ so we need to go up TWO levels to reach repo root
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"  # .dev/meta
+DEV_DIR="$(dirname "$SCRIPT_DIR")"                           # .dev
+REPO_ROOT="$(dirname "$DEV_DIR")"                            # marge-simpson (repo root)
+DEV_PARENT_NAME="$(basename "$REPO_ROOT")"                   # For global install detection
 
-# Detect if running from global install ($MARGE_HOME/shared/.dev/) vs repo (.dev/)
-if [[ "$PARENT_NAME" == "shared" ]] && [[ -f "$PARENT_DIR/AGENTS.md" ]]; then
+# Detect if running from global install ($MARGE_HOME/shared/.dev/meta/) vs repo (.dev/meta/)
+if [[ "$DEV_PARENT_NAME" == "shared" ]] && [[ -f "$REPO_ROOT/AGENTS.md" ]]; then
     # Global install: source is $MARGE_HOME/shared/
-    SOURCE_FOLDER="$PARENT_DIR"
+    SOURCE_FOLDER="$REPO_ROOT"
     SOURCE_NAME="marge-simpson"  # Use standard name for display
     TARGET_FOLDER="$(pwd)/.meta_marge"
     IS_GLOBAL_INSTALL=true
 else
-    # Repo structure: source is parent of .dev/
-    SOURCE_FOLDER="$([[ "$(basename "$SCRIPT_DIR")" == ".dev" ]] && dirname "$SCRIPT_DIR" || echo "$SCRIPT_DIR")"
+    # Repo structure: source is repo root (parent of .dev/)
+    SOURCE_FOLDER="$REPO_ROOT"
     SOURCE_NAME=$(basename "$SOURCE_FOLDER")
     TARGET_FOLDER="$SOURCE_FOLDER/.meta_marge"
     IS_GLOBAL_INSTALL=false
@@ -87,15 +89,21 @@ while IFS= read -r -d '' file; do
     original="$content"
     
     # Transform relative paths to explicit .meta_marge/ paths
-    # But NOT ./scripts/ - those should point to source (marge-simpson/scripts/)
-    content=${content//".\/tracking\/"/".meta_marge/tracking/"}
-    content=${content//".\/workflows\/"/".meta_marge/workflows/"}
-    content=${content//".\/experts\/"/".meta_marge/experts/"}
-    content=${content//".\/knowledge\/"/".meta_marge/knowledge/"}
-    content=${content//".\/model_pricing.json"/".meta_marge/model_pricing.json"}
+    # But NOT ./system/scripts/ - those should point to source (marge-simpson/system/scripts/)
+    # Handle both old (./tracking/) and new (./system/tracking/) formats
+    content=${content//"./system\/tracking\/"/".meta_marge/system/tracking/"}
+    content=${content//"./system\/workflows\/"/".meta_marge/system/workflows/"}
+    content=${content//"./system\/experts\/"/".meta_marge/system/experts/"}
+    content=${content//"./system\/knowledge\/"/".meta_marge/system/knowledge/"}
+    content=${content//"./tracking\/"/".meta_marge/system/tracking/"}
+    content=${content//"./workflows\/"/".meta_marge/system/workflows/"}
+    content=${content//"./experts\/"/".meta_marge/system/experts/"}
+    content=${content//"./knowledge\/"/".meta_marge/system/knowledge/"}
+    content=${content//"./model_pricing.json"/".meta_marge/model_pricing.json"}
     
     # Scripts should use source folder for verification (test the source, not meta)
-    content=${content//".\/scripts\/"/"${SOURCE_NAME}/scripts/"}
+    content=${content//"./system\/scripts\/"/"${SOURCE_NAME}/system/scripts/"}
+    content=${content//"./scripts\/"/"${SOURCE_NAME}/system/scripts/"}
     
     # Protect GitHub URLs
     content=$(echo "$content" | sed "s|github\.com/\([^/]*\)/${SOURCE_NAME}|github.com/\1/___GITHUB___|g")
@@ -111,7 +119,7 @@ echo "  $count files transformed"
 # [3/4] Reset work queues + rewrite AGENTS.md scope
 echo "[3/4] Resetting work queues..."
 
-cat > "$TARGET_FOLDER/tracking/assessment.md" << EOF
+cat > "$TARGET_FOLDER/system/tracking/assessment.md" << EOF
 # $TARGET_NAME Assessment
 
 > Meta-development tracking. AI reads .meta_marge/AGENTS.md, improves marge-simpson/.
@@ -133,7 +141,7 @@ _None_
 _None_
 EOF
 
-cat > "$TARGET_FOLDER/tracking/tasklist.md" << EOF
+cat > "$TARGET_FOLDER/system/tracking/tasklist.md" << EOF
 # $TARGET_NAME Tasklist
 
 > Work queue for meta-development.
@@ -178,7 +186,7 @@ echo "  Reset assessment.md, tasklist.md, AGENTS.md"
 
 # [4/4] Verify (uses source scripts, not meta_marge)
 echo "[4/4] Verifying..."
-VERIFY_SCRIPT="$SOURCE_FOLDER/scripts/verify.sh"
+VERIFY_SCRIPT="$SOURCE_FOLDER/system/scripts/verify.sh"
 if [[ -x "$VERIFY_SCRIPT" ]]; then
     "$VERIFY_SCRIPT" fast
     exit_code=$?

@@ -25,26 +25,27 @@ makes changes directly to marge-simpson/ (the target).
 $ErrorActionPreference = "Stop"
 
 # Locate source folder - handle both repo and global install structures
-$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$ParentDir = Split-Path -Parent $ScriptDir
-$ParentName = Split-Path -Leaf $ParentDir
+# Script is at: .dev/meta/convert-to-meta.ps1 (repo) or $MARGE_HOME/shared/.dev/meta/ (global)
+$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path  # .dev/meta
+$DevDir = Split-Path -Parent $ScriptDir                       # .dev
+$RepoRoot = Split-Path -Parent $DevDir                        # marge-simpson (repo root)
+$DevDirParentName = Split-Path -Leaf $RepoRoot
+$TargetName = ".meta_marge"
 
-# Detect if running from global install ($MARGE_HOME/shared/.dev/) vs repo (.dev/)
-if ($ParentName -eq "shared" -and (Test-Path (Join-Path $ParentDir "AGENTS.md"))) {
+# Detect if running from global install ($MARGE_HOME/shared/.dev/meta/) vs repo (.dev/meta/)
+if ($DevDirParentName -eq "shared" -and (Test-Path (Join-Path $RepoRoot "AGENTS.md"))) {
     # Global install: source is $MARGE_HOME/shared/
-    $SourceFolder = $ParentDir
+    $SourceFolder = $RepoRoot
     $SourceName = "marge-simpson"  # Use standard name for display
     $TargetFolder = Join-Path (Get-Location) ".meta_marge"
     $IsGlobalInstall = $true
 } else {
-    # Repo structure: source is parent of .dev/
-    $SourceFolder = if ((Split-Path -Leaf $ScriptDir) -eq ".dev") { $ParentDir } else { $ScriptDir }
+    # Repo structure: source is repo root (two levels up from .dev/meta/)
+    $SourceFolder = $RepoRoot
     $SourceName = Split-Path -Leaf $SourceFolder
     $TargetFolder = Join-Path $SourceFolder $TargetName
     $IsGlobalInstall = $false
 }
-
-$TargetName = ".meta_marge"
 
 # Validate
 if ($SourceName -eq ".meta_marge") { Write-Host "ERROR: Already in meta folder" -ForegroundColor Red; exit 1 }
@@ -103,19 +104,19 @@ Get-ChildItem -Path $TargetFolder -Recurse -File -Force | ForEach-Object {
         $original = $content
         
         # Transform relative paths to explicit .meta_marge/ paths
-        # ./tracking/ -> .meta_marge/tracking/
-        # ./workflows/ -> .meta_marge/workflows/
-        # ./experts/ -> .meta_marge/experts/
-        # ./knowledge/ -> .meta_marge/knowledge/
-        # But NOT ./scripts/ - those should point to source (marge-simpson/scripts/)
-        $content = $content -replace '\./tracking/', '.meta_marge/tracking/'
-        $content = $content -replace '\./workflows/', '.meta_marge/workflows/'
-        $content = $content -replace '\./experts/', '.meta_marge/experts/'
-        $content = $content -replace '\./knowledge/', '.meta_marge/knowledge/'
-        $content = $content -replace '\./model_pricing\.json', '.meta_marge/model_pricing.json'
+        # ./system/tracking/ -> .meta_marge/system/tracking/
+        # ./system/workflows/ -> .meta_marge/system/workflows/
+        # ./system/experts/ -> .meta_marge/system/experts/
+        # ./system/knowledge/ -> .meta_marge/system/knowledge/
+        # But NOT ./system/scripts/ - those should point to source (marge-simpson/system/scripts/)
+        $content = $content -replace '\./(system/)?tracking/', '.meta_marge/system/tracking/'
+        $content = $content -replace '\./(system/)?workflows/', '.meta_marge/system/workflows/'
+        $content = $content -replace '\./(system/)?experts/', '.meta_marge/system/experts/'
+        $content = $content -replace '\./(system/)?knowledge/', '.meta_marge/system/knowledge/'
+        $content = $content -replace '\./(system/)?model_pricing\.json', '.meta_marge/model_pricing.json'
         
         # Scripts should use source folder for verification (test the source, not meta)
-        $content = $content -replace '\./scripts/', "$SourceName/scripts/"
+        $content = $content -replace '\./(system/)?scripts/', "$SourceName/system/scripts/"
         
         # Legacy: also handle any remaining explicit source folder references
         # Protect GitHub URLs first
@@ -155,7 +156,7 @@ _None_
 
 ## Done
 _None_
-"@ | Set-Content -Path (Join-Path $TargetFolder "tracking\assessment.md")
+"@ | Set-Content -Path (Join-Path $TargetFolder "system\tracking\assessment.md")
 
 @"
 # $TargetName Tasklist
@@ -174,7 +175,7 @@ _None_
 
 ## Done
 _None_
-"@ | Set-Content -Path (Join-Path $TargetFolder "tracking\tasklist.md")
+"@ | Set-Content -Path (Join-Path $TargetFolder "system\tracking\tasklist.md")
 
 # Rewrite AGENTS.md scope section for meta-development
 $AgentsPath = Join-Path $TargetFolder "AGENTS.md"
@@ -203,7 +204,7 @@ Write-Host "  Reset assessment.md, tasklist.md, AGENTS.md"
 
 # [4/4] Verify (uses source scripts, not meta_marge)
 Write-Host "[4/4] Verifying..."
-$VerifyScript = Join-Path $SourceFolder "scripts\verify.ps1"
+$VerifyScript = Join-Path $SourceFolder "system\scripts\verify.ps1"
 if (Test-Path $VerifyScript) {
     & $VerifyScript fast
     $exitCode = $LASTEXITCODE

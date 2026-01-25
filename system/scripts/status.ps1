@@ -12,14 +12,15 @@
     - Next task recommendation
 
 .EXAMPLE
-    .\scripts\status.ps1
+    .\system\scripts\status.ps1
 #>
 
 $ErrorActionPreference = "SilentlyContinue"
 
-# Dynamic folder detection (scripts are now in scripts/ subfolder)
+# Dynamic folder detection (scripts are now in system/scripts/ subfolder)
 $ScriptsDir = $PSScriptRoot
-$MsDir = (Get-Item $ScriptsDir).Parent.FullName
+$SystemDir = (Get-Item $ScriptsDir).Parent.FullName
+$MsDir = (Get-Item $SystemDir).Parent.FullName
 $MsFolderName = Split-Path $MsDir -Leaf
 $RepoRoot = (Get-Item $MsDir).Parent.FullName
 

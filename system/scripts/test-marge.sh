@@ -10,11 +10,12 @@ set -euo pipefail
 # 4. Cleanup script runs in preview mode
 #
 # Usage:
-#   ./scripts/test-marge.sh
+#   ./system/scripts/test-marge.sh
 
-# Dynamic folder detection (scripts are now in scripts/ subfolder)
+# Dynamic folder detection (scripts are now in system/scripts/ subfolder)
 SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-MS_DIR="$(cd "$SCRIPTS_DIR/.." && pwd)"
+SYSTEM_DIR="$(dirname "$SCRIPTS_DIR")"
+MS_DIR="$(dirname "$SYSTEM_DIR")"
 MS_FOLDER_NAME="$(basename "$MS_DIR")"
 REPO_ROOT="$(cd "$MS_DIR/.." && pwd)"
 

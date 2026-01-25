@@ -14,14 +14,15 @@
     These tests run against ALL applicable files, not specific ones.
 
 .EXAMPLE
-    .\scripts\test-general.ps1
+    .\system\scripts\test-general.ps1
 #>
 
 $ErrorActionPreference = "Stop"
 
-# Find repo root
+# Find repo root (scripts are now in system/scripts/ subfolder, so go up twice)
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$RepoRoot = Split-Path -Parent $ScriptDir
+$SystemDir = Split-Path -Parent $ScriptDir
+$RepoRoot = Split-Path -Parent $SystemDir
 
 # Detect if running in .meta_marge (lightweight mode - fewer required files)
 $FolderName = Split-Path -Leaf $RepoRoot
@@ -162,12 +163,12 @@ Write-Host "[3/6] Checking PS1/SH script parity..." -ForegroundColor Yellow
 
 # Core script pairs always checked
 $scriptPairs = @(
-    @{ Base = "scripts\verify"; Extensions = @(".ps1", ".sh") },
-    @{ Base = "scripts\cleanup"; Extensions = @(".ps1", ".sh") },
-    @{ Base = "scripts\decay"; Extensions = @(".ps1", ".sh") },
-    @{ Base = "scripts\status"; Extensions = @(".ps1", ".sh") },
-    @{ Base = "scripts\test-marge"; Extensions = @(".ps1", ".sh") },
-    @{ Base = "scripts\test-syntax"; Extensions = @(".ps1", ".sh") }
+    @{ Base = "system\scripts\verify"; Extensions = @(".ps1", ".sh") },
+    @{ Base = "system\scripts\cleanup"; Extensions = @(".ps1", ".sh") },
+    @{ Base = "system\scripts\decay"; Extensions = @(".ps1", ".sh") },
+    @{ Base = "system\scripts\status"; Extensions = @(".ps1", ".sh") },
+    @{ Base = "system\scripts\test-marge"; Extensions = @(".ps1", ".sh") },
+    @{ Base = "system\scripts\test-syntax"; Extensions = @(".ps1", ".sh") }
 )
 
 # Additional pairs only in full Marge (not .meta_marge)
@@ -206,18 +207,18 @@ Write-Host "[4/6] Checking required files exist..." -ForegroundColor Yellow
 $requiredFiles = @(
     "AGENTS.md",
     "verify.config.json",
-    "workflows\_index.md",
-    "workflows\work.md",
-    "workflows\audit.md",
-    "workflows\loop.md",
-    "workflows\planning.md",
-    "workflows\session_start.md",
-    "workflows\session_end.md",
-    "experts\_index.md",
-    "knowledge\_index.md",
-    "scripts\_index.md",
-    "tracking\assessment.md",
-    "tracking\tasklist.md"
+    "system\workflows\_index.md",
+    "system\workflows\work.md",
+    "system\workflows\audit.md",
+    "system\workflows\loop.md",
+    "system\workflows\planning.md",
+    "system\workflows\session_start.md",
+    "system\workflows\session_end.md",
+    "system\experts\_index.md",
+    "system\knowledge\_index.md",
+    "system\scripts\_index.md",
+    "system\tracking\assessment.md",
+    "system\tracking\tasklist.md"
 )
 
 # Additional files only required in full Marge (not .meta_marge)
@@ -256,7 +257,7 @@ if ($IsMetaMarge) {
     $readmeContent = Get-Content $readmePath -Raw
 
     # Check that documented folders exist
-    $documentedFolders = @("cli/", "scripts/", "workflows/", "experts/", "knowledge/", "tracking/", "prompts/", ".dev/")
+    $documentedFolders = @("cli/", "system/scripts/", "system/workflows/", "system/experts/", "system/knowledge/", "system/tracking/", "prompts/", ".dev/")
     foreach ($folder in $documentedFolders) {
         $folderPath = Join-Path $RepoRoot ($folder.TrimEnd('/'))
         Test-Check "Documented folder exists: $folder" {
@@ -304,7 +305,7 @@ if ($IsMetaMarge) {
 Write-Host ""
 Write-Host "[6/6] Checking workflow file connectivity..." -ForegroundColor Yellow
 
-$workflowIndex = Join-Path $RepoRoot "workflows\_index.md"
+$workflowIndex = Join-Path $RepoRoot "system\workflows\_index.md"
 $workflowIndexContent = Get-Content $workflowIndex -Raw
 
 $workflowFiles = @("work.md", "audit.md", "loop.md", "planning.md", "session_start.md", "session_end.md")
@@ -314,7 +315,7 @@ foreach ($wf in $workflowFiles) {
     }
     
     # Also check the workflow file references AGENTS.md or other workflows correctly
-    $wfPath = Join-Path $RepoRoot "workflows\$wf"
+    $wfPath = Join-Path $RepoRoot "system\workflows\$wf"
     if (Test-Path $wfPath) {
         $wfContent = Get-Content $wfPath -Raw
         # Work.md should reference verification

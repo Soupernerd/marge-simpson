@@ -10,7 +10,7 @@ CLEANUP RULES:
 2. tracking/tasklist.md    - Suggest archiving if large (no auto-modification)
 
 Usage:
-  ./cleanup.ps1                    # Analyze and report
+  ./system/scripts/cleanup.ps1     # Analyze and report
 #>
 
 param(
@@ -19,9 +19,10 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-# Dynamic folder detection (scripts are now in scripts/ subfolder)
+# Dynamic folder detection (scripts are now in system/scripts/ subfolder)
 $scriptsDir = $PSScriptRoot
-$margeDir = (Get-Item $scriptsDir).Parent.FullName
+$systemDir = (Get-Item $scriptsDir).Parent.FullName
+$margeDir = (Get-Item $systemDir).Parent.FullName
 $msFolderName = Split-Path $margeDir -Leaf
 $repoRoot = (Get-Item $margeDir).Parent.FullName
 

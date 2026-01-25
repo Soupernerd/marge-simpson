@@ -6,9 +6,9 @@ Runs repo verification commands (tests/lint/build) and writes a timestamped log.
 This script auto-detects its own folder name, so you can rename the folder if needed.
 
 Usage:
-  powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1 fast
-  powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1 full
-  powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1 fast -SkipIfNoTests
+  powershell -ExecutionPolicy Bypass -File .\system\scripts\verify.ps1 fast
+  powershell -ExecutionPolicy Bypass -File .\system\scripts\verify.ps1 full
+  powershell -ExecutionPolicy Bypass -File .\system\scripts\verify.ps1 fast -SkipIfNoTests
 
 Options:
   -Profile       fast|full (default: fast)
@@ -131,9 +131,10 @@ function Write-FinalSummary {
 # CORE LOGIC
 # ==============================================================================
 
-# Dynamic folder detection (scripts are now in scripts/ subfolder)
+# Dynamic folder detection (scripts are now in system/scripts/ subfolder)
 $ScriptsDir = $PSScriptRoot
-$MsDir = (Get-Item $ScriptsDir).Parent.FullName
+$SystemDir = (Get-Item $ScriptsDir).Parent.FullName
+$MsDir = (Get-Item $SystemDir).Parent.FullName
 $MsFolderName = Split-Path $MsDir -Leaf
 $RootDir = (Get-Item $MsDir).Parent.FullName
 $Conf = Join-Path $MsDir "verify.config.json"

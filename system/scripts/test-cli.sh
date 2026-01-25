@@ -7,11 +7,12 @@ set -euo pipefail
 # Does NOT require actual AI engines - tests help/version/init/clean/status.
 #
 # Usage:
-#   ./scripts/test-cli.sh
+#   ./system/scripts/test-cli.sh
 
-# Dynamic folder detection
+# Dynamic folder detection (scripts are now in system/scripts/ subfolder)
 SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-MS_DIR="$(cd "$SCRIPTS_DIR/.." && pwd)"
+SYSTEM_DIR="$(cd "$SCRIPTS_DIR/.." && pwd)"
+MS_DIR="$(cd "$SYSTEM_DIR/.." && pwd)"
 MS_FOLDER_NAME="$(basename "$MS_DIR")"
 
 TESTS_PASSED=0

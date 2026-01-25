@@ -1,27 +1,27 @@
 {
   "fast": [
-    ".\\marge-simpson\\scripts\\test-syntax.ps1",
-    ".\\marge-simpson\\scripts\\test-general.ps1",
-    ".\\marge-simpson\\scripts\\test-marge.ps1",
-    ".\\marge-simpson\\scripts\\test-cli.ps1"
+    ".\\marge-simpson\\system\\scripts\\test-syntax.ps1",
+    ".\\marge-simpson\\system\\scripts\\test-general.ps1",
+    ".\\marge-simpson\\system\\scripts\\test-marge.ps1",
+    ".\\marge-simpson\\system\\scripts\\test-cli.ps1"
   ],
   "full": [
-    ".\\marge-simpson\\scripts\\test-syntax.ps1",
-    ".\\marge-simpson\\scripts\\test-general.ps1",
-    ".\\marge-simpson\\scripts\\test-marge.ps1",
-    ".\\marge-simpson\\scripts\\test-cli.ps1"
+    ".\\marge-simpson\\system\\scripts\\test-syntax.ps1",
+    ".\\marge-simpson\\system\\scripts\\test-general.ps1",
+    ".\\marge-simpson\\system\\scripts\\test-marge.ps1",
+    ".\\marge-simpson\\system\\scripts\\test-cli.ps1"
   ],
   "fast_sh": [
-    "./marge-simpson/scripts/test-syntax.sh",
-    "./marge-simpson/scripts/test-general.sh",
-    "./marge-simpson/scripts/test-marge.sh",
-    "./marge-simpson/scripts/test-marge-cli.sh"
+    "./marge-simpson/system/scripts/test-syntax.sh",
+    "./marge-simpson/system/scripts/test-general.sh",
+    "./marge-simpson/system/scripts/test-marge.sh",
+    "./marge-simpson/system/scripts/test-marge-cli.sh"
   ],
   "full_sh": [
-    "./marge-simpson/scripts/test-syntax.sh",
-    "./marge-simpson/scripts/test-general.sh",
-    "./marge-simpson/scripts/test-marge.sh",
-    "./marge-simpson/scripts/test-marge-cli.sh"
+    "./marge-simpson/system/scripts/test-syntax.sh",
+    "./marge-simpson/system/scripts/test-general.sh",
+    "./marge-simpson/system/scripts/test-marge.sh",
+    "./marge-simpson/system/scripts/test-marge-cli.sh"
   ],
   "_comment": "Marge core tests. Commands run from repo root (parent of this folder), so paths MUST include the folder name.",
   "_profile_note": "fast and full profiles are currently identical. Both run the same test suite. Differentiate if Marge gains slower comprehensive tests.",

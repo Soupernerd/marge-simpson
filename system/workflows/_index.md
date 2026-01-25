@@ -4,11 +4,11 @@
 
 ## Path Resolution
 
-All paths in this folder are relative to this folder:
-- `./tracking/` → tracking files
-- `./workflows/` → workflow files  
-- `./experts/` → domain expertise
-- `./knowledge/` → decisions and patterns
+All paths in this folder are relative to the project root:
+- `./system/tracking/` → tracking files
+- `./system/workflows/` → workflow files  
+- `./system/experts/` → domain expertise
+- `./system/knowledge/` → decisions and patterns
 
 ## Quick Reference
 
@@ -30,18 +30,18 @@ User message received
     ├─ Just asking a question? → Answer directly, no ID needed
     │
     ├─ Planning/design discussion? (no code changes)
-    │   └─ Read ./workflows/planning.md
+    │   └─ Read ./system/workflows/planning.md
     │
     ├─ Wants something done (fix/add/change)?
-    │   ├─ Read ./workflows/work.md
-    │   └─ If "loop until clean" → Also read ./workflows/loop.md
+    │   ├─ Read ./system/workflows/work.md
+    │   └─ If "loop until clean" → Also read ./system/workflows/loop.md
     │
     ├─ Wants codebase audit/review?
-    │   └─ Read ./workflows/audit.md (discovery)
-    │   └─ Then ./workflows/work.md (execution)
+    │   └─ Read ./system/workflows/audit.md (discovery)
+    │   └─ Then ./system/workflows/work.md (execution)
     │
     └─ Task complete / session ending?
-        └─ Read ./workflows/session_end.md
+        └─ Read ./system/workflows/session_end.md
 ```
 
 ## Token Costs

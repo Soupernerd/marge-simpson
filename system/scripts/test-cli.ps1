@@ -6,7 +6,7 @@ Tests the marge CLI commands and flags work correctly.
 Does NOT require actual AI engines - tests help/version/init/clean/status.
 
 Usage:
-  powershell -ExecutionPolicy Bypass -File .\scripts\test-cli.ps1
+  powershell -ExecutionPolicy Bypass -File .\system\scripts\test-cli.ps1
 #>
 
 $ErrorActionPreference = "Stop"
@@ -14,9 +14,10 @@ $script:TestsPassed = 0
 $script:TestsFailed = 0
 $script:StartTime = Get-Date
 
-# Dynamic folder detection
+# Dynamic folder detection (scripts are now in system/scripts/ subfolder)
 $ScriptsDir = $PSScriptRoot
-$MsDir = (Get-Item $ScriptsDir).Parent.FullName
+$SystemDir = (Get-Item $ScriptsDir).Parent.FullName
+$MsDir = (Get-Item $SystemDir).Parent.FullName
 $MsFolderName = Split-Path $MsDir -Leaf
 
 # ==============================================================================

@@ -12,9 +12,9 @@ set -euo pipefail
 # - Pattern not observed recently → Flag for review
 #
 # Usage:
-#   ./scripts/decay.sh
-#   ./scripts/decay.sh --auto-archive
-#   ./scripts/decay.sh --days-threshold 60 --preview
+#   ./system/scripts/decay.sh
+#   ./system/scripts/decay.sh --auto-archive
+#   ./system/scripts/decay.sh --days-threshold 60 --preview
 
 # Dynamic folder detection
 SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

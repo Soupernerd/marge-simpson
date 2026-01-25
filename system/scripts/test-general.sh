@@ -19,9 +19,10 @@ YELLOW='\033[1;33m'
 CYAN='\033[0;36m'
 NC='\033[0m'
 
-# Find repo root
+# Find repo root (scripts are now in system/scripts/ subfolder, so go up twice)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(dirname "$SCRIPT_DIR")"
+SYSTEM_DIR="$(dirname "$SCRIPT_DIR")"
+REPO_ROOT="$(dirname "$SYSTEM_DIR")"
 
 # Detect if running in .meta_marge (lightweight mode - fewer required files)
 FOLDER_NAME="$(basename "$REPO_ROOT")"
@@ -143,12 +144,12 @@ echo -e "${YELLOW}[3/6] Checking PS1/SH script parity...${NC}"
 
 # Core script pairs always checked
 script_pairs=(
-    "scripts/verify"
-    "scripts/cleanup"
-    "scripts/decay"
-    "scripts/status"
-    "scripts/test-marge"
-    "scripts/test-syntax"
+    "system/scripts/verify"
+    "system/scripts/cleanup"
+    "system/scripts/decay"
+    "system/scripts/status"
+    "system/scripts/test-marge"
+    "system/scripts/test-syntax"
 )
 
 # Additional pairs only in full Marge (not .meta_marge)
@@ -187,18 +188,18 @@ echo -e "${YELLOW}[4/6] Checking required files exist...${NC}"
 required_files=(
     "AGENTS.md"
     "verify.config.json"
-    "workflows/_index.md"
-    "workflows/work.md"
-    "workflows/audit.md"
-    "workflows/loop.md"
-    "workflows/planning.md"
-    "workflows/session_start.md"
-    "workflows/session_end.md"
-    "experts/_index.md"
-    "knowledge/_index.md"
-    "scripts/_index.md"
-    "tracking/assessment.md"
-    "tracking/tasklist.md"
+    "system/workflows/_index.md"
+    "system/workflows/work.md"
+    "system/workflows/audit.md"
+    "system/workflows/loop.md"
+    "system/workflows/planning.md"
+    "system/workflows/session_start.md"
+    "system/workflows/session_end.md"
+    "system/experts/_index.md"
+    "system/knowledge/_index.md"
+    "system/scripts/_index.md"
+    "system/tracking/assessment.md"
+    "system/tracking/tasklist.md"
 )
 
 # Additional files only required in full Marge (not .meta_marge)
@@ -267,7 +268,7 @@ fi
 echo ""
 echo -e "${YELLOW}[6/6] Checking workflow file connectivity...${NC}"
 
-WORKFLOW_INDEX="$REPO_ROOT/workflows/_index.md"
+WORKFLOW_INDEX="$REPO_ROOT/system/workflows/_index.md"
 
 workflow_files=("work.md" "audit.md" "loop.md" "planning.md" "session_start.md" "session_end.md")
 for wf in "${workflow_files[@]}"; do
@@ -277,7 +278,7 @@ for wf in "${workflow_files[@]}"; do
         test_check "Workflow $wf referenced in _index.md" "false"
     fi
     
-    wf_path="$REPO_ROOT/workflows/$wf"
+    wf_path="$REPO_ROOT/system/workflows/$wf"
     if [[ -f "$wf_path" ]]; then
         if [[ "$wf" == "work.md" ]]; then
             if grep -qi "verify" "$wf_path" 2>/dev/null; then

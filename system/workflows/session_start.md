@@ -13,7 +13,7 @@
 
 ## Phase 1: Quick Preference Scan
 
-Read `./knowledge/_index.md` and scan for **broad preferences** that affect all work:
+Read `./system/knowledge/_index.md` and scan for **broad preferences** that affect all work:
 
 | Tag | Impact |
 |-----|--------|
@@ -22,7 +22,7 @@ Read `./knowledge/_index.md` and scan for **broad preferences** that affect all 
 | `#workflow` | How user likes to work |
 | `#tools` | Preferred languages, frameworks |
 
-**If tags exist:** Read the matching entries from `preferences.md`.
+**If tags exist:** Read the matching entries from `./system/knowledge/preferences.md`.
 
 **Apply immediately:** These shape how you respond for the entire session.
 
@@ -48,8 +48,8 @@ Check `_index.md` → **Recent Entries** section for:
 
 If you know what project/repo the user is working on:
 
-1. Search `insights.md` for project-specific entries
-2. Check `decisions.md` for prior architectural choices
+1. Search `./system/knowledge/insights.md` for project-specific entries
+2. Check `./system/knowledge/decisions.md` for prior architectural choices
 3. Note any `#project-name` tagged entries
 
 **Goal:** Don't re-ask questions already answered in previous sessions.
@@ -62,9 +62,9 @@ Beyond session start, retrieve knowledge when:
 
 | Trigger | Action |
 |---------|--------|
-| **About to make architectural choice** | Check `decisions.md` for prior decisions on same topic |
-| **Choosing between options** | Check `preferences.md` for user's typical choice |
-| **Uncertain how user wants something** | Check `patterns.md` for observed behavior |
+| **About to make architectural choice** | Check `./system/knowledge/decisions.md` for prior decisions on same topic |
+| **Choosing between options** | Check `./system/knowledge/preferences.md` for user's typical choice |
+| **Uncertain how user wants something** | Check `./system/knowledge/patterns.md` for observed behavior |
 | **User corrects you** | Check if this contradicts stored knowledge → update if so |
 
 ---

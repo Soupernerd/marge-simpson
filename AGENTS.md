@@ -4,7 +4,7 @@
 
 **Scope (CRITICAL):**
 1. This folder is **excluded from audits** — it is the tooling, not the target.
-2. Audit the workspace/repo OUTSIDE this folder. Track findings in `./tracking/`.
+2. Audit the workspace/repo OUTSIDE this folder. Track findings in `./system/tracking/`.
 3. Never create files from this folder outside this folder.
 
 ---
@@ -62,19 +62,19 @@ Spawn 2-5 agents for independent tasks, wait for all, then verify.
 
 | File | Purpose |
 |------|---------|
-| `./tracking/assessment.md` | Findings + root cause + verification evidence |
-| `./tracking/tasklist.md` | Work queue: backlog → in-progress → done |
-| `./tracking/[name]_MS-XXXX.md` | Feature plans (created for each feature) |
+| `./system/tracking/assessment.md` | Findings + root cause + verification evidence |
+| `./system/tracking/tasklist.md` | Work queue: backlog → in-progress → done |
+| `./system/tracking/[name]_MS-XXXX.md` | Feature plans (created for each feature) |
 ```
 IMPLEMENT → VERIFY → RECORD → COMPLETE
 ```
 
 ```bash
 # Windows
-./scripts/verify.ps1 fast -SkipIfNoTests
+./system/scripts/verify.ps1 fast -SkipIfNoTests
 
 # macOS/Linux
-./scripts/verify.sh fast --skip-if-no-tests
+./system/scripts/verify.sh fast --skip-if-no-tests
 ```
 
 **Never claim "tests passed" without raw output or log path.**
@@ -86,10 +86,10 @@ IMPLEMENT → VERIFY → RECORD → COMPLETE
 | Intent | Action |
 |--------|--------|
 | Question | Answer directly (no ID unless issue found) |
-| Work (fix, add, change) | Read `./workflows/work.md`, create MS-#### |
-| Audit | Read `./workflows/audit.md` first |
-| Planning mode (`PLANNING ONLY`, `plan only`) | Read `./workflows/planning.md` — NO code changes |
-| Loop mode (`loop until clean`) | Read `./workflows/loop.md` |
+| Work (fix, add, change) | Read `./system/workflows/work.md`, create MS-#### |
+| Audit | Read `./system/workflows/audit.md` first |
+| Planning mode (`PLANNING ONLY`, `plan only`) | Read `./system/workflows/planning.md` — NO code changes |
+| Loop mode (`loop until clean`) | Read `./system/workflows/loop.md` |
 
 **Mixed intent** (e.g., question + feature + bug): Answer questions inline (no ID unless issue found), then process each work item per `work.md` (each gets MS-####).
 
@@ -102,7 +102,7 @@ When delivering work, output:
 - Files modified
 - Verification evidence (raw output)
 
-See `./workflows/work.md` for full format.
+See `./system/workflows/work.md` for full format.
 
 ---
 
@@ -122,12 +122,12 @@ Pricing in `./model_pricing.json`.
 
 | Situation | Read First |
 |-----------|------------|
-| Any work task | `./knowledge/_index.md` → check for relevant decisions |
-| Domain-specific work | `./experts/_index.md` → load matching expert file |
-| Unsure which workflow | `./workflows/_index.md` → find the right one |
+| Any work task | `./system/knowledge/_index.md` → check for relevant decisions |
+| Domain-specific work | `./system/experts/_index.md` → load matching expert file |
+| Unsure which workflow | `./system/workflows/_index.md` → find the right one |
 
 **Quick keyword scan:**
-- Security/auth/compliance → `./experts/security.md`
-- Testing/QA/coverage → `./experts/testing.md`  
-- Deploy/CI-CD/infra → `./experts/devops.md`
-- Architecture/API/scale → `./experts/architecture.md`
+- Security/auth/compliance → `./system/experts/security.md`
+- Testing/QA/coverage → `./system/experts/testing.md`  
+- Deploy/CI-CD/infra → `./system/experts/devops.md`
+- Architecture/API/scale → `./system/experts/architecture.md`

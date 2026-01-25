@@ -22,9 +22,9 @@
     Show what would be archived without making changes.
 
 .EXAMPLE
-    .\scripts\decay.ps1
-    .\scripts\decay.ps1 -AutoArchive
-    .\scripts\decay.ps1 -DaysThreshold 60 -Preview
+    .\system\scripts\decay.ps1
+    .\system\scripts\decay.ps1 -AutoArchive
+    .\system\scripts\decay.ps1 -DaysThreshold 60 -Preview
 #>
 
 param(
@@ -35,9 +35,10 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-# Dynamic folder detection (scripts are now in scripts/ subfolder)
+# Dynamic folder detection (scripts are now in system/scripts/ subfolder)
 $ScriptsDir = $PSScriptRoot
-$MsDir = (Get-Item $ScriptsDir).Parent.FullName
+$SystemDir = (Get-Item $ScriptsDir).Parent.FullName
+$MsDir = (Get-Item $SystemDir).Parent.FullName
 $MsFolderName = Split-Path $MsDir -Leaf
 $RepoRoot = (Get-Item $MsDir).Parent.FullName
 $KnowledgePath = Join-Path $MsDir "knowledge"

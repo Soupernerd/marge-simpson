@@ -13,14 +13,15 @@
     - ShellCheck warnings (SC codes) that fail CI
 
 .EXAMPLE
-    .\scripts\test-syntax.ps1
+    .\system\scripts\test-syntax.ps1
 #>
 
 $ErrorActionPreference = "Stop"
 
-# Find repo root
+# Find repo root (scripts are now in system/scripts/ subfolder, so go up twice)
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$RepoRoot = Split-Path -Parent $ScriptDir
+$SystemDir = Split-Path -Parent $ScriptDir
+$RepoRoot = Split-Path -Parent $SystemDir
 
 Write-Host ""
 Write-Host "============================================================" -ForegroundColor Cyan

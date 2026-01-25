@@ -14,13 +14,13 @@ These invariants are fundamental to how Marge works. Changing them will break th
 
 | Context | Path Style | Example | Why |
 |---------|------------|---------|-----|
-| **Source files** (`marge-simpson/`) | **Relative** (`./`) | `./workflows/work.md` | Users can rename folder to `.marge`, `marge`, etc. |
-| **Meta-development** (`.meta_marge/`) | **Explicit** | `.meta_marge/workflows/work.md` | AI must not confuse meta files with source files |
-| **Verify scripts** (always) | **Source folder** | `marge-simpson/scripts/verify.ps1` | Tests run against source, not meta |
+| **Source files** (`marge-simpson/`) | **Relative** (`./`) | `./system/workflows/work.md` | Users can rename folder to `.marge`, `marge`, etc. |
+| **Meta-development** (`.meta_marge/`) | **Explicit** | `.meta_marge/system/workflows/work.md` | AI must not confuse meta files with source files |
+| **Verify scripts** (always) | **Source folder** | `marge-simpson/system/scripts/verify.ps1` | Tests run against source, not meta |
 
 **THE RULE:** Source is relative for flexibility. Meta is explicit to prevent confusion.
 
-The `convert-to-meta` scripts transform `./` → `.meta_marge/` paths automatically. This is intentional and required. Do NOT "fix" this by making everything relative or everything explicit.
+The `convert-to-meta` scripts transform `./` → `.meta_marge/` paths automatically (e.g., `./system/workflows/` → `.meta_marge/system/workflows/`). This is intentional and required. Do NOT "fix" this by making everything relative or everything explicit.
 
 ### Four Operating Modes
 
@@ -37,7 +37,7 @@ The `convert-to-meta` scripts transform `./` → `.meta_marge/` paths automatica
 
 ### Immutable Constraints
 
-1. **`.meta_marge/` has no `scripts/` folder** — It uses `marge-simpson/scripts/` to verify the source
+1. **`.meta_marge/` has no `system/scripts/` folder** — It uses `marge-simpson/system/scripts/` to verify the source
 2. **Planning docs are the single source of work state** — `.marge/` is runtime, `tracking/` is tracked
 3. **PRD.md ships blank** — Filled content triggers PRD mode; users fill it in, not shipped with content
 4. **Verify evidence required** — Never claim "tests passed" without raw output
@@ -48,7 +48,7 @@ The `convert-to-meta` scripts transform `./` → `.meta_marge/` paths automatica
 |-------------|----------------|------------------|
 | Making all paths relative | Breaks meta-development clarity | Source = relative, Meta = explicit |
 | Making all paths explicit | Prevents folder renaming | Source uses `./` |
-| Adding scripts/ to .meta_marge | Duplicates test infrastructure | Meta uses source scripts |
+| Adding system/scripts/ to .meta_marge | Duplicates test infrastructure | Meta uses source scripts |
 | Hardcoding `marge-simpson` in source | Prevents user renaming | Use `./` in source files |
 
 ---
@@ -68,19 +68,19 @@ Think of it as a "hard drive" for AI context — structured markdown files that 
 | Concept | What It Is | Purpose |
 |---------|------------|---------|
 | `AGENTS.md` | Operating rules AI reads first | Consistency across sessions |
-| `tracking/` | Persistent work state | AI remembers tasks between sessions |
-| `knowledge/` | Decisions, patterns, insights | AI doesn't repeat mistakes |
-| `workflows/` | Task-specific playbooks | AI follows proven processes |
-| `experts/` | Domain knowledge files | AI loads context on-demand |
+| `system/tracking/` | Persistent work state | AI remembers tasks between sessions |
+| `system/knowledge/` | Decisions, patterns, insights | AI doesn't repeat mistakes |
+| `system/workflows/` | Task-specific playbooks | AI follows proven processes |
+| `system/experts/` | Domain knowledge files | AI loads context on-demand |
 | `CLI (marge)` | Convenience wrapper | Optional — chat prompts work fine |
 
 ### The Three Folder Types
 
 1. **`marge-simpson/`** (source repo) — What you clone. Contains all Marge files. You can rename it or copy just what you need.
 
-2. **`.marge/`** (per-project folder) — Created by `marge init` in YOUR projects. Contains symlinks to shared resources + local tracking files. Named `.marge` to follow convention (like `.git`, `.vscode`, `.claude`).
+2. **`.marge/`** (per-project folder) — Created by `marge init` in YOUR projects. Contains symlinks to shared resources + local tracking files (in `.marge/system/tracking/`). Named `.marge` to follow convention (like `.git`, `.vscode`, `.claude`).
 
-3. **`.meta_marge/`** (meta-development) — Temporary folder for improving Marge itself. Created by `convert-to-meta`, deleted and recreated fresh each session. Uses source scripts.
+3. **`.meta_marge/`** (meta-development) — Temporary folder for improving Marge itself. Created by `convert-to-meta`, deleted and recreated fresh each session. Uses source `system/scripts/`.
 
 ### Common Misunderstandings
 
@@ -89,7 +89,7 @@ Think of it as a "hard drive" for AI context — structured markdown files that 
 | "Marge runs code" | No — Marge is context. The AI runs your code via its tools. |
 | "I need the CLI" | No — Copy/paste prompts into chat works fine. CLI is convenience. |
 | ".marge/ should be committed" | No — It's runtime. The source repo files are what you share. |
-| ".meta_marge needs its own scripts" | No — It uses marge-simpson/scripts/ to test the source. |
+| ".meta_marge needs its own scripts" | No — It uses marge-simpson/system/scripts/ to test the source. |
 
 ---
 
@@ -104,12 +104,12 @@ Marge provides structured context that AI assistants read at the start of each s
 
 | User Type | Has CLI? | Folders | AGENTS Used | Tracking |
 |-----------|----------|---------|-------------|----------|
-| **1. IDE/Chat Only** | ❌ | Source repo only | `./AGENTS.md` | `./tracking/` |
-| **2. Drop-in Folder** | ❌ | Source repo (renamed) | `./AGENTS.md` | `./tracking/` |
-| **3. CLI Global** | ✅ | `~/.marge/` + `.marge/` per project | Symlinked | `.marge/tracking/` |
+| **1. IDE/Chat Only** | ❌ | Source repo only | `./AGENTS.md` | `./system/tracking/` |
+| **2. Drop-in Folder** | ❌ | Source repo (renamed) | `./AGENTS.md` | `./system/tracking/` |
+| **3. CLI Global** | ✅ | `~/.marge/` + `.marge/` per project | Symlinked | `.marge/system/tracking/` |
 | **4. CLI Lite Mode** | ✅ | `~/.marge/` only | `AGENTS-lite.md` | None |
 | **5. Hybrid** | ✅ | Both global + drop-in | Local wins | Local wins |
-| **6. Meta-dev** | ❌ | Source + `.meta_marge/` | Transformed | `.meta_marge/tracking/` |
+| **6. Meta-dev** | ❌ | Source + `.meta_marge/` | Transformed | `.meta_marge/system/tracking/` |
 
 ### When `.marge/` Exists
 
@@ -132,10 +132,11 @@ Marge provides structured context that AI assistants read at the start of each s
 │  ┌─────────────┐    ┌────────────────────────────────────────────┐  │
 │  │ Source Code │    │   marge-simpson/ (or any name)             │  │
 │  │   (yours)   │    │   ├── AGENTS.md     ← AI reads this        │  │
-│  └─────────────┘    │   ├── tracking/     ← work state here      │  │
-│                     │   ├── workflows/                            │  │
-│                     │   ├── experts/                              │  │
-│                     │   └── scripts/      ← run directly         │  │
+│  └─────────────┘    │   └── system/                               │  │
+│                     │       ├── tracking/ ← work state here       │  │
+│                     │       ├── workflows/                        │  │
+│                     │       ├── experts/                          │  │
+│                     │       └── scripts/  ← run directly          │  │
 │                     └────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────────────┘
 No ~/.marge/ needed. No .marge/ folder. Just the source repo.
@@ -145,10 +146,10 @@ No ~/.marge/ needed. No .marge/ folder. Just the source repo.
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
 │                        User Project                                  │
-│  ┌─────────────┐    ┌─────────────┐    ┌─────────────────────────┐  │
-│  │ Source Code │    │   .marge/   │    │   .marge/tracking/      │  │
-│  │   (yours)   │◄───│  (symlinks) │───►│  (per-project state)    │  │
-│  └─────────────┘    └──────┬──────┘    └─────────────────────────┘  │
+│  ┌─────────────┐    ┌─────────────┐    ┌──────────────────────────┐ │
+│  │ Source Code │    │   .marge/   │    │ .marge/system/tracking/  │ │
+│  │   (yours)   │◄───│  (symlinks) │───►│   (per-project state)    │ │
+│  └─────────────┘    └──────┬──────┘    └──────────────────────────┘ │
 │                            │                                         │
 └────────────────────────────┼─────────────────────────────────────────┘
                              │ symlinks to
@@ -159,9 +160,10 @@ No ~/.marge/ needed. No .marge/ folder. Just the source repo.
 │  │     shared/     │    │  templates/  │    │   CLI Scripts     │   │
 │  │  • AGENTS.md    │    │ • assessment │    │  • marge          │   │
 │  │  • AGENTS-lite  │    │ • tasklist   │    │  • marge-init     │   │
-│  │  • workflows/   │    │ • PRD.md     │    │  • marge.ps1      │   │
-│  │  • experts/     │    └──────────────┘    └───────────────────┘   │
-│  │  • scripts/     │                                                 │
+│  │  • system/      │    │ • PRD.md     │    │  • marge.ps1      │   │
+│  │    └ workflows/ │    └──────────────┘    └───────────────────┘   │
+│  │    └ experts/   │                                                 │
+│  │    └ scripts/   │                                                 │
 │  │  • .dev/        │  ← Enables `marge meta init` from global       │
 │  └─────────────────┘                                                 │
 └─────────────────────────────────────────────────────────────────────┘
@@ -216,7 +218,7 @@ No ~/.marge/ needed. No .marge/ folder. Just the source repo.
 - **Full mode** — Local `.marge/` exists, uses full `AGENTS.md` + tracking
 - **PRD mode** — Runs tasks from `tracking/PRD.md` sequentially
 
-### /workflows — Structured Processes
+### /system/workflows — Structured Processes
 
 | File | Triggers | Creates ID? |
 |------|----------|-------------|
@@ -228,9 +230,9 @@ No ~/.marge/ needed. No .marge/ folder. Just the source repo.
 | `session_end.md` | Task complete | No |
 | `_index.md` | Routing decisions | — |
 
-### /experts — Domain-Specific Guidance
+### /system/experts — Domain-Specific Guidance
 
-Loaded based on task keywords (see `experts/_index.md`):
+Loaded based on task keywords (see `system/experts/_index.md`):
 
 | File | Keywords |
 |------|----------|
@@ -243,7 +245,7 @@ Loaded based on task keywords (see `experts/_index.md`):
 | `product.md` | Requirements, MVP, scope |
 | `documentation.md` | Docs, runbooks, specs |
 
-### /knowledge — Learned Context
+### /system/knowledge — Learned Context
 
 | File | Purpose |
 |------|---------|
@@ -254,15 +256,15 @@ Loaded based on task keywords (see `experts/_index.md`):
 | `archive.md` | Pruned entries |
 | `_index.md` | Quick stats + tag index |
 
-### /scripts — Automation
+### /system/scripts — Automation
 
 | Script | Purpose | Usage |
 |--------|---------|-------|
-| `verify.ps1/.sh` | Run tests/lint/build | `verify.ps1 fast` |
+| `verify.ps1/.sh` | Run tests/lint/build | `system/scripts/verify.ps1 fast` |
 | `test-syntax.ps1/.sh` | Validate script syntax | Part of verify |
 | `test-general.ps1/.sh` | Structural validation | Part of verify |
 | `test-marge.ps1/.sh` | Self-test suite | Part of verify |
-| `cleanup.ps1/.sh` | Remove stale files | `cleanup.ps1 -Preview` |
+| `cleanup.ps1/.sh` | Remove stale files | `system/scripts/cleanup.ps1 -Preview` |
 | `decay.ps1/.sh` | Archive old entries | Quarterly maintenance |
 | `status.ps1/.sh` | Show current state | Quick health check |
 
@@ -275,7 +277,7 @@ Loaded based on task keywords (see `experts/_index.md`):
 | `README.md` | Meta-development guide |
 | `ARCHITECTURE.md` | This file — system design reference |
 
-### /tracking — Work Tracking
+### /system/tracking — Work Tracking
 
 | File | Purpose |
 |------|---------|
@@ -308,8 +310,8 @@ Loaded based on task keywords (see `experts/_index.md`):
 ```
 1. Validate global install exists (~/.marge/)
 2. Create .marge/ in current project
-3. Symlink shared resources (AGENTS.md, workflows/, etc.)
-4. Copy per-project templates (assessment.md, tasklist.md)
+3. Symlink shared resources (AGENTS.md, system/workflows/, system/experts/, etc.)
+4. Copy per-project templates (system/tracking/assessment.md, system/tracking/tasklist.md)
 5. Update .gitignore
 ```
 
@@ -317,19 +319,19 @@ Loaded based on task keywords (see `experts/_index.md`):
 
 ```
 1. Copy marge-simpson/ → .meta_marge/
-2. Exclude: cli/, .dev/, assets/, scripts/, .git, .marge, etc.
-   (scripts/ excluded — meta uses source scripts directly)
+2. Exclude: cli/, .dev/, assets/, system/scripts/, .git, .marge, etc.
+   (system/scripts/ excluded — meta uses source scripts directly)
 3. Transform path references (marge-simpson → .meta_marge)
 4. Reset tracking to clean state  
 5. Rewrite AGENTS.md scope to target marge-simpson/
-6. Run verification (marge-simpson/scripts/verify.ps1, not .meta_marge)
+6. Run verification (marge-simpson/system/scripts/verify.ps1, not .meta_marge)
 ```
 
 ---
 
 ## Maintenance Notes
 
-> **Design decisions** are documented in `knowledge/decisions.md` (D-### format).
+> **Design decisions** are documented in `system/knowledge/decisions.md` (D-### format).
 
 ### When to Update This File
 

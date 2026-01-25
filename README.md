@@ -12,15 +12,15 @@ It gives AI context about your rules, decisions, and work-in-progress so each se
 
 ---
 
-## Four Ways to Use Marge
+## Five Ways to Use Marge
 
 | Method | Best For | How |
 |--------|----------|-----|
-| 💬 **Chat Prompts** | Interactive work, questions, debugging | Paste prompts into VS Code Copilot, Cursor, etc. |
-| 🖥️ **CLI (Local)** | Automation in one project | Run `./cli/marge "task"` from repo |
-| 🌐 **CLI (Global)** | Multi-project automation | Install once, run `marge "task"` anywhere |
-| ⚡ **CLI (Lite)** | Quick one-off tasks | `marge "fix typo"` — no tracking, minimal context |
-| 🔧 **Meta Development** | Contributing to Marge | Use the .dev/ tools to improve Marge itself |
+| 💬 **Chat Prompts** | Interactive work, questions, debugging | Paste [prompt templates](#-chat-prompt-templates) into VS Code Copilot, Cursor, etc. |
+| 🖥️ **CLI (Local)** | Automation in one project | Run `./cli/marge "task"` from this repo |
+| 🌐 **CLI (Global)** | Multi-project automation | Install once with `./cli/install-global.sh`, then run `marge "task"` anywhere |
+| ⚡ **CLI (Lite)** | Quick one-off tasks | Auto-detected for simple tasks like `marge "fix typo"` — no tracking overhead |
+| 🔧 **Meta Development** | Contributing to Marge | Run `./.dev/meta/convert-to-meta.sh` then use prompts targeting `.meta_marge/` |
 
 ---
 
@@ -242,8 +242,8 @@ marge "audit codebase" --dry-run       # Preview without executing
 marge --folder .marge "run audit"      # Explicit folder
 marge meta "run self-improvement"      # Shortcut for meta development
 
-# PRD mode (run tasks from tracking/PRD.md)
-marge                                  # Run all tasks from tracking/PRD.md
+# PRD mode (run tasks from system/tracking/PRD.md)
+marge                                  # Run all tasks from system/tracking/PRD.md
 marge --parallel --max-parallel 3      # Run tasks in parallel (bash only)
 marge --branch-per-task --create-pr    # Git workflow automation (bash only)
 
@@ -333,20 +333,20 @@ Marge auto-detects your project type:
 | **Stays focused** | Minimal diffs, root cause fixes |
 
 **Two source-of-truth files:**
-- `tracking/tasklist.md` — what's left / doing / done
-- `tracking/assessment.md` — root cause notes + verification evidence
+- `system/tracking/tasklist.md` — what's left / doing / done
+- `system/tracking/assessment.md` — root cause notes + verification evidence
 
 ## What's Inside
 
 | File/Folder | Purpose |
 |-------------|---------|
 | `AGENTS.md` | Rules the assistant follows |
-| `tracking/` | Assessment, tasklist, and feature plans |
+| `system/tracking/` | Assessment, tasklist, and feature plans |
 | `cli/` | CLI tools (marge, marge-init, install-global) |
-| `scripts/` | Verify scripts, test suite |
-| `workflows/` | Session start/end, planning, audit workflows |
-| `experts/` | Domain expert instructions |
-| `knowledge/` | Decisions, patterns, preferences |
+| `system/scripts/` | Verify scripts, test suite |
+| `system/workflows/` | Session start/end, planning, audit workflows |
+| `system/experts/` | Domain expert instructions |
+| `system/knowledge/` | Decisions, patterns, preferences |
 | `prompts/` | Ready-to-copy templates |
 | `.dev/` | Tools for contributing to Marge |
 
@@ -390,7 +390,7 @@ Quick version:
 1. Run `./.dev/meta/convert-to-meta.sh` (or `.ps1`) to create `.meta_marge/`
 2. Use prompts with "Read the AGENTS.md file in the .meta_marge folder"
 3. AI makes improvements directly to `marge-simpson/` (guided by `.meta_marge/AGENTS.md`)
-4. Test with `./scripts/test-marge.sh` (or `.ps1`)
+4. Test with `./system/scripts/test-marge.sh` (or `.ps1`)
 
 ---
 
