@@ -257,7 +257,7 @@ Test-Assert "install-global.ps1 has -Help parameter" {
 }
 
 Test-Assert "convert-to-meta.ps1 has -Help parameter" {
-    $content = Get-Content "$MsDir\.dev\convert-to-meta.ps1" -Raw
+    $content = Get-Content "$MsDir\.dev\meta\convert-to-meta.ps1" -Raw
     $content -match '\[switch\]\$Help'
 }
 

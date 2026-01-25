@@ -174,7 +174,7 @@ $scriptPairs = @(
 if (-not $IsMetaMarge) {
     $scriptPairs += @(
         @{ Base = "cli\install-global"; Extensions = @(".ps1", ".sh") },
-        @{ Base = ".dev\convert-to-meta"; Extensions = @(".ps1", ".sh") }
+        @{ Base = ".dev\meta\convert-to-meta"; Extensions = @(".ps1", ".sh") }
     )
 }
 

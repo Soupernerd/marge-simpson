@@ -51,11 +51,13 @@ marge meta status
 marge meta init --fresh
 ```
 
+> **💡 Global Install:** Works even without a repo checkout. The global install includes `.dev/` in `~/.marge/shared/`, so `marge meta init` can create `.meta_marge/` anywhere.
+
 ### Option 2: Scripts (Full Control)
 
 ```bash
 # Create meta guide folder
-./.dev/convert-to-meta.sh
+./.dev/meta/convert-to-meta.sh
 # Creates: .meta_marge/ (gitignored)
 
 # Run task
@@ -125,14 +127,14 @@ Options:
 
 ### Create Meta Guide
 ```bash
-./.dev/convert-to-meta.sh              # Creates .meta_marge/
-./.dev/convert-to-meta.sh -f           # Force overwrite existing
+./.dev/meta/convert-to-meta.sh              # Creates .meta_marge/
+./.dev/meta/convert-to-meta.sh -f           # Force overwrite existing
 ```
 
 ### PowerShell
 ```powershell
-.\.dev\convert-to-meta.ps1
-.\.dev\convert-to-meta.ps1 -Force
+.\.dev\meta\convert-to-meta.ps1
+.\.dev\meta\convert-to-meta.ps1 -Force
 ```
 
 ## Best Practices
@@ -149,11 +151,13 @@ Options:
 ├── AGENTS.md                 ← Guides AI to improve marge-simpson/
 ├── workflows/                ← Reference for AI
 ├── experts/                  ← Reference for AI
-├── tracking/            ← AI tracks meta-dev work here
-│   ├── assessment.md         ← Issues found in marge-simpson/
-│   └── tasklist.md           ← Work queue for improvements
-└── scripts/                  ← Can run tests from here too
+├── knowledge/                ← Reference for AI
+└── tracking/            ← AI tracks meta-dev work here
+    ├── assessment.md         ← Issues found in marge-simpson/
+    └── tasklist.md           ← Work queue for improvements
 ```
+
+> **Note:** `.meta_marge/` has no `scripts/` folder — it uses `marge-simpson/scripts/` directly.
 
 ## Tips
 

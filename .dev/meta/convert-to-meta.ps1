@@ -4,8 +4,8 @@
 .DESCRIPTION
     Copies marge-simpson/ to .meta_marge/ with path transformations.
 .EXAMPLE
-    .\.dev\convert-to-meta.ps1
-    .\.dev\convert-to-meta.ps1 -Force
+    .\.dev\meta\convert-to-meta.ps1
+    .\.dev\meta\convert-to-meta.ps1 -Force
 #>
 
 param([switch]$Force, [switch]$Help)
@@ -14,7 +14,7 @@ if ($Help) {
     Write-Host @"
 convert-to-meta - Create .meta_marge/ for meta-development
 
-USAGE:  .\.dev\convert-to-meta.ps1 [-Force] [-Help]
+USAGE:  .\.dev\meta\convert-to-meta.ps1 [-Force] [-Help]
 
 Creates .meta_marge/ folder. AI reads .meta_marge/AGENTS.md and
 makes changes directly to marge-simpson/ (the target).
@@ -24,18 +24,34 @@ makes changes directly to marge-simpson/ (the target).
 
 $ErrorActionPreference = "Stop"
 
-# Locate source folder
+# Locate source folder - handle both repo and global install structures
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$SourceFolder = if ((Split-Path -Leaf $ScriptDir) -eq ".dev") { Split-Path -Parent $ScriptDir } else { $ScriptDir }
-$SourceName = Split-Path -Leaf $SourceFolder
+$ParentDir = Split-Path -Parent $ScriptDir
+$ParentName = Split-Path -Leaf $ParentDir
+
+# Detect if running from global install ($MARGE_HOME/shared/.dev/) vs repo (.dev/)
+if ($ParentName -eq "shared" -and (Test-Path (Join-Path $ParentDir "AGENTS.md"))) {
+    # Global install: source is $MARGE_HOME/shared/
+    $SourceFolder = $ParentDir
+    $SourceName = "marge-simpson"  # Use standard name for display
+    $TargetFolder = Join-Path (Get-Location) ".meta_marge"
+    $IsGlobalInstall = $true
+} else {
+    # Repo structure: source is parent of .dev/
+    $SourceFolder = if ((Split-Path -Leaf $ScriptDir) -eq ".dev") { $ParentDir } else { $ScriptDir }
+    $SourceName = Split-Path -Leaf $SourceFolder
+    $TargetFolder = Join-Path $SourceFolder $TargetName
+    $IsGlobalInstall = $false
+}
+
 $TargetName = ".meta_marge"
-$TargetFolder = Join-Path $SourceFolder $TargetName
 
 # Validate
 if ($SourceName -eq ".meta_marge") { Write-Host "ERROR: Already in meta folder" -ForegroundColor Red; exit 1 }
-if (-not (Test-Path (Join-Path $SourceFolder "AGENTS.md"))) { Write-Host "ERROR: No AGENTS.md found" -ForegroundColor Red; exit 1 }
+if (-not (Test-Path (Join-Path $SourceFolder "AGENTS.md"))) { Write-Host "ERROR: No AGENTS.md found in $SourceFolder" -ForegroundColor Red; exit 1 }
 
 Write-Host "`n===== Convert $SourceName -> $TargetName =====`n" -ForegroundColor Cyan
+if ($IsGlobalInstall) { Write-Host "[Global install mode - creating in current directory]`n" -ForegroundColor Yellow }
 
 # [1/4] Remove existing / create fresh
 if (Test-Path $TargetFolder) {
@@ -48,7 +64,7 @@ if (Test-Path $TargetFolder) {
 Write-Host "[1/4] Copying..."
 
 # Exclusions (scripts/ excluded - meta_marge uses marge-simpson/scripts/ directly)
-$excludeDirs = @('.git', 'node_modules', '.meta_marge', '.marge', 'cli', 'meta', 'assets', '.github', 'scripts')
+$excludeDirs = @('.git', 'node_modules', '.meta_marge', '.marge', '.dev', 'cli', 'meta', 'assets', '.github', 'scripts')
 $excludeFiles = @('README.md', 'CHANGELOG.md', 'VERSION', 'LICENSE', '.gitignore', '.gitattributes')
 
 # Copy with exclusions
@@ -92,7 +108,7 @@ Get-ChildItem -Path $TargetFolder -Recurse -File -Force | ForEach-Object {
         # ./experts/ -> .meta_marge/experts/
         # ./knowledge/ -> .meta_marge/knowledge/
         # But NOT ./scripts/ - those should point to source (marge-simpson/scripts/)
-        $content = $content -replace '\.\./tracking/', '.meta_marge/tracking/'
+        $content = $content -replace '\./tracking/', '.meta_marge/tracking/'
         $content = $content -replace '\./workflows/', '.meta_marge/workflows/'
         $content = $content -replace '\./experts/', '.meta_marge/experts/'
         $content = $content -replace '\./knowledge/', '.meta_marge/knowledge/'

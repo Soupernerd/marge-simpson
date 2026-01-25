@@ -114,6 +114,10 @@ function Show-Usage {
 
 marge v$script:VERSION - Autonomous AI coding loop (PowerShell)
 
+QUICK START:
+  1. Run a task:     .\marge.ps1 "fix the login bug"
+  2. That's it!      Marge handles AGENTS.md setup automatically.
+
 USAGE:
   .\marge.ps1 [options]              Run PRD tasks from tracking/PRD.md
   .\marge.ps1 "<task>" [options]     Run a single task
@@ -1249,10 +1253,11 @@ function Initialize-Meta {
         }
     }
     
-    # Try to find convert-to-meta script (we're in a marge repo)
+    # Try to find convert-to-meta script (check local repo, then global install)
     $scriptLocations = @(
-        "$PSScriptRoot\..\.dev\convert-to-meta.ps1",
-        ".\.dev\convert-to-meta.ps1"
+        "$PSScriptRoot\..\.dev\meta\convert-to-meta.ps1",
+        ".\.dev\meta\convert-to-meta.ps1",
+        "$script:MARGE_HOME\shared\.dev\meta\convert-to-meta.ps1"
     )
     
     foreach ($convertScript in $scriptLocations) {
@@ -1265,57 +1270,17 @@ function Initialize-Meta {
         }
     }
     
-    # Fallback: minimal setup for global install users
-    Write-Warn "Full meta setup not available (convert-to-meta.ps1 not found)"
-    Write-Host ""
-    Write-Host "Creating minimal .meta_marge/ folder..."
-    Write-Host "For full meta-development, clone the marge repo:"
-    Write-Host "  git clone https://github.com/org/marge-simpson"
-    Write-Host ""
-    
-    New-Item -ItemType Directory -Path ".meta_marge" -Force | Out-Null
-    New-Item -ItemType Directory -Path ".meta_marge\tracking" -Force | Out-Null
-    
-    # Create minimal AGENTS.md
-    @"
-# AGENTS.md -- Meta-Development Mode
-
-This is a minimal .meta_marge/ setup. For full meta-development:
-1. Clone the marge repo
-2. Run: .\.dev\convert-to-meta.ps1
-
-## Scope
-Audit and improve the marge-simpson/ codebase.
-Track work in .meta_marge/tracking/
-"@ | Out-File -FilePath ".meta_marge\AGENTS.md" -Encoding utf8
-    
-    # Create empty planning docs
-    @"
-# .meta_marge Assessment
-
-**Next ID:** MS-0001
-
-## Triage
-
-_None_
-"@ | Out-File -FilePath ".meta_marge\tracking\assessment.md" -Encoding utf8
-
-    @"
-# .meta_marge Tasklist
-
-**Next ID:** MS-0001
-
-## Backlog
-
-_None_
-
-## Done
-
-_None_
-"@ | Out-File -FilePath ".meta_marge\tracking\tasklist.md" -Encoding utf8
-    
-    Write-Success "Created minimal .meta_marge/"
-    return $true
+    # Fallback: script not found anywhere
+    Write-Err "convert-to-meta.ps1 not found"
+    Write-Err ""
+    Write-Err "Checked locations:"
+    foreach ($loc in $scriptLocations) {
+        Write-Err "  - $loc"
+    }
+    Write-Err ""
+    Write-Err "If you installed marge globally, your installation may be incomplete."
+    Write-Err "Try reinstalling: cli\install-global.ps1 -Force"
+    return $false
 }
 
 function Show-MetaStatus {

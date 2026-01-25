@@ -19,6 +19,7 @@ It gives AI context about your rules, decisions, and work-in-progress so each se
 | 💬 **Chat Prompts** | Interactive work, questions, debugging | Paste prompts into VS Code Copilot, Cursor, etc. |
 | 🖥️ **CLI (Local)** | Automation in one project | Run `./cli/marge "task"` from repo |
 | 🌐 **CLI (Global)** | Multi-project automation | Install once, run `marge "task"` anywhere |
+| ⚡ **CLI (Lite)** | Quick one-off tasks | `marge "fix typo"` — no tracking, minimal context |
 | 🔧 **Meta Development** | Contributing to Marge | Use the .dev/ tools to improve Marge itself |
 
 ---
@@ -27,15 +28,15 @@ It gives AI context about your rules, decisions, and work-in-progress so each se
 
 ### Option A: Drop-in Folder (Simplest)
 
-1. **Clone or copy this repo** into your project (name it anything you want)
+1. **Clone or copy this repo** into your project
 2. Use a [Chat Prompt](#-chat-prompt-templates) from below
 
 ```bash
 # Example: copy into your project
-cp -r marge-simpson my-project/.marge    # or any name you prefer
+cp -r marge-simpson my-project/marge-simpson
 ```
 
-> **💡 Folder name flexibility:** Prompts use relative paths ("this folder"), so any name works. The CLI uses `.marge` by default when globally installed.
+> **💡 Folder name flexibility:** Prompts use relative paths ("this folder"), so the folder can be named anything. The name `marge-simpson` is just the default repo name.
 
 ### Option B: CLI (Local)
 
@@ -386,7 +387,7 @@ No config? Scripts auto-detect Node, Python, Go, Rust, .NET, Java.
 Want to improve Marge itself? See [.dev/README.md](./.dev/README.md) for the meta-development workflow.
 
 Quick version:
-1. Run `./.dev/convert-to-meta.sh` (or `.ps1`) to create `.meta_marge/`
+1. Run `./.dev/meta/convert-to-meta.sh` (or `.ps1`) to create `.meta_marge/`
 2. Use prompts with "Read the AGENTS.md file in the .meta_marge folder"
 3. AI makes improvements directly to `marge-simpson/` (guided by `.meta_marge/AGENTS.md`)
 4. Test with `./scripts/test-marge.sh` (or `.ps1`)

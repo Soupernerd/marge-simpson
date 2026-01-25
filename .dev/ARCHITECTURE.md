@@ -24,14 +24,16 @@ The `convert-to-meta` scripts transform `./` → `.meta_marge/` paths automatica
 
 ### Four Operating Modes
 
-| Mode | Folder | AGENTS Used | Path References |
-|------|--------|-------------|-----------------|
-| **IDE Chat** | Source folder open | Source `AGENTS.md` | Relative (`./`) |
-| **CLI Local** | `.marge/` in project | Symlinked `AGENTS.md` | Relative (`./`) |
-| **CLI Global** | `~/.marge/shared/` | Shared `AGENTS.md` | Relative (`./`) |
-| **Meta-dev** | `.meta_marge/` | Transformed copy | Explicit (`.meta_marge/`) |
+| Mode | Folder | AGENTS Used | Path References | Meta Support |
+|------|--------|-------------|-----------------|--------------|
+| **IDE Chat** | Source folder open | Source `AGENTS.md` | Relative (`./`) | Via `.dev/` scripts |
+| **CLI Local** | `.marge/` in project | Symlinked `AGENTS.md` | Relative (`./`) | Via `.dev/` scripts |
+| **CLI Global** | `~/.marge/shared/` | Shared `AGENTS.md` | Relative (`./`) | Via `shared/.dev/` |
+| **Meta-dev** | `.meta_marge/` | Transformed copy | Explicit (`.meta_marge/`) | — |
 
 **WHY META IS DIFFERENT:** When `.meta_marge/` exists, AI is working ON the source folder. Using relative paths would be ambiguous — `./workflows/` could mean either folder. Explicit paths eliminate confusion.
+
+**GLOBAL INSTALL META:** When `marge meta init` runs from a global install (no repo checkout), it uses `$MARGE_HOME/shared/.dev/convert-to-meta.ps1` to create `.meta_marge/` in the current directory.
 
 ### Immutable Constraints
 
@@ -98,12 +100,54 @@ Marge provides structured context that AI assistants read at the start of each s
 2. **CLI** — Optional convenience wrapper (`marge "task"`)
 3. **Meta-development** — Self-improvement via `.meta_marge/`
 
+### The Six User Types
+
+| User Type | Has CLI? | Folders | AGENTS Used | Tracking |
+|-----------|----------|---------|-------------|----------|
+| **1. IDE/Chat Only** | ❌ | Source repo only | `./AGENTS.md` | `./tracking/` |
+| **2. Drop-in Folder** | ❌ | Source repo (renamed) | `./AGENTS.md` | `./tracking/` |
+| **3. CLI Global** | ✅ | `~/.marge/` + `.marge/` per project | Symlinked | `.marge/tracking/` |
+| **4. CLI Lite Mode** | ✅ | `~/.marge/` only | `AGENTS-lite.md` | None |
+| **5. Hybrid** | ✅ | Both global + drop-in | Local wins | Local wins |
+| **6. Meta-dev** | ❌ | Source + `.meta_marge/` | Transformed | `.meta_marge/tracking/` |
+
+### When `.marge/` Exists
+
+**`.marge/` is ONLY created via CLI** — specifically `marge init` or auto-init on complex tasks.
+
+| Scenario | `.marge/` Created? |
+|----------|-------------------|
+| IDE/Chat user copies source repo | ❌ No |
+| User runs `marge init` | ✅ Yes |
+| User runs `marge "complex task"` (no existing `.marge/`) | ✅ Auto-created |
+| User runs `marge "fix typo"` (simple task) | ❌ No (lite mode) |
+| Drop-in folder user | ❌ No |
+
+### Architecture Diagrams
+
+**User Type 1 & 2: IDE/Chat & Drop-in Users (No CLI)**
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                        User Project                                  │
+│  ┌─────────────┐    ┌────────────────────────────────────────────┐  │
+│  │ Source Code │    │   marge-simpson/ (or any name)             │  │
+│  │   (yours)   │    │   ├── AGENTS.md     ← AI reads this        │  │
+│  └─────────────┘    │   ├── tracking/     ← work state here      │  │
+│                     │   ├── workflows/                            │  │
+│                     │   ├── experts/                              │  │
+│                     │   └── scripts/      ← run directly         │  │
+│                     └────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────┘
+No ~/.marge/ needed. No .marge/ folder. Just the source repo.
+```
+
+**User Type 3: CLI Global User (Full Mode)**
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
 │                        User Project                                  │
 │  ┌─────────────┐    ┌─────────────┐    ┌─────────────────────────┐  │
-│  │ Source Code │    │   .marge/   │    │   tracking/           │  │
-│  │   (yours)   │◄───│  (symlinks) │───►│  (per-project tracking) │  │
+│  │ Source Code │    │   .marge/   │    │   .marge/tracking/      │  │
+│  │   (yours)   │◄───│  (symlinks) │───►│  (per-project state)    │  │
 │  └─────────────┘    └──────┬──────┘    └─────────────────────────┘  │
 │                            │                                         │
 └────────────────────────────┼─────────────────────────────────────────┘
@@ -118,7 +162,26 @@ Marge provides structured context that AI assistants read at the start of each s
 │  │  • workflows/   │    │ • PRD.md     │    │  • marge.ps1      │   │
 │  │  • experts/     │    └──────────────┘    └───────────────────┘   │
 │  │  • scripts/     │                                                 │
+│  │  • .dev/        │  ← Enables `marge meta init` from global       │
 │  └─────────────────┘                                                 │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+**User Type 4: CLI Lite Mode (Quick Tasks)**
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                        User Project                                  │
+│  ┌─────────────────────────────────────────────────────────────┐    │
+│  │ Source Code (yours) — no .marge/ folder, no tracking         │    │
+│  └─────────────────────────────────────────────────────────────┘    │
+└─────────────────────────────────────────────────────────────────────┘
+                             │
+              marge "fix typo" (simple task)
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                     ~/.marge/ (Global Install)                       │
+│  Uses AGENTS-lite.md only — no tracking, no full context            │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 

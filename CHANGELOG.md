@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Global install meta support** - `marge meta init` now works from global install without repo checkout
+- **`.dev/` in global install** - Shared folder includes convert-to-meta scripts for full meta-development
+- **Global install detection** - convert-to-meta scripts detect global install and create `.meta_marge/` in current directory
 - **`marge doctor` command** - Diagnostics for troubleshooting
 - **model_pricing.json validation** - Graceful fallback if malformed
 - **`-Help` parameter** for install-global and convert-to-meta scripts
@@ -36,6 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **ARCHITECTURE.md identity** - Describes Marge as a "hard drive for AI context" rather than "prompt engineering framework"
 
 ### Fixed
+- **Global install assets reference** - Removed non-existent `assets` from install scripts
+- **convert-to-meta ./tracking/ transform** - Fixed regex typo that prevented path transformation
 - **P0: Get-Slug truncation bug** - Now uses `Substring()` instead of `Select-Object -First 50`
 - **P1: .marge/ created during tests** - Empty task test now runs in temp directory
 - **Template hardcoded paths** - Fixed `marge-simpson/` in tasklist.md and knowledge/_index.md; now uses relative `./` paths per D-006

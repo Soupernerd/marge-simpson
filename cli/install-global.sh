@@ -67,9 +67,9 @@ mkdir -p "$INSTALL_DIR/shared" "$INSTALL_DIR/templates"
 
 # Copy shared resources (symlinked to projects)
 SHARED_FILES=(
+    ".dev"
     "AGENTS.md"
     "AGENTS-lite.md"
-    "assets"
     "experts"
     "knowledge"
     "model_pricing.json"

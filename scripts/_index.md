@@ -11,7 +11,6 @@
 | **test-general.ps1 / .sh** | General validation (encoding, version, parity) | Called by verify |
 | **test-marge.ps1 / .sh** | Self-test Marge structure | Called by verify |
 | **test-cli.ps1 / .sh** | CLI integration tests | After CLI changes |
-| **test-marge-cli.sh** | Test CLI & global install | After CLI changes |
 | **cleanup.ps1 / .sh** | Remove generated files | Before commits, fresh start |
 | **status.ps1 / .sh** | Dashboard view | Quick health check |
 | **decay.ps1 / .sh** | Find stale knowledge entries | Periodic maintenance |

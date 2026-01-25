@@ -96,7 +96,7 @@ if command -v shellcheck &>/dev/null; then
         fi
     done
     # Meta scripts in .dev/ folder
-    script="$MS_DIR/.dev/convert-to-meta.sh"
+    script="$MS_DIR/.dev/meta/convert-to-meta.sh"
     if [[ -f "$script" ]]; then
         script_name=$(basename "$script")
         SHELLCHECK_RESULT=$(shellcheck "$script" 2>&1 && echo 0 || echo 1)

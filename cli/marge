@@ -79,6 +79,10 @@ print_usage() {
     cat <<EOF
 ${BOLD}marge${RESET} v$VERSION - Autonomous AI coding loop
 
+${BOLD}QUICK START:${RESET}
+  1. Run a task:     marge "fix the login bug"
+  2. That's it!      Marge handles AGENTS.md setup automatically.
+
 ${BOLD}USAGE:${RESET}
   marge [options]              Run PRD tasks from tracking/PRD.md
   marge "<task>" [options]     Run a single task
@@ -553,13 +557,14 @@ initialize_meta() {
         fi
     fi
     
-    # Try to find convert-to-meta script (we're in a marge repo)
+    # Try to find convert-to-meta script (check local repo, then global install)
     local script_dir
     script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
     
     local convert_scripts=(
-        "$script_dir/../.dev/convert-to-meta.sh"
-        "./.dev/convert-to-meta.sh"
+        "$script_dir/../.dev/meta/convert-to-meta.sh"
+        "./.dev/meta/convert-to-meta.sh"
+        "$MARGE_HOME/shared/.dev/meta/convert-to-meta.sh"
     )
     
     for convert_script in "${convert_scripts[@]}"; do
@@ -572,56 +577,17 @@ initialize_meta() {
         fi
     done
     
-    # Fallback: minimal setup for global install users
-    log_warn "Full meta setup not available (convert-to-meta.sh not found)"
-    echo ""
-    echo "Creating minimal .meta_marge/ folder..."
-    echo "For full meta-development, clone the marge repo:"
-    echo "  git clone https://github.com/org/marge-simpson"
-    echo ""
-    
-    mkdir -p ".meta_marge/tracking"
-    
-    # Create minimal AGENTS.md
-    cat > ".meta_marge/AGENTS.md" << 'AGENTSEOF'
-# AGENTS.md -- Meta-Development Mode
-
-This is a minimal .meta_marge/ setup. For full meta-development:
-1. Clone the marge repo
-2. Run: ./.dev/convert-to-meta.sh
-
-## Scope
-Audit and improve the marge-simpson/ codebase.
-Track work in .meta_marge/tracking/
-AGENTSEOF
-
-    # Create empty planning docs
-    cat > ".meta_marge/tracking/assessment.md" << 'ASSESSEOF'
-# .meta_marge Assessment
-
-**Next ID:** MS-0001
-
-## Triage
-
-_None_
-ASSESSEOF
-
-    cat > ".meta_marge/tracking/tasklist.md" << 'TASKEOF'
-# .meta_marge Tasklist
-
-**Next ID:** MS-0001
-
-## Backlog
-
-_None_
-
-## Done
-
-_None_
-TASKEOF
-    
-    log_success "Created minimal .meta_marge/"
-    return 0
+    # Fallback: script not found anywhere
+    log_err "convert-to-meta.sh not found"
+    log_err ""
+    log_err "Checked locations:"
+    for loc in "${convert_scripts[@]}"; do
+        log_err "  - $loc"
+    done
+    log_err ""
+    log_err "If you installed marge globally, your installation may be incomplete."
+    log_err "Try reinstalling: cli/install-global.sh --force"
+    return 1
 }
 
 show_meta_status() {

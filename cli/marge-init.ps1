@@ -104,7 +104,6 @@ New-Item -ItemType Directory -Force -Path "$TargetDir" | Out-Null
 $SharedLinks = @(
     "AGENTS.md",
     "AGENTS-lite.md",
-    "assets",
     "experts",
     "knowledge",
     "model_pricing.json",
@@ -130,7 +129,9 @@ foreach ($item in $SharedLinks) {
         } catch {
             # Fall back to copying if symlinks fail (non-admin Windows)
             if (-not $SymlinkFailed) {
-                Write-Warning "Symlinks require admin privileges or Developer Mode. Falling back to copies."
+                Write-Warning "Symlinks require admin privileges or Developer Mode."
+                Write-Warning "  Enable: Settings > Privacy & Security > For developers > Developer Mode"
+                Write-Warning "Falling back to copies (run 'marge-init --force' after updates to refresh)."
                 $SymlinkFailed = $true
             }
             Copy-Item -Recurse -Force $srcPath $dstPath

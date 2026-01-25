@@ -155,7 +155,7 @@ script_pairs=(
 if [[ "$IS_META_MARGE" != "true" ]]; then
     script_pairs+=(
         "cli/install-global"
-        ".dev/convert-to-meta"
+        ".dev/meta/convert-to-meta"
     )
 fi
 

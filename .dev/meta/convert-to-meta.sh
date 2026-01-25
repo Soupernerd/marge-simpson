@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # convert-to-meta.sh - Creates .meta_marge/ for meta-development
-# Usage: ./.dev/convert-to-meta.sh [-f|--force] [-h|--help]
+# Usage: ./.dev/meta/convert-to-meta.sh [-f|--force] [-h|--help]
 
 FORCE=false
 while [[ $# -gt 0 ]]; do
@@ -16,18 +16,34 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# Locate source folder
+# Locate source folder - handle both repo and global install structures
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SOURCE_FOLDER="$([[ "$(basename "$SCRIPT_DIR")" == ".dev" ]] && dirname "$SCRIPT_DIR" || echo "$SCRIPT_DIR")"
-SOURCE_NAME=$(basename "$SOURCE_FOLDER")
+PARENT_DIR="$(dirname "$SCRIPT_DIR")"
+PARENT_NAME="$(basename "$PARENT_DIR")"
+
+# Detect if running from global install ($MARGE_HOME/shared/.dev/) vs repo (.dev/)
+if [[ "$PARENT_NAME" == "shared" ]] && [[ -f "$PARENT_DIR/AGENTS.md" ]]; then
+    # Global install: source is $MARGE_HOME/shared/
+    SOURCE_FOLDER="$PARENT_DIR"
+    SOURCE_NAME="marge-simpson"  # Use standard name for display
+    TARGET_FOLDER="$(pwd)/.meta_marge"
+    IS_GLOBAL_INSTALL=true
+else
+    # Repo structure: source is parent of .dev/
+    SOURCE_FOLDER="$([[ "$(basename "$SCRIPT_DIR")" == ".dev" ]] && dirname "$SCRIPT_DIR" || echo "$SCRIPT_DIR")"
+    SOURCE_NAME=$(basename "$SOURCE_FOLDER")
+    TARGET_FOLDER="$SOURCE_FOLDER/.meta_marge"
+    IS_GLOBAL_INSTALL=false
+fi
+
 TARGET_NAME=".meta_marge"
-TARGET_FOLDER="$SOURCE_FOLDER/$TARGET_NAME"
 
 # Validate
 [[ "$SOURCE_NAME" == ".meta_marge" ]] && { echo "ERROR: Already in meta folder"; exit 1; }
-[[ ! -f "$SOURCE_FOLDER/AGENTS.md" ]] && { echo "ERROR: No AGENTS.md found"; exit 1; }
+[[ ! -f "$SOURCE_FOLDER/AGENTS.md" ]] && { echo "ERROR: No AGENTS.md found in $SOURCE_FOLDER"; exit 1; }
 
 echo -e "\n===== Convert $SOURCE_NAME -> $TARGET_NAME =====\n"
+[[ "$IS_GLOBAL_INSTALL" == "true" ]] && echo -e "[Global install mode - creating in current directory]\n"
 
 # [1/4] Remove existing / create fresh
 if [[ -d "$TARGET_FOLDER" ]]; then
@@ -42,9 +58,9 @@ echo "[1/4] Copying..."
 mkdir -p "$TARGET_FOLDER"
 # Exclusions: scripts/ excluded - meta_marge uses marge-simpson/scripts/ directly
 if command -v rsync &>/dev/null; then
-    rsync -a \
+    rsync -a \\
         --exclude='.git' --exclude='node_modules' --exclude='.meta_marge' \
-        --exclude='.marge' --exclude='cli' --exclude='meta' \
+        --exclude='.marge' --exclude='.dev' --exclude='cli' --exclude='meta' \
         --exclude='assets' --exclude='.github' --exclude='scripts' \
         --exclude='README.md' --exclude='CHANGELOG.md' --exclude='VERSION' \
         --exclude='LICENSE' --exclude='.gitignore' --exclude='.gitattributes' \
@@ -52,7 +68,7 @@ if command -v rsync &>/dev/null; then
 else
     cp -r "$SOURCE_FOLDER/." "$TARGET_FOLDER/"
     rm -rf "$TARGET_FOLDER/.git" "$TARGET_FOLDER/node_modules" "$TARGET_FOLDER/.meta_marge" \
-           "$TARGET_FOLDER/.marge" "$TARGET_FOLDER/cli" "$TARGET_FOLDER/meta" \
+           "$TARGET_FOLDER/.marge" "$TARGET_FOLDER/.dev" "$TARGET_FOLDER/cli" "$TARGET_FOLDER/meta" \
            "$TARGET_FOLDER/assets" "$TARGET_FOLDER/.github" "$TARGET_FOLDER/scripts" 2>/dev/null || true
     rm -f "$TARGET_FOLDER/README.md" "$TARGET_FOLDER/CHANGELOG.md" "$TARGET_FOLDER/VERSION" \
           "$TARGET_FOLDER/LICENSE" "$TARGET_FOLDER/.gitignore" "$TARGET_FOLDER/.gitattributes" 2>/dev/null || true
