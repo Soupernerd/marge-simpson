@@ -13,6 +13,7 @@
 | Feature brainstorming | [suggest_features_marge.md](suggest_features_marge.md) | PLANNING ONLY mode proposal |
 | Codebase audit | [system_audit.md](system_audit.md) | Full system review |
 | **Deep continuous audit** | [deep_system_audit.md](deep_system_audit.md) | **Subagents + loop + experts** |
+| **Path integrity audit** | [path_integrity_audit.md](path_integrity_audit.md) | **All paths + workflows + orphans** |
 
 ## When to Use Each
 
@@ -22,3 +23,4 @@
 - **Full codebase review?** → `system_audit.md`
 - **Multiple things at once?** → `multiple_prompts.md`
 - **Comprehensive continuous improvement?** → `deep_system_audit.md` ⭐
+- **After folder restructure?** → `path_integrity_audit.md` 🔍
