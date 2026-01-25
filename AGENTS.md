@@ -101,6 +101,7 @@ When delivering work, output:
 - IDs touched
 - Files modified
 - Verification evidence (raw output)
+- Knowledge captured (if any significant decisions/patterns)
 
 See `./system/workflows/work.md` for full format.
 

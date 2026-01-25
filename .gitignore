@@ -3,6 +3,9 @@
 .marge_meta/
 meta_marge/
 
+# Internal marketing/notes (not for repo)
+_tweets_for_marge.md
+
 # Per-project CLI folder (runtime artifact)
 .marge/
 

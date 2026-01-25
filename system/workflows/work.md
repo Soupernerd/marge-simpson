@@ -45,7 +45,7 @@ Select-String -Path "./system/knowledge/decisions.md" -Pattern "#auth|#api|#data
 
 1. Create the next MS-#### ID
 2. Create plan file: `./system/tracking/[feature-name]_MS-####.md`
-   - Copy from `./system/tracking/_template.md`
+   - Copy from `./system/tracking/feature_plan_template.md`
    - Fill in: Goal, Approach, Why, Risks
    - List sub-tasks (each gets own MS-#### ID)
 3. Add entry to `./system/tracking/assessment.md` referencing the plan
@@ -188,6 +188,11 @@ When delivering work, output:
 ```
 (Raw output or log path)
 ```
+
+### Knowledge Captured (if any)
+`📝 D-### added (decision) | PR-### added (preference) | P-### added (pattern) | I-### added (insight)`
+
+_(Skip if trivial fix with no learnings. Run `session_end.md` for significant work.)_
 
 ---
 

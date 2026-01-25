@@ -252,7 +252,8 @@ marge "full cleanup" --loop            # Iterate until complete
 marge --loop --max-iterations 10       # Limit iterations
 
 # Utilities
-marge init                             # Initialize .marge/ in current project
+marge init                             # Initialize .marge/ and system/tracking/
+marge init --help                      # Show init help
 marge status                           # Show project type, progress, PRD tasks
 marge resume                           # Resume from saved progress
 marge config                           # Show config file
