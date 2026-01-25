@@ -1,19 +1,23 @@
-# system/tracking/tasklist.md
+# Tasklist
+
 Purpose: Single source of truth for active work. Keep this current as tasks are added/closed.
 Rule: If it's being worked on, it must be here.
 
 ## Read First (REQUIRED)
+
 AI/Agents must read `AGENTS.md` before working.
 
 ---
 
 ## Tracking (required)
+
 - **Next ID:** MS-0001
   - Use this for the next new Issue/Task ID, then increment here AND in `system/tracking/assessment.md`.
 
 ---
 
 ## Active Priorities (Top 5)
+
 1) …
 2) …
 3) …
@@ -25,6 +29,7 @@ AI/Agents must read `AGENTS.md` before working.
 ## Work Queue
 
 ### P0 — Must fix (breaking / core workflow)
+
 - [ ] **MS-0001 —** (clear, testable outcome)
   - **Why:** …
   - **Expert(s):** (optional) Relevant expert persona(s) from `./system/experts/_index.md`
@@ -39,14 +44,17 @@ AI/Agents must read `AGENTS.md` before working.
   - **Linked assessment:** [MS-0001]
 
 ### P1 — Should fix (important but not blocking)
+
 - [ ] **MS-0002 —** …
 
 ### P2 — Nice to have (polish / refactor / cleanup)
+
 - [ ] **MS-0003 —** …
 
 ---
 
 ## In Progress
+
 - [ ] **MS-000X —** …
   - **Started:** YYYY-MM-DD
   - **Expert(s):** (optional) Relevant expert persona(s) from `./system/experts/_index.md`
@@ -57,6 +65,7 @@ AI/Agents must read `AGENTS.md` before working.
 ---
 
 ## Done (recent)
+
 - [x] **MS-000X —** …
   - **Completed:** YYYY-MM-DD
   - **Expert(s):** (optional) Relevant expert persona(s) from `./system/experts/_index.md`
