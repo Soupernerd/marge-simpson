@@ -13,8 +13,8 @@ Read the AGENTS.md file in this folder and follow it.
    - P2: Code quality, maintainability, performance concerns
 
 3. **Update tracking docs**
-   - ./tracking/assessment.md → System snapshot + findings + new MS-#### issues
-   - ./tracking/tasklist.md → Prioritized tasks with DoD + verification steps
+   - ./system/tracking/assessment.md → System snapshot + findings + new MS-#### issues
+   - ./system/tracking/tasklist.md → Prioritized tasks with DoD + verification steps
 
 4. **Report**
    - List all MS-#### IDs created

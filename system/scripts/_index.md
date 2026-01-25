@@ -18,11 +18,11 @@
 ## Common Commands
 
 ```powershell
-# Windows
-.\marge-simpson\system\scripts\verify.ps1 fast -SkipIfNoTests
-.\marge-simpson\system\scripts\cleanup.ps1 -Preview
-.\marge-simpson\system\scripts\status.ps1
-.\marge-simpson\system\scripts\decay.ps1 -Preview
+# Windows (from repo root)
+.\system\scripts\verify.ps1 fast -SkipIfNoTests
+.\system\scripts\cleanup.ps1 -Preview
+.\system\scripts\status.ps1
+.\system\scripts\decay.ps1 -Preview
 ```
 
 ```bash

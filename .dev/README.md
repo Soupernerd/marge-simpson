@@ -24,14 +24,14 @@ Meta-development means improving the Marge system while using it. The `.meta_mar
 │       ┌───────────────────────────────────┐              │ L │ │
 │       │  .meta_marge/ (SINGLE SOURCE)     │──────────────│ O │ │
 │       │  ├── AGENTS.md     (transformed)  │              │ G │ │
-│       │  ├── tracking/ (preserved!)  │              │ I │ │
+│       │  ├── system/tracking/ (preserved) │              │ I │ │
 │       │  └── ...                          │              │ C │ │
 │       └───────────────────────────────────┘              └───┘ │
 │                                                                │
 └────────────────────────────────────────────────────────────────┘
 ```
 
-Both **Chat/IDE mode** and **CLI mode** use the same `.meta_marge/` folder as the single source of truth. Work tracked in tracking/ is preserved when switching between modes.
+Both **Chat/IDE mode** and **CLI mode** use the same `.meta_marge/` folder as the single source of truth. Work tracked in `system/tracking/` is preserved when switching between modes.
 
 ## Quick Start
 

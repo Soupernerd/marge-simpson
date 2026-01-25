@@ -88,22 +88,26 @@ while IFS= read -r -d '' file; do
     content=$(cat "$file" 2>/dev/null) || continue
     original="$content"
     
+    # Transform AGENTS.md references in prompts
+    # "Read the AGENTS.md file in this folder" -> "Read .meta_marge/AGENTS.md"
+    content=$(echo "$content" | sed 's/Read the AGENTS\.md file in this folder[^.]*\./Read .meta_marge\/AGENTS.md and follow it./g')
+    
     # Transform relative paths to explicit .meta_marge/ paths
     # But NOT ./system/scripts/ - those should point to source (marge-simpson/system/scripts/)
     # Handle both old (./tracking/) and new (./system/tracking/) formats
-    content=${content//"./system\/tracking\/"/".meta_marge/system/tracking/"}
-    content=${content//"./system\/workflows\/"/".meta_marge/system/workflows/"}
-    content=${content//"./system\/experts\/"/".meta_marge/system/experts/"}
-    content=${content//"./system\/knowledge\/"/".meta_marge/system/knowledge/"}
-    content=${content//"./tracking\/"/".meta_marge/system/tracking/"}
-    content=${content//"./workflows\/"/".meta_marge/system/workflows/"}
-    content=${content//"./experts\/"/".meta_marge/system/experts/"}
-    content=${content//"./knowledge\/"/".meta_marge/system/knowledge/"}
+    content=${content//"./system/tracking/"/".meta_marge/system/tracking/"}
+    content=${content//"./system/workflows/"/".meta_marge/system/workflows/"}
+    content=${content//"./system/experts/"/".meta_marge/system/experts/"}
+    content=${content//"./system/knowledge/"/".meta_marge/system/knowledge/"}
+    content=${content//"./tracking/"/".meta_marge/system/tracking/"}
+    content=${content//"./workflows/"/".meta_marge/system/workflows/"}
+    content=${content//"./experts/"/".meta_marge/system/experts/"}
+    content=${content//"./knowledge/"/".meta_marge/system/knowledge/"}
     content=${content//"./model_pricing.json"/".meta_marge/model_pricing.json"}
     
     # Scripts should use source folder for verification (test the source, not meta)
-    content=${content//"./system\/scripts\/"/"${SOURCE_NAME}/system/scripts/"}
-    content=${content//"./scripts\/"/"${SOURCE_NAME}/system/scripts/"}
+    content=${content//"./system/scripts/"/"${SOURCE_NAME}/system/scripts/"}
+    content=${content//"./scripts/"/"${SOURCE_NAME}/system/scripts/"}
     
     # Protect GitHub URLs
     content=$(echo "$content" | sed "s|github\.com/\([^/]*\)/${SOURCE_NAME}|github.com/\1/___GITHUB___|g")

@@ -1,6 +1,6 @@
 ﻿# Feature Proposal Prompt
 
-Read and follow the rules in AGENTS.md.
+Read the AGENTS.md file in this folder and follow it.
 
 **MODE:** PLANNING ONLY — no code changes, no patches, no execution.
 
@@ -14,8 +14,8 @@ Propose 3-8 new features for this project (marge-simpson assistant framework).
 
 ## Context Gathering (do this first)
 
-1. Read `README.md`, `ARCHITECTURE.md`, and `./workflows/_index.md` to understand the project's purpose
-2. Skim existing `./tracking/` to avoid duplicating planned work
+1. Read `README.md`, `ARCHITECTURE.md`, and `./system/workflows/_index.md` to understand the project's purpose
+2. Skim existing `./system/tracking/` to avoid duplicating planned work
 3. Consider gaps in current workflows, CLI, or documentation
 
 ---
@@ -52,7 +52,7 @@ Propose 3-8 new features for this project (marge-simpson assistant framework).
 
 ## Deliverable
 
-Create or update: `./tracking/recommended_features.md`
+Create or update: `./system/tracking/recommended_features.md`
 
 Include:
 - Date generated
@@ -67,4 +67,4 @@ Include:
 - Do NOT implement anything
 - Do NOT create MS-#### task IDs (these are pre-approval ideas)
 - Minimize follow-up questions — make reasonable assumptions and state them briefly
-- If a feature overlaps with something in `tasklist.md`, note the overlap rather than re-proposing
+- If a feature overlaps with something in `./system/tracking/tasklist.md`, note the overlap rather than re-proposing

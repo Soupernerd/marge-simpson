@@ -27,12 +27,12 @@ Spawn subagents per AGENTS.md guidance. Focus areas:
 
 ### Phase 2: Expert Consultation
 
-After subagent research, load relevant experts from `./experts/_index.md`:
-- Found security issues? → Load `./experts/security.md`
-- Found test gaps? → Load `./experts/testing.md`
-- Found architecture concerns? → Load `./experts/architecture.md`
-- Found UX issues? → Load `./experts/design.md`
-- Found implementation debt? → Load `./experts/implementation.md`
+After subagent research, load relevant experts from `./system/experts/_index.md`:
+- Found security issues? → Load `./system/experts/security.md`
+- Found test gaps? → Load `./system/experts/testing.md`
+- Found architecture concerns? → Load `./system/experts/architecture.md`
+- Found UX issues? → Load `./system/experts/design.md`
+- Found implementation debt? → Load `./system/experts/implementation.md`
 
 Have experts review findings and refine recommendations.
 
@@ -54,8 +54,8 @@ For each P0 and P1 issue:
 1. Create MS-#### tracking ID
 2. Implement the fix
 3. Run `verify.ps1 fast` (or `verify.sh fast`)
-4. Update ./tracking/assessment.md with verification evidence
-5. Mark complete in ./tracking/tasklist.md
+4. Update ./system/tracking/assessment.md with verification evidence
+5. Mark complete in ./system/tracking/tasklist.md
 
 **Loop criteria:**
 - Continue if: P0/P1 issues remain unfixed
@@ -65,23 +65,23 @@ For each P0 and P1 issue:
 
 Before completing, ensure:
 
-1. **./tracking/assessment.md** — Contains:
+1. **./system/tracking/assessment.md** — Contains:
    - Audit snapshot (date, scope, status)
    - All findings with MS-#### IDs
    - Root cause analysis for each fix
    - Verification evidence
 
-2. **./tracking/tasklist.md** — Contains:
+2. **./system/tracking/tasklist.md** — Contains:
    - Completed items moved to Done section
    - P2/P3 items in Backlog with clear DoD
    - Feature suggestions in separate section
 
-3. **./knowledge/decisions.md** — Record:
+3. **./system/knowledge/decisions.md** — Record:
    - Any new architectural decisions made
    - Pattern choices and rationale
    - Trade-offs accepted
 
-4. **./knowledge/insights.md** — Capture:
+4. **./system/knowledge/insights.md** — Capture:
    - Unexpected findings
    - Patterns discovered
    - Lessons learned
@@ -142,7 +142,7 @@ Before completing, ensure:
 - [x] CHANGELOG.md updated (if fixes applied)
 - [x] README.md updated (if warranted, keep existing data and structure)
 - [x] VERSION bumped (if warranted)
-- [x] ./knowledge/*.md updated (if decisions made)
+- [x] ./system/knowledge/*.md updated (if decisions made)
 
 ### Verification Evidence
 [Raw output from verify.ps1/verify.sh]
@@ -170,7 +170,7 @@ Bump VERSION appropriately. Update all docs.
 
 ### Security-Focused Audit
 ```
-SECURITY AUDIT — Load ./experts/security.md first.
+SECURITY AUDIT — Load ./system/experts/security.md first.
 Use subagents to find: auth issues, input validation gaps, 
 secrets in code, dependency vulnerabilities.
 P0 = any security issue. Loop until all security issues resolved.
@@ -178,7 +178,7 @@ P0 = any security issue. Loop until all security issues resolved.
 
 ### Documentation Audit
 ```
-DOCUMENTATION AUDIT — Load ./experts/documentation.md.
+DOCUMENTATION AUDIT — Load ./system/experts/documentation.md.
 Verify: README, CLI help, inline comments, API docs.
 Fix inconsistencies. Update version references.
 No code logic changes unless fixing doc generation.
@@ -197,7 +197,7 @@ No code logic changes unless fixing doc generation.
 
 ## Loop Behavior
 
-Looping follows `marge-simpson/workflows/loop.md`. Key points:
+Looping follows `./system/workflows/loop.md`. Key points:
 - Fix all P0/P1 issues before stopping
 - Use best judgment for conflicts (prioritize end-user UX)
 - Don't ask questions during loop execution — decide autonomously
