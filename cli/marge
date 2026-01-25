@@ -1335,7 +1335,7 @@ while [[ $# -gt 0 ]]; do
             [[ -f "$PRD_FILE" ]] && echo "PRD tasks: $(parse_prd "$PRD_FILE" | wc -l)"
             exit 0
             ;;
-        doctor) show_doctor; exit 0 ;;
+        doctor) show_doctor ;; # exit is in show_doctor
         config) [[ -f .marge/config.yaml ]] && cat .marge/config.yaml; exit 0 ;;
         resume)
             load_progress && {

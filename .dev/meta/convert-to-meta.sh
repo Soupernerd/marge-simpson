@@ -60,7 +60,7 @@ echo "[1/4] Copying..."
 mkdir -p "$TARGET_FOLDER"
 # Exclusions: scripts/ excluded - meta_marge uses marge-simpson/scripts/ directly
 if command -v rsync &>/dev/null; then
-    rsync -a \\
+    rsync -a \
         --exclude='.git' --exclude='node_modules' --exclude='.meta_marge' \
         --exclude='.marge' --exclude='.dev' --exclude='cli' --exclude='meta' \
         --exclude='assets' --exclude='.github' --exclude='scripts' \
@@ -110,7 +110,8 @@ while IFS= read -r -d '' file; do
     content=${content//"./system/scripts/"/"${SOURCE_NAME}/system/scripts/"}
     content=${content//"./scripts/"/"${SOURCE_NAME}/system/scripts/"}
     
-    # Protect GitHub URLs
+    # Protect GitHub URLs (using sed because this requires capture groups)
+    # shellcheck disable=SC2001
     content=$(echo "$content" | sed "s|github\.com/\([^/]*\)/${SOURCE_NAME}|github.com/\1/___GITHUB___|g")
     content=${content//___GITHUB___/"$SOURCE_NAME"}
     

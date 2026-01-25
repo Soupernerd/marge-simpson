@@ -13,7 +13,6 @@ set -euo pipefail
 SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SYSTEM_DIR="$(cd "$SCRIPTS_DIR/.." && pwd)"
 MS_DIR="$(cd "$SYSTEM_DIR/.." && pwd)"
-MS_FOLDER_NAME="$(basename "$MS_DIR")"
 
 TESTS_PASSED=0
 TESTS_FAILED=0
@@ -72,11 +71,11 @@ write_test_result() {
 }
 
 write_final_summary() {
-    local end_time=$(date +%s)
+    local end_time
+    end_time=$(date +%s)
     local duration=$((end_time - START_TIME))
     local minutes=$((duration / 60))
     local seconds=$((duration % 60))
-    local total=$((TESTS_PASSED + TESTS_FAILED))
     
     local border_color
     local status_text
@@ -290,6 +289,7 @@ test_assert "marge help includes meta commands" "$result" || true
 
 # Test: install-global.ps1 has -Help parameter
 result="false"
+# shellcheck disable=SC2016
 if grep -q '\[switch\]\$Help' "$MS_DIR/cli/install-global.ps1"; then
     result="true"
 fi
@@ -297,6 +297,7 @@ test_assert "install-global.ps1 has -Help parameter" "$result" || true
 
 # Test: convert-to-meta.ps1 has -Help parameter
 result="false"
+# shellcheck disable=SC2016
 if grep -q '\[switch\]\$Help' "$MS_DIR/.dev/meta/convert-to-meta.ps1"; then
     result="true"
 fi

@@ -92,6 +92,7 @@ new_temp_dir() {
     echo "$temp_dir"
 }
 
+# shellcheck disable=SC2329
 cleanup_temp_dirs() {
     if [[ "$KEEP_TEMP" == "false" ]]; then
         for dir in "${TEMP_DIRS[@]}"; do
@@ -270,10 +271,9 @@ test_hybrid_user() {
     write_header "Scenario 3: Hybrid User"
     echo -e "    ${GRAY}Simulates: User has global CLI AND drop-in folders in projects${NC}"
     
-    local fake_marge_home project_with_dropin project_with_cli
+    local fake_marge_home project_with_dropin
     fake_marge_home=$(new_temp_dir "hybrid-home")
     project_with_dropin=$(new_temp_dir "hybrid-dropin")
-    project_with_cli=$(new_temp_dir "hybrid-cli")
     
     # Set up global install
     local shared_dir="$fake_marge_home/shared"
