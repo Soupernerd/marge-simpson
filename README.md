@@ -400,6 +400,7 @@ Co-authored-by: Brandon Arbuthnot <arbuthnot-eth@users.noreply.github.com>
 
 Including but not limited to:
 
+- Marge CLI
 - Lite mode (AGENTS-lite.md, --full flag)
 - Task chaining (marge "t1" "t2" "t3")
 - marge clean command
