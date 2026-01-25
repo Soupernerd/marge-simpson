@@ -394,6 +394,20 @@ Quick version:
 
 ---
 
+## Attributions
+
+Co-authored-by: Brandon Arbuthnot <arbuthnot-eth@users.noreply.github.com>
+
+Including but not limited to:
+
+- Lite mode (AGENTS-lite.md, --full flag)
+- Task chaining (marge "t1" "t2" "t3")
+- marge clean command
+- .marge folder convention
+- Various CLI improvements and bug fixes
+
+---
+
 ## License
 
 Do whatever you want with it. Fork it, rename it, ship it.
