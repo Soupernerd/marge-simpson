@@ -216,14 +216,16 @@ function Load-Config {
                     "max_iterations" {
                         if ($value -match '^[1-9][0-9]*$') {
                             $script:MAX_ITER = [int]$value
-                        } else {
+                        }
+                        else {
                             Write-Warn "Config: max_iterations must be a positive integer, got '$value' - using default ($script:MAX_ITER)"
                         }
                     }
                     "max_retries" {
                         if ($value -match '^[1-9][0-9]*$') {
                             $script:MAX_RETRIES = [int]$value
-                        } else {
+                        }
+                        else {
                             Write-Warn "Config: max_retries must be a positive integer, got '$value' - using default ($script:MAX_RETRIES)"
                         }
                     }
@@ -232,7 +234,8 @@ function Load-Config {
                 }
             }
         }
-    } catch {
+    }
+    catch {
         Write-Warn "Failed to parse config file '$script:CONFIG_FILE': $($_.Exception.Message)"
         Write-Warn "Using default configuration values"
     }
@@ -251,9 +254,12 @@ status=$Status
 }
 
 function Load-Progress {
-    if (-not (Test-Path $script:PROGRESS_FILE)) { return $false }
+    # Compute progress file path if not yet set (for early commands like 'resume')
+    $progressFile = if ($script:PROGRESS_FILE) { $script:PROGRESS_FILE } else { "$script:MARGE_FOLDER\progress.txt" }
+    
+    if (-not (Test-Path $progressFile)) { return $false }
 
-    Get-Content $script:PROGRESS_FILE | ForEach-Object {
+    Get-Content $progressFile | ForEach-Object {
         if ($_ -match '^(\w+)=(.*)$') {
             switch ($Matches[1]) {
                 "iteration" { $script:iteration = [int]$Matches[2] }
@@ -295,7 +301,8 @@ function Send-Notification {
         if (Get-Module -ListAvailable -Name BurntToast -ErrorAction SilentlyContinue) {
             try {
                 New-BurntToastNotification -Text "Marge", $Message -ErrorAction SilentlyContinue
-            } catch { }
+            }
+            catch { }
         }
     }
 }
@@ -436,7 +443,8 @@ function Remove-Worktrees {
     try {
         git worktree prune 2>$null
         Remove-Item -Recurse -Force "$script:MARGE_FOLDER/worktrees" -ErrorAction SilentlyContinue
-    } catch { }
+    }
+    catch { }
 }
 
 function Invoke-TaskParallel {
@@ -632,7 +640,8 @@ function Invoke-Task {
         $useLiteMode = $true
         $script:LITE_MODE = $true
         Write-Debug-Msg "Using lite mode (simple task detected)"
-    } elseif (-not $hasLocalMarge -and -not $script:FULL_MODE) {
+    }
+    elseif (-not $hasLocalMarge -and -not $script:FULL_MODE) {
         # Full mode without local tracking - still use AGENTS.md but note no tracking
         Write-Debug-Msg "Using full mode (no local .marge/ - tracking disabled)"
     }
@@ -668,7 +677,8 @@ $agentsContent
 
 Task: $Task$fastSuffix$autoSuffix
 "@
-    } else {
+    }
+    else {
         # Full mode - ensure .marge folder exists
         if (-not (Test-Path $margeDir)) {
             $initScript = Join-Path $script:MARGE_HOME "marge-init.ps1"
@@ -705,67 +715,67 @@ After finished, list remaining unchecked items in $script:MARGE_FOLDER/tracking/
 
     # Ensure temp file cleanup on any exit (success, error, interrupt)
     try {
-    while ($retry -lt $script:MAX_RETRIES) {
-        Write-Debug-Msg "Attempt $($retry + 1)/$script:MAX_RETRIES"
-        Write-Debug-Msg "Command: $cmd `"<prompt>`""
-        Write-Debug-Msg "WorkDir: $WorkDir"
+        while ($retry -lt $script:MAX_RETRIES) {
+            Write-Debug-Msg "Attempt $($retry + 1)/$script:MAX_RETRIES"
+            Write-Debug-Msg "Command: $cmd `"<prompt>`""
+            Write-Debug-Msg "WorkDir: $WorkDir"
 
-        try {
-            # MS-0010 fix: Escape special characters for cmd.exe to prevent injection/breakage
-            # Escape quotes first, then cmd.exe metacharacters
-            $escapedPrompt = $prompt -replace '"', '\"' -replace '([&|<>^%])', '^$1'
-            $fullCmd = "$cmd `"$escapedPrompt`""
+            try {
+                # MS-0010 fix: Escape special characters for cmd.exe to prevent injection/breakage
+                # Escape quotes first, then cmd.exe metacharacters
+                $escapedPrompt = $prompt -replace '"', '\"' -replace '([&|<>^%])', '^$1'
+                $fullCmd = "$cmd `"$escapedPrompt`""
 
-            $pinfo = New-Object System.Diagnostics.ProcessStartInfo
-            $pinfo.FileName = "cmd.exe"
-            $pinfo.Arguments = "/c $fullCmd > `"$outputFile`" 2>&1"
-            $pinfo.WorkingDirectory = (Resolve-Path $WorkDir).Path
-            $pinfo.UseShellExecute = $false
-            $pinfo.CreateNoWindow = $true
+                $pinfo = New-Object System.Diagnostics.ProcessStartInfo
+                $pinfo.FileName = "cmd.exe"
+                $pinfo.Arguments = "/c $fullCmd > `"$outputFile`" 2>&1"
+                $pinfo.WorkingDirectory = (Resolve-Path $WorkDir).Path
+                $pinfo.UseShellExecute = $false
+                $pinfo.CreateNoWindow = $true
 
-            $process = New-Object System.Diagnostics.Process
-            $process.StartInfo = $pinfo
-            $process.Start() | Out-Null
+                $process = New-Object System.Diagnostics.Process
+                $process.StartInfo = $pinfo
+                $process.Start() | Out-Null
 
-            Show-Spinner $Task $process $outputFile
-            $process.WaitForExit()
+                Show-Spinner $Task $process $outputFile
+                $process.WaitForExit()
 
-            $exitCode = $process.ExitCode
-            Write-Debug-Msg "Exit code: $exitCode"
+                $exitCode = $process.ExitCode
+                Write-Debug-Msg "Exit code: $exitCode"
 
-            if ($script:VERBOSE_OUTPUT -and (Test-Path $outputFile)) {
-                Get-Content $outputFile
+                if ($script:VERBOSE_OUTPUT -and (Test-Path $outputFile)) {
+                    Get-Content $outputFile
+                }
+
+                if ($exitCode -eq 0) {
+                    Write-Success "Task $Num completed"
+                    Write-TokenUsage $outputFile
+                    Invoke-AutoCommit $Num
+                    Save-Progress $Num "completed"
+                    Remove-Item $outputFile -ErrorAction SilentlyContinue
+                    return $true
+                }
+            }
+            catch {
+                Write-Debug-Msg "Error: $_"
             }
 
-            if ($exitCode -eq 0) {
-                Write-Success "Task $Num completed"
-                Write-TokenUsage $outputFile
-                Invoke-AutoCommit $Num
-                Save-Progress $Num "completed"
-                Remove-Item $outputFile -ErrorAction SilentlyContinue
-                return $true
+            $retry++
+            if ($retry -lt $script:MAX_RETRIES) {
+                Start-Sleep -Seconds $script:RETRY_DELAY
             }
         }
-        catch {
-            Write-Debug-Msg "Error: $_"
-        }
 
-        $retry++
-        if ($retry -lt $script:MAX_RETRIES) {
-            Start-Sleep -Seconds $script:RETRY_DELAY
+        Save-Progress $Num "failed"
+        Write-Err "Task failed after $script:MAX_RETRIES retries"
+        # Show last 10 lines of output to help user understand the failure
+        if (Test-Path $outputFile) {
+            Write-Err "Last 10 lines of output:"
+            Write-Err "----------------------------------------"
+            Get-Content $outputFile -Tail 10 | ForEach-Object { Write-Err $_ }
+            Write-Err "----------------------------------------"
         }
-    }
-
-    Save-Progress $Num "failed"
-    Write-Err "Task failed after $script:MAX_RETRIES retries"
-    # Show last 10 lines of output to help user understand the failure
-    if (Test-Path $outputFile) {
-        Write-Err "Last 10 lines of output:"
-        Write-Err "----------------------------------------"
-        Get-Content $outputFile -Tail 10 | ForEach-Object { Write-Err $_ }
-        Write-Err "----------------------------------------"
-    }
-    return $false
+        return $false
     }
     finally {
         # Cleanup temp file on any exit path
@@ -856,7 +866,8 @@ function Invoke-PrdMode {
                 $slug = Get-Slug $task
                 try {
                     git checkout -b "marge/$slug" 2>$null
-                } catch {
+                }
+                catch {
                     try { git checkout "marge/$slug" 2>$null } catch { }
                 }
             }
@@ -882,7 +893,8 @@ function Invoke-PrdMode {
         $prBody = "Automated PR by marge v$script:VERSION"
         try {
             gh pr create --title $prTitle --body $prBody 2>$null
-        } catch {
+        }
+        catch {
             Write-Warn "PR creation failed (gh CLI may not be installed)"
         }
     }
@@ -934,8 +946,31 @@ function Invoke-SingleTask {
 }
 
 function Initialize-Config {
+    param([switch]$ShowHelp)
+    
+    # Handle --help flag (MS-0002)
+    if ($ShowHelp) {
+        Write-Host @"
+
+marge init - Initialize Marge in current project
+
+USAGE:
+  marge init              Create .marge/ folder with default config
+
+CREATES:
+  .marge/config.yaml      Project configuration
+  system/tracking/PRD.md  Task list template (if not exists)
+
+NOTE:
+  .marge/ should be added to .gitignore (runtime artifacts)
+  system/tracking/ is your work tracking (can be committed)
+"@
+        return
+    }
+    
     New-Item -ItemType Directory -Path ".marge" -Force | Out-Null
-    New-Item -ItemType Directory -Path "tracking" -Force | Out-Null
+    # MS-0003: Create system/tracking/ not tracking/
+    New-Item -ItemType Directory -Path "system\tracking" -Force | Out-Null
 
     @"
 engine: claude
@@ -946,7 +981,8 @@ auto_commit: true
 folder: .marge
 "@ | Out-File -FilePath ".marge\config.yaml" -Encoding utf8
 
-    if (-not (Test-Path "tracking/PRD.md")) {
+    # MS-0003: Use correct path system/tracking/PRD.md
+    if (-not (Test-Path "system/tracking/PRD.md")) {
         @"
 # PRD
 
@@ -958,10 +994,10 @@ folder: .marge
 
 ### Task 3: Testing
 - [ ] Write tests
-"@ | Out-File -FilePath "tracking/PRD.md" -Encoding utf8
+"@ | Out-File -FilePath "system\tracking\PRD.md" -Encoding utf8
     }
 
-    Write-Success "Initialized .marge/ and tracking/"
+    Write-Success "Initialized .marge/ and system/tracking/"
 }
 
 function Get-ProjectType {
@@ -1032,7 +1068,8 @@ function Show-Doctor {
             Write-Host "  " -NoNewline
             Write-Host ([char]0x2713) -ForegroundColor Green -NoNewline
             Write-Host " $eng (found)"
-        } else {
+        }
+        else {
             Write-Host "  " -NoNewline
             Write-Host ([char]0x2717) -ForegroundColor Red -NoNewline
             Write-Host " $eng (not found)"
@@ -1067,13 +1104,15 @@ function Show-Doctor {
             Write-Host "  " -NoNewline
             Write-Host ([char]0x2713) -ForegroundColor Green -NoNewline
             Write-Host " .marge/config.yaml (valid)"
-        } else {
+        }
+        else {
             Write-Host "  " -NoNewline
             Write-Host ([char]0x2717) -ForegroundColor Red -NoNewline
             Write-Host " .marge/config.yaml (invalid YAML)"
             $warnings++
         }
-    } else {
+    }
+    else {
         Write-Host "  " -NoNewline
         Write-Host "-" -ForegroundColor Yellow -NoNewline
         Write-Host " .marge/config.yaml: not found"
@@ -1085,13 +1124,15 @@ function Show-Doctor {
             Write-Host "  " -NoNewline
             Write-Host ([char]0x2713) -ForegroundColor Green -NoNewline
             Write-Host " MARGE_HOME: $env:MARGE_HOME"
-        } else {
+        }
+        else {
             Write-Host "  " -NoNewline
             Write-Host ([char]0x2717) -ForegroundColor Red -NoNewline
             Write-Host " MARGE_HOME: $env:MARGE_HOME (path not found)"
             $warnings++
         }
-    } else {
+    }
+    else {
         Write-Host "  " -NoNewline
         Write-Host "-" -ForegroundColor Yellow -NoNewline
         Write-Host " MARGE_HOME: not set"
@@ -1118,7 +1159,8 @@ function Show-Doctor {
             try {
                 $null = Get-Content $path -Raw | ConvertFrom-Json
                 $pricingValid = $true
-            } catch {
+            }
+            catch {
                 $pricingValid = $false
             }
             break
@@ -1130,13 +1172,15 @@ function Show-Doctor {
             Write-Host "  " -NoNewline
             Write-Host ([char]0x2713) -ForegroundColor Green -NoNewline
             Write-Host " model_pricing.json (valid)"
-        } else {
+        }
+        else {
             Write-Host "  " -NoNewline
             Write-Host ([char]0x2717) -ForegroundColor Red -NoNewline
             Write-Host " model_pricing.json (invalid JSON)"
             $warnings++
         }
-    } else {
+    }
+    else {
         Write-Host "  " -NoNewline
         Write-Host "-" -ForegroundColor Yellow -NoNewline
         Write-Host " model_pricing.json: not found"
@@ -1147,7 +1191,8 @@ function Show-Doctor {
         Write-Host "  " -NoNewline
         Write-Host ([char]0x2713) -ForegroundColor Green -NoNewline
         Write-Host " $($script:MARGE_FOLDER)/ folder exists"
-    } else {
+    }
+    else {
         Write-Host "  " -NoNewline
         Write-Host "-" -ForegroundColor Yellow -NoNewline
         Write-Host " $($script:MARGE_FOLDER)/ folder: not found (will use lite mode)"
@@ -1161,12 +1206,14 @@ function Show-Doctor {
         Write-Host "Not ready" -ForegroundColor Red -NoNewline
         Write-Host " ($errors critical issue$(if ($errors -ne 1) {'s'}))"
         exit 1
-    } elseif ($warnings -gt 0) {
+    }
+    elseif ($warnings -gt 0) {
         Write-Host "Status: " -NoNewline
         Write-Host "Ready to use" -ForegroundColor Green -NoNewline
         Write-Host " ($warnings warning$(if ($warnings -ne 1) {'s'}))"
         exit 0
-    } else {
+    }
+    else {
         Write-Host "Status: " -NoNewline
         Write-Host "Ready to use" -ForegroundColor Green
         exit 0
@@ -1199,7 +1246,7 @@ function Get-MetaWorkSummary {
     #>
     $summary = @{
         Issues = 0
-        Tasks = 0
+        Tasks  = 0
     }
     
     $assessmentPath = ".meta_marge\tracking\assessment.md"
@@ -1247,7 +1294,8 @@ function Initialize-Meta {
             Write-Host ""
             Write-Info "Keeping existing .meta_marge/"
             return $true
-        } else {
+        }
+        else {
             Write-Info ".meta_marge/ already exists (no changes needed)"
             return $true
         }
@@ -1307,7 +1355,8 @@ function Show-MetaStatus {
     if (Test-Path ".meta_marge\AGENTS.md") {
         Write-Host "AGENTS.md: " -NoNewline
         Write-Host "OK" -ForegroundColor Green
-    } else {
+    }
+    else {
         Write-Host "AGENTS.md: " -NoNewline
         Write-Host "X missing" -ForegroundColor Red
     }
@@ -1351,7 +1400,8 @@ function Remove-Meta {
     if ($response -match '^[Yy]$') {
         Remove-Item -Recurse -Force ".meta_marge"
         Write-Success "Removed .meta_marge/"
-    } else {
+    }
+    else {
         Write-Info "Cancelled"
     }
 }
@@ -1401,7 +1451,8 @@ function Get-ModelPricing {
                 $inputRate = $modelPricing.input_per_1m
                 $outputRate = $modelPricing.output_per_1m
             }
-        } catch { }
+        }
+        catch { }
     }
     
     return @{ InputRate = $inputRate; OutputRate = $outputRate }
@@ -1527,17 +1578,24 @@ while ($i -lt $Arguments.Count) {
     elseif ($arg -match '^(-Verbose|--verbose|-v)$') { $script:VERBOSE_OUTPUT = $true; $matched = $true }
     elseif ($arg -match '^(-Version|--version)$') { Write-Host "marge $script:VERSION"; exit 0 }
     elseif ($arg -match '^(-Help|--help|-h|help)$') { Show-Usage; exit 0 }
-    elseif ($arg -eq 'init') { Initialize-Config; exit 0 }
+    elseif ($arg -eq 'init') {
+        # MS-0002: Check for --help flag
+        $showHelp = $Arguments -contains '--help' -or $Arguments -contains '-h'
+        Initialize-Config -ShowHelp:$showHelp
+        exit 0
+    }
     elseif ($arg -eq 'clean') {
         if (Test-Path ".marge" -PathType Container) {
             $response = Read-Host "Remove .marge/ folder? [y/N]"
             if ($response -match '^[Yy]$') {
                 Remove-Item -Recurse -Force ".marge"
                 Write-Success "Removed .marge/"
-            } else {
+            }
+            else {
                 Write-Info "Cancelled"
             }
-        } else {
+        }
+        else {
             Write-Warn ".marge/ folder not found"
         }
         exit 0

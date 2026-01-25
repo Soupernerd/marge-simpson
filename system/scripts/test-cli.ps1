@@ -53,12 +53,14 @@ function Write-TestResult([string]$Name, [bool]$Passed, [string]$Detail = "") {
     if ($Passed) {
         Write-Host "    [PASS] " -NoNewline -ForegroundColor Green
         Write-Host $Name -ForegroundColor Green
-    } else {
+    }
+    else {
         Write-Host "    [FAIL] " -NoNewline -ForegroundColor Red
         Write-Host $Name -NoNewline -ForegroundColor Red
         if ($Detail) {
             Write-Host " ($Detail)" -ForegroundColor DarkRed
-        } else {
+        }
+        else {
             Write-Host ""
         }
     }
@@ -103,12 +105,14 @@ function Test-Assert {
             $script:TestsPassed++
             Write-TestResult -Name $Name -Passed $true
             return $true
-        } else {
+        }
+        else {
             $script:TestsFailed++
             Write-TestResult -Name $Name -Passed $false -Detail "returned: $result"
             return $false
         }
-    } catch {
+    }
+    catch {
         $script:TestsFailed++
         Write-TestResult -Name $Name -Passed $false -Detail $_.Exception.Message
         return $false
@@ -128,7 +132,8 @@ Test-Assert "marge.ps1 -Version runs without error" {
     try {
         & "$MsDir\cli\marge.ps1" @("-Version") 2>&1 | Out-Null
         $true
-    } catch {
+    }
+    catch {
         $false
     }
 }
@@ -137,7 +142,8 @@ Test-Assert "marge.ps1 -Help runs without error" {
     try {
         & "$MsDir\cli\marge.ps1" @("-Help") 2>&1 | Out-Null
         $true
-    } catch {
+    }
+    catch {
         $false
     }
 }
@@ -159,7 +165,8 @@ Test-Assert "marge.ps1 status runs without error" {
     try {
         & "$MsDir\cli\marge.ps1" @("status") 2>&1 | Out-Null
         $true
-    } catch {
+    }
+    catch {
         $false
     }
 }
@@ -277,10 +284,12 @@ try {
             # Run init via call operator with working directory set
             $initOutput = & "$MsDir\cli\marge.ps1" init 2>&1
             # Check that folders were created in temp directory
+            # MS-0003: init now creates system/tracking/ not tracking/
             $margeFolder = Join-Path $TempTestDir ".marge"
-            $trackingFolder = Join-Path $TempTestDir "tracking"
+            $trackingFolder = Join-Path $TempTestDir "system\tracking"
             return (Test-Path $margeFolder) -and (Test-Path $trackingFolder)
-        } finally {
+        }
+        finally {
             Set-Location $originalLocation
         }
     }
@@ -299,7 +308,8 @@ try {
             # Manually remove to test our cleanup capability
             Remove-Item -Recurse -Force $margeFolder
             return -not (Test-Path $margeFolder)
-        } finally {
+        }
+        finally {
             Set-Location $originalLocation
         }
     }
@@ -313,9 +323,11 @@ try {
             & "$MsDir\cli\marge.ps1" doctor 2>&1 | Out-Null
             # If we get here without error, doctor ran successfully
             return $true
-        } catch {
+        }
+        catch {
             return $false
-        } finally {
+        }
+        finally {
             Set-Location $originalLocation
         }
     }
@@ -328,9 +340,11 @@ try {
             & "$MsDir\cli\marge.ps1" config 2>&1 | Out-Null
             # If we get here without error, config ran successfully
             return $true
-        } catch {
+        }
+        catch {
             return $false
-        } finally {
+        }
+        finally {
             Set-Location $originalLocation
         }
     }
@@ -349,15 +363,18 @@ try {
                 $output = & "$MsDir\cli\marge.ps1" resume 2>&1 | Out-String
                 # If we got here without crashing, it handled gracefully
                 return $true
-            } catch {
+            }
+            catch {
                 # Even if it threw, as long as we caught it, that's graceful
                 return $true
             }
-        } finally {
+        }
+        finally {
             Set-Location $originalLocation
         }
     }
-} finally {
+}
+finally {
     # Cleanup temp directory
     if (Test-Path $TempTestDir) {
         Remove-Item -Recurse -Force $TempTestDir -ErrorAction SilentlyContinue
@@ -403,11 +420,13 @@ Test-Assert "marge.ps1 handles empty task gracefully" {
             $output = & "$MsDir\cli\marge.ps1" 2>&1 | Out-String
             # If output contains usage info or we didn't crash, that's graceful handling
             return ($output -match 'USAGE' -or $output -match 'help' -or $true)
-        } catch {
+        }
+        catch {
             # Even catching an error is graceful handling
             return $true
         }
-    } finally {
+    }
+    finally {
         Set-Location $originalLocation
         Remove-Item -Path $tempDir -Recurse -Force -ErrorAction SilentlyContinue
     }
@@ -419,7 +438,8 @@ Test-Assert "marge (bash) handles empty task gracefully" {
         $output = & "$MsDir\cli\marge" 2>&1 | Out-String
         # If output contains usage info or we didn't crash, that's graceful handling
         return ($output -match 'USAGE' -or $output -match 'Usage' -or $output -match 'help' -or $true)
-    } catch {
+    }
+    catch {
         # Even catching an error is graceful handling
         return $true
     }

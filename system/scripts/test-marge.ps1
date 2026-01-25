@@ -59,12 +59,14 @@ function Write-TestResult([string]$Name, [bool]$Passed, [string]$Detail = "") {
     if ($Passed) {
         Write-Host "    [PASS] " -NoNewline -ForegroundColor Green
         Write-Host $Name -ForegroundColor Green
-    } else {
+    }
+    else {
         Write-Host "    [FAIL] " -NoNewline -ForegroundColor Red
         Write-Host $Name -NoNewline -ForegroundColor Red
         if ($Detail) {
             Write-Host " ($Detail)" -ForegroundColor DarkRed
-        } else {
+        }
+        else {
             Write-Host ""
         }
     }
@@ -146,7 +148,8 @@ function Test-Assert {
             $script:TestsPassed++
             Write-TestResult -Name $Name -Passed $true
             return $true
-        } else {
+        }
+        else {
             $script:TestsFailed++
             Write-TestResult -Name $Name -Passed $false -Detail "returned: $result"
             return $false
@@ -164,7 +167,8 @@ function Test-BashAvailable {
     try {
         $null = & bash --version 2>&1
         return $LASTEXITCODE -eq 0
-    } catch {
+    }
+    catch {
         return $false
     }
 }
@@ -216,7 +220,7 @@ if ($bashAvailable) {
         if ($shPath -match '^([A-Za-z]):(.*)$') {
             $shPath = "/" + $Matches[1].ToLower() + $Matches[2]
         }
-        $result = & bash -n $shPath 2>&1
+        $null = & bash -n $shPath 2>&1
         $LASTEXITCODE -eq 0
     }
     Test-Assert "cleanup.sh valid bash syntax" {
@@ -224,7 +228,7 @@ if ($bashAvailable) {
         if ($shPath -match '^([A-Za-z]):(.*)$') {
             $shPath = "/" + $Matches[1].ToLower() + $Matches[2]
         }
-        $result = & bash -n $shPath 2>&1
+        $null = & bash -n $shPath 2>&1
         $LASTEXITCODE -eq 0
     }
     
@@ -233,7 +237,8 @@ if ($bashAvailable) {
     try {
         $null = & shellcheck --version 2>&1
         $shellcheckAvailable = $LASTEXITCODE -eq 0
-    } catch {
+    }
+    catch {
         $shellcheckAvailable = $false
     }
     
@@ -248,7 +253,7 @@ if ($bashAvailable) {
                     if ($shPath -match '^([A-Za-z]):(.*)$') {
                         $shPath = "/" + $Matches[1].ToLower() + $Matches[2]
                     }
-                    $result = & shellcheck $shPath 2>&1
+                    $null = & shellcheck $shPath 2>&1
                     $LASTEXITCODE -eq 0
                 }
             }
@@ -264,7 +269,7 @@ if ($bashAvailable) {
                     if ($shPath -match '^([A-Za-z]):(.*)$') {
                         $shPath = "/" + $Matches[1].ToLower() + $Matches[2]
                     }
-                    $result = & shellcheck $shPath 2>&1
+                    $null = & shellcheck $shPath 2>&1
                     $LASTEXITCODE -eq 0
                 }
             }
@@ -280,16 +285,18 @@ if ($bashAvailable) {
                     if ($shPath -match '^([A-Za-z]):(.*)$') {
                         $shPath = "/" + $Matches[1].ToLower() + $Matches[2]
                     }
-                    $result = & shellcheck $shPath 2>&1
+                    $null = & shellcheck $shPath 2>&1
                     $LASTEXITCODE -eq 0
                 }
             }
         }
-    } else {
+    }
+    else {
         Write-Host "    [SKIP] " -NoNewline -ForegroundColor DarkYellow
         Write-Host "ShellCheck tests - shellcheck not available (optional: install for enhanced linting)" -ForegroundColor DarkYellow
     }
-} else {
+}
+else {
     Write-Host "    [SKIP] " -NoNewline -ForegroundColor DarkYellow
     Write-Host "Bash syntax tests - bash not available" -ForegroundColor DarkYellow
     Write-Host "           " -NoNewline
@@ -310,12 +317,12 @@ if ($isNestedRun) {
     Write-Host "    [SKIP] " -NoNewline -ForegroundColor DarkYellow
     Write-Host "Skipping nested verify test (already in verify harness)" -ForegroundColor DarkYellow
     $script:TestsPassed += 2
-} else {
-    $env:MARGE_TEST_RUNNING = "1"
+}
+else {
+    # MS-0004: Use -Command to pass env var to child process (env vars don't inherit with -File)
     $verifyScript = Join-Path $ScriptsDir "verify.ps1"
-    $verifyResult = & powershell -ExecutionPolicy Bypass -File $verifyScript fast -SkipIfNoTests 2>&1
+    $verifyResult = & powershell -ExecutionPolicy Bypass -Command "`$env:MARGE_TEST_RUNNING='1'; & '$verifyScript' fast -SkipIfNoTests" 2>&1
     $verifyExitCode = $LASTEXITCODE
-    $env:MARGE_TEST_RUNNING = ""
     Test-Assert "verify.ps1 -SkipIfNoTests exits 0" { $verifyExitCode -eq 0 }
     Test-Assert "Output contains folder name" { ($verifyResult -join "`n") -match "\[$MsFolderName\]" }
 }
@@ -333,6 +340,7 @@ Write-FinalSummary
 
 if ($script:TestsFailed -gt 0) {
     exit 1
-} else {
+}
+else {
     exit 0
 }
