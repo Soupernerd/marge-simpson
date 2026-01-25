@@ -184,14 +184,14 @@ $agentsContent = Get-Content -Path $AgentsPath -Raw
 $newScope = @"
 **Scope (CRITICAL):**
 1. This folder (``.meta_marge/``) is the **control plane** for improving ``$SourceName/``.
-2. Audit ``$SourceName/`` (the target). Track findings HERE in ``.meta_marge/tracking/``.
+2. Audit ``$SourceName/`` (the target). Track findings HERE in ``.meta_marge/system/tracking/``.
 3. Never create ``.meta_marge`` files outside this folder.
 
 **Meta-Development Workflow:**
 ``````
   .meta_marge/AGENTS.md  ->  AI audits $SourceName/  ->  Changes to $SourceName/
-  Work tracked in .meta_marge/tracking/
-  Verify using: $SourceName/scripts/verify.ps1 fast
+  Work tracked in .meta_marge/system/tracking/
+  Verify using: $SourceName/system/scripts/verify.ps1 fast
   When done: run convert-to-meta again to reset
 ``````
 

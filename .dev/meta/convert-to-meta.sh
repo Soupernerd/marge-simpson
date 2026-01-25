@@ -163,19 +163,19 @@ EOF
 # Rewrite AGENTS.md scope section
 AGENTS_PATH="$TARGET_FOLDER/AGENTS.md"
 NEW_SCOPE="**Scope (CRITICAL):**
-1. The \`$TARGET_NAME/\` folder is **excluded from audits** -- it is the tooling, not the target.
-2. Audit the workspace/repo OUTSIDE this folder (e.g., \`$SOURCE_NAME/\`).
-3. Track findings HERE in \`$TARGET_NAME/tracking/\` assessment.md and tasklist.md.
-4. Never create \`$TARGET_NAME\` files outside this folder.
+1. This folder (\\\`$TARGET_NAME/\\\`) is the **control plane** for improving \\\`$SOURCE_NAME/\\\`.
+2. Audit \\\`$SOURCE_NAME/\\\` (the target). Track findings HERE in \\\`$TARGET_NAME/system/tracking/\\\`.
+3. Never create \\\`$TARGET_NAME\\\` files outside this folder.
 
 **Meta-Development Workflow:**
-\`\`\`
+\\\`\\\`\\\`
   $TARGET_NAME/AGENTS.md  ->  AI audits $SOURCE_NAME/  ->  Changes to $SOURCE_NAME/
-  Work tracked in $TARGET_NAME/tracking/
+  Work tracked in $TARGET_NAME/system/tracking/
+  Verify using: $SOURCE_NAME/system/scripts/verify.sh fast
   When done: run convert-to-meta again to reset
-\`\`\`
+\\\`\\\`\\\`
 
-**IMPORTANT:** \`$TARGET_NAME/\` is the control plane, NOT a sandbox."
+**IMPORTANT:** \\\`$TARGET_NAME/\\\` is the control plane, NOT a sandbox."
 
 awk -v new_scope="$NEW_SCOPE" '
     /^\*\*Scope \(CRITICAL\):\*\*/ { print new_scope; getline; getline; getline; next }
