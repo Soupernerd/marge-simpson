@@ -504,22 +504,24 @@ is_task_complete() {
 # =============================================================================
 
 test_meta_has_work() {
-    # Check if .meta_marge/tracking has tracked work (MS-#### entries)
-    local assessment=".meta_marge/tracking/assessment.md"
+    # Check if .meta_marge/system/tracking has tracked work (MS-#### entries)
+    # MS-0009: Fixed path from .meta_marge/tracking/ to .meta_marge/system/tracking/
+    local assessment=".meta_marge/system/tracking/assessment.md"
     [[ ! -f "$assessment" ]] && return 1
     grep -qE 'MS-[0-9]{4}' "$assessment" 2>/dev/null
 }
 
 get_meta_work_summary() {
     # Output: "issues:N tasks:N"
+    # MS-0009: Fixed paths from .meta_marge/tracking/ to .meta_marge/system/tracking/
     local issues=0 tasks=0
     
-    local assessment=".meta_marge/tracking/assessment.md"
+    local assessment=".meta_marge/system/tracking/assessment.md"
     if [[ -f "$assessment" ]]; then
         issues=$(grep -oE 'MS-[0-9]{4}' "$assessment" 2>/dev/null | wc -l | tr -d ' ')
     fi
     
-    local tasklist=".meta_marge/tracking/tasklist.md"
+    local tasklist=".meta_marge/system/tracking/tasklist.md"
     if [[ -f "$tasklist" ]]; then
         tasks=$(grep -cE '\[\s*\]\s*\*\*\[MS-[0-9]{4}\]' "$tasklist" 2>/dev/null || echo 0)
     fi
@@ -578,15 +580,16 @@ initialize_meta() {
     done
     
     # Fallback: script not found anywhere
-    log_err "convert-to-meta.sh not found"
-    log_err ""
-    log_err "Checked locations:"
+    # MS-0005: Fixed typo log_err -> log_error
+    log_error "convert-to-meta.sh not found"
+    log_error ""
+    log_error "Checked locations:"
     for loc in "${convert_scripts[@]}"; do
-        log_err "  - $loc"
+        log_error "  - $loc"
     done
-    log_err ""
-    log_err "If you installed marge globally, your installation may be incomplete."
-    log_err "Try reinstalling: cli/install-global.sh --force"
+    log_error ""
+    log_error "If you installed marge globally, your installation may be incomplete."
+    log_error "Try reinstalling: cli/install-global.sh --force"
     return 1
 }
 
@@ -1178,8 +1181,29 @@ run_single() {
 }
 
 init_config() {
+    # MS-0007: Check for --help flag
+    if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
+        cat <<'HELP'
+
+marge init - Initialize Marge in current project
+
+USAGE:
+  marge init              Create .marge/ folder with default config
+
+CREATES:
+  .marge/config.yaml      Project configuration
+  system/tracking/PRD.md  Task list template (if not exists)
+
+NOTE:
+  .marge/ should be added to .gitignore (runtime artifacts)
+  system/tracking/ is your work tracking (can be committed)
+HELP
+        return 0
+    fi
+    
     mkdir -p .marge
-    mkdir -p tracking
+    # MS-0006: Create system/tracking/ not tracking/
+    mkdir -p system/tracking
     cat > .marge/config.yaml <<EOF
 engine: claude
 model: ""
@@ -1189,7 +1213,8 @@ auto_commit: true
 folder: .marge
 EOF
 
-    [[ ! -f "tracking/PRD.md" ]] && cat > tracking/PRD.md <<'EOF'
+    # MS-0006: Use correct path system/tracking/PRD.md
+    [[ ! -f "system/tracking/PRD.md" ]] && cat > system/tracking/PRD.md <<'EOF'
 # PRD
 
 ### Task 1: Setup
@@ -1202,7 +1227,7 @@ EOF
 - [ ] Write tests
 EOF
 
-    log_success "Initialized .marge/ and tracking/"
+    log_success "Initialized .marge/ and system/tracking/"
 }
 
 # Load config before parsing args (CLI overrides config)
@@ -1271,7 +1296,15 @@ while [[ $# -gt 0 ]]; do
         -v|--verbose) VERBOSE=true; shift ;;
         --version) echo "marge $VERSION"; exit 0 ;;
         -h|--help|help) print_usage; exit 0 ;;
-        init) init_config; exit 0 ;;
+        init)
+            # MS-0007: Check for --help flag after init
+            if [[ "${2:-}" == "--help" || "${2:-}" == "-h" ]]; then
+                init_config --help
+            else
+                init_config
+            fi
+            exit 0
+            ;;
         clean)
             if [[ -d ".marge" ]]; then
                 read -p "Remove .marge/ folder? [y/N] " -n 1 -r

@@ -86,7 +86,8 @@ for item in "${SHARED_FILES[@]}"; do
     fi
 done
 
-# Copy per-project templates (from tracking/)
+# Copy per-project templates (from system/tracking/)
+# MS-0010: Fixed path from tracking/ to system/tracking/
 TEMPLATE_FILES=(
     "assessment.md"
     "tasklist.md"
@@ -94,8 +95,8 @@ TEMPLATE_FILES=(
 )
 
 for item in "${TEMPLATE_FILES[@]}"; do
-    if [[ -e "$REPO_ROOT/tracking/$item" ]]; then
-        cp "$REPO_ROOT/tracking/$item" "$INSTALL_DIR/templates/"
+    if [[ -e "$REPO_ROOT/system/tracking/$item" ]]; then
+        cp "$REPO_ROOT/system/tracking/$item" "$INSTALL_DIR/templates/"
     fi
 done
 
