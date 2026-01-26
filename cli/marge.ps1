@@ -733,7 +733,8 @@ After finished, list remaining unchecked items in $script:MARGE_FOLDER/tracking/
             try {
                 # MS-0002 fix: Escape ALL cmd.exe metacharacters including ! (delayed expansion)
                 # Order matters: escape ^ first, then other metacharacters, then quotes
-                $escapedPrompt = $prompt -replace '\^', '^^' -replace '([&|<>%!])', '^$1' -replace '"', '\"'
+                # MS-0020 fix: Also escape backticks, newlines, and parentheses
+                $escapedPrompt = $prompt -replace '\^', '^^' -replace '`', '^`' -replace '\r?\n', ' ' -replace '([&|<>%!()])', '^$1' -replace '"', '\"'
                 $fullCmd = "$cmd `"$escapedPrompt`""
 
                 $pinfo = New-Object System.Diagnostics.ProcessStartInfo

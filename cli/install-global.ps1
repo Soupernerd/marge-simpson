@@ -66,6 +66,12 @@ if (Test-Path $InstallDir) {
         Write-Error "$InstallDir already exists. Use -Force to overwrite."
         exit 1
     }
+    # MS-0021 fix: Check for symlink to prevent symlink attacks
+    $item = Get-Item $InstallDir -Force
+    if ($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint) {
+        Write-Error "$InstallDir is a symbolic link. Refusing to remove for security reasons."
+        exit 1
+    }
     Write-Host "Removing existing installation..."
     Remove-Item -Recurse -Force $InstallDir
 }
