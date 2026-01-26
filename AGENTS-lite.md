@@ -36,6 +36,11 @@ Direct tools only for: reading files, running commands, trivial single-line fixe
 - IF changing > 10 lines → recommend full AGENTS.md
 - IF behavior/test impact → recommend full AGENTS.md
 
+**Escalation Path:** When limits exceeded, use:
+- `./AGENTS.md` — Full operating rules with tracking
+- `./system/workflows/work.md` — Standard work workflow
+- `./system/tracking/` — Issue tracking templates
+
 ---
 
 ## Response Style

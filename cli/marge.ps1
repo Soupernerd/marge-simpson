@@ -175,7 +175,7 @@ META-DEVELOPMENT:
            |
     Changes made DIRECTLY to marge-simpson/
            |
-    Work tracked in .meta_marge/tracking/
+    Work tracked in .meta_marge/system/tracking/
 
 CONFIG FILE:
   Place .marge\config.yaml in your project:
@@ -711,7 +711,7 @@ After finished, list remaining unchecked items in $script:MARGE_FOLDER/tracking/
 
     $cmd = Build-EngineCmd $script:ENGINE
     $retry = 0
-    $outputFile = "$env:TEMP\marge_output_$PID.txt"
+    $outputFile = [System.IO.Path]::GetTempFileName()
 
     # Ensure temp file cleanup on any exit (success, error, interrupt)
     try {
@@ -721,9 +721,9 @@ After finished, list remaining unchecked items in $script:MARGE_FOLDER/tracking/
             Write-Debug-Msg "WorkDir: $WorkDir"
 
             try {
-                # MS-0010 fix: Escape special characters for cmd.exe to prevent injection/breakage
-                # Escape quotes first, then cmd.exe metacharacters
-                $escapedPrompt = $prompt -replace '"', '\"' -replace '([&|<>^%])', '^$1'
+                # MS-0002 fix: Escape ALL cmd.exe metacharacters including ! (delayed expansion)
+                # Order matters: escape ^ first, then other metacharacters, then quotes
+                $escapedPrompt = $prompt -replace '\^', '^^' -replace '([&|<>%!])', '^$1' -replace '"', '\"'
                 $fullCmd = "$cmd `"$escapedPrompt`""
 
                 $pinfo = New-Object System.Diagnostics.ProcessStartInfo
@@ -1227,9 +1227,10 @@ function Show-Doctor {
 function Test-MetaHasWork {
     <#
     .SYNOPSIS
-        Check if .meta_marge/tracking has tracked work (MS-#### entries)
+        Check if .meta_marge/system/tracking has tracked work (MS-#### entries)
     #>
-    $assessmentPath = ".meta_marge\tracking\assessment.md"
+    # MS-0009 fix: correct path from .meta_marge\tracking\ to .meta_marge\system\tracking\
+    $assessmentPath = ".meta_marge\system\tracking\assessment.md"
     if (-not (Test-Path $assessmentPath)) { return $false }
     
     $content = Get-Content $assessmentPath -Raw -ErrorAction SilentlyContinue
@@ -1242,14 +1243,14 @@ function Test-MetaHasWork {
 function Get-MetaWorkSummary {
     <#
     .SYNOPSIS
-        Get summary of tracked work in .meta_marge/tracking
+        Get summary of tracked work in .meta_marge/system/tracking
     #>
     $summary = @{
         Issues = 0
         Tasks  = 0
     }
-    
-    $assessmentPath = ".meta_marge\tracking\assessment.md"
+    # MS-0009 fix: correct path
+    $assessmentPath = ".meta_marge\system\tracking\assessment.md"
     if (Test-Path $assessmentPath) {
         $content = Get-Content $assessmentPath -Raw -ErrorAction SilentlyContinue
         if ($content) {
@@ -1258,7 +1259,8 @@ function Get-MetaWorkSummary {
         }
     }
     
-    $tasklistPath = ".meta_marge\tracking\tasklist.md"
+    # MS-0009 fix: correct path
+    $tasklistPath = ".meta_marge\system\tracking\tasklist.md"
     if (Test-Path $tasklistPath) {
         $content = Get-Content $tasklistPath -Raw -ErrorAction SilentlyContinue
         if ($content) {
@@ -1374,7 +1376,7 @@ function Show-MetaStatus {
     Write-Host "  1. .meta_marge/AGENTS.md    (Configuration - the guide)"
     Write-Host "  2. AI audits marge-simpson/ (Target of improvements)"
     Write-Host "  3. Changes made DIRECTLY to marge-simpson/"
-    Write-Host "  4. Work tracked in .meta_marge/tracking/"
+    Write-Host "  4. Work tracked in .meta_marge/system/tracking/"
     Write-Host ""
 }
 

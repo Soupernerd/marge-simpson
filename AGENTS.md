@@ -110,7 +110,8 @@ EXCEPTION: Mechanical changes (rename, format, import) across 3+ files may conti
 | File | Purpose |
 |------|---------|
 | `./system/tracking/assessment.md` | Findings + evidence |
-| `./system/tracking/tasklist.md` | Work queue || `./system/tracking/feature_plan_template.md` | Template for feature plans |
+| `./system/tracking/tasklist.md` | Work queue |
+| `./system/tracking/feature_plan_template.md` | Template for feature plans |
 
 **When to use what:**
 - Simple bug/fix/task: `assessment.md` + `tasklist.md` only

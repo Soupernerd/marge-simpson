@@ -142,7 +142,7 @@ ${BOLD}META-DEVELOPMENT:${RESET}
            |
     Changes made DIRECTLY to marge-simpson/
            |
-    Work tracked in .meta_marge/tracking/
+    Work tracked in .meta_marge/system/tracking/
 
 ${BOLD}CONFIG FILE:${RESET}
   Place .marge/config.yaml in your project:
@@ -638,7 +638,7 @@ show_meta_status() {
     echo "  │         |                                               │"
     echo "  │  Changes made DIRECTLY to marge-simpson/                │"
     echo "  │         |                                               │"
-    echo "  │  Work tracked in .meta_marge/tracking/             │"
+    echo "  │  Work tracked in .meta_marge/system/tracking/       │"
     echo "  └─────────────────────────────────────────────────────────┘"
     echo ""
 }
@@ -951,19 +951,21 @@ After finished, list remaining unchecked items in $MARGE_FOLDER/tracking/tasklis
 
     local cmd=$(build_engine_cmd "$ENGINE")
     local retry=0
-    local output_file="/tmp/marge_output_$$.txt"
+    local output_file
+    output_file=$(mktemp /tmp/marge_output.XXXXXX) || { log_error "Failed to create temp file"; return 1; }
     local ai_pid
 
-    # Cleanup temp file on exit/interrupt/error
-    trap 'rm -f "$output_file" 2>/dev/null' EXIT
+    # Cleanup temp file on exit/interrupt/error (MS-0017: handle INT/TERM)
+    trap 'rm -f "$output_file" 2>/dev/null' EXIT INT TERM
 
     while [[ $retry -lt $MAX_RETRIES ]]; do
         log_debug "Attempt $((retry+1))/$MAX_RETRIES"
         log_debug "Command: $cmd \"<prompt>\""
         log_debug "Workdir: $workdir"
 
-        # Run AI command in background
-        (cd "$workdir" && eval "$cmd" '"$prompt"' > "$output_file" 2>&1) &
+        # Run AI command in background (MS-0001: avoid eval, use array expansion)
+        # shellcheck disable=SC2086
+        (cd "$workdir" && $cmd "$prompt" > "$output_file" 2>&1) &
         ai_pid=$!
         log_debug "Started PID: $ai_pid"
 

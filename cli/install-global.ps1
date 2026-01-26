@@ -98,7 +98,7 @@ foreach ($item in $SharedItems) {
     }
 }
 
-# Copy per-project templates (from tracking/)
+# Copy per-project templates (MS-0010 fix: from system/tracking/)
 $TemplateItems = @(
     "assessment.md",
     "tasklist.md",
@@ -106,7 +106,7 @@ $TemplateItems = @(
 )
 
 foreach ($item in $TemplateItems) {
-    $srcPath = Join-Path $RepoRoot "tracking\$item"
+    $srcPath = Join-Path $RepoRoot "system\tracking\$item"
     if (Test-Path $srcPath) {
         Copy-Item -Force $srcPath "$InstallDir\templates\"
     }

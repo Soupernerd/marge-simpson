@@ -236,8 +236,8 @@ if [[ "$IS_META_MARGE" == "true" ]]; then
 else
     README_PATH="$REPO_ROOT/README.md"
 
-    # Check documented folders exist
-    documented_folders=("cli" "scripts" "workflows" "experts" "knowledge" "tracking" "prompts" ".dev")
+    # Check documented folders exist (MS-0018 fix: added system/ prefix)
+    documented_folders=("cli" "system/scripts" "system/workflows" "system/experts" "system/knowledge" "system/tracking" "prompts" ".dev")
     for folder in "${documented_folders[@]}"; do
         if [[ -d "$REPO_ROOT/$folder" ]]; then
             test_check "Documented folder exists: $folder/" "true"

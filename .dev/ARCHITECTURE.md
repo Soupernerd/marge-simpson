@@ -225,7 +225,7 @@ No ~/.marge/ needed. No .marge/ folder. Just the source repo.
 | `work.md` | Fix, add, change requests | Yes |
 | `audit.md` | "Audit", "review codebase" | Yes (multiple) |
 | `loop.md` | "Loop until clean" modifier | Continues existing |
-| `planning.md` | "PLANNING ONLY" mode | No |
+| `planning.md` | "PLANNING ONLY" mode | Yes (plan ID) |
 | `session_start.md` | New conversation | No |
 | `session_end.md` | Task complete | No |
 | `_index.md` | Routing decisions | — |
@@ -284,7 +284,7 @@ Loaded based on task keywords (see `system/experts/_index.md`):
 | `assessment.md` | Issues found, root cause, verification |
 | `tasklist.md` | Work queue (backlog → in-progress → done) |
 | `PRD.md` | Product requirements for CLI PRD mode |
-| `_template.md` | Feature plan template |
+| `feature_plan_template.md` | Feature plan template |
 | `*_MS-XXXX.md` | Individual feature plans |
 
 ---
