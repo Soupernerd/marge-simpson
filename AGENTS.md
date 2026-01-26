@@ -27,6 +27,8 @@ This folder is tooling, not the target. Work happens OUTSIDE this folder.
 | Typo, rename, comment, format | **Lite** | Read → Fix → List files changed. No MS-#### ID. |
 | Feature, refactor, audit, multi-file | **Full** | Workflow + MS-#### + Expert subagents |
 
+**When in doubt → Full mode.** Over-tracking is better than lost context. If it touches system behavior, architecture, or 2+ files → Full.
+
 ---
 
 ## Core Rules (Critical) (Hard)

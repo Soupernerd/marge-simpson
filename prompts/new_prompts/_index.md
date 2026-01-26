@@ -6,7 +6,7 @@
 | [work.md](work.md) | Features, bugs, tasks, refactoring |
 | [fix.md](fix.md) | Quick fixes, hotfixes, typos |
 | [audit.md](audit.md) | Code review, security, tests, performance, dependencies |
-| [plan.md](plan.md) | Feature planning, brainstorming |
+| [plan.md](plan.md) | Feature planning, brainstorming (creates plan docs) |
 | [docs.md](docs.md) | Generate documentation |
 | [decision.md](decision.md) | Record architectural decisions |
 | [session.md](session.md) | Resume or wrap up sessions |

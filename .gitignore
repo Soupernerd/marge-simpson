@@ -2,6 +2,7 @@
 .meta_marge/
 .marge_meta/
 meta_marge/
+WIZARD_MODE_REFERENCE1/
 
 # Internal marketing/notes (not for repo)
 _tweets_for_marge.md

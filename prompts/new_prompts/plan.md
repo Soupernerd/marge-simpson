@@ -1,8 +1,8 @@
 Read the AGENTS.md file in the marge-simpson folder and follow it.
 
-**MODE:** PLANNING (no code changes)
+**MODE:** PLANNING (no implementation code)
 
 What to plan or brainstorm:
 - (describe feature, improvement area, or leave blank for general suggestions)
 
-Output: Requirements, approach, effort estimate, risks.
+Output: MS-#### ID, plan document (if multi-step), requirements, approach, effort estimate, risks.

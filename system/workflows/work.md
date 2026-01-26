@@ -10,6 +10,20 @@ User wants something **done** — fix, add, improve, or refactor.
 
 ## Pre-Work
 
+### 0. Mode Check (Required)
+
+Before ANY work, explicitly declare:
+- **Mode:** Lite or Full
+- **Reason:** Why this qualifies
+
+| If... | Then... |
+|-------|--------|
+| Single typo, comment, format | Lite (no MS-####) |
+| Multi-file OR affects system behavior | Full (MS-#### required) |
+| Unsure | Full (over-tracking > lost context) |
+
+**Skip this step = skip tracking = violation.**
+
 ### 1. Load Experts (Required)
 
 | Keywords | File |
