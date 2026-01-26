@@ -2,21 +2,23 @@
 
 **Priority:** correctness > safety > minimal diffs > speed
 
-## Critical (Hard)
-**Scope:** This folder is tooling, not the target. Audit the workspace/repo OUTSIDE this folder. Track findings in `./system/tracking/`. Never create files from this folder outside it.
+## Scope (Critical) (Hard)
+**Scope:** This folder is tooling, not the target. Audit the workspace/repo OUTSIDE this folder. Track findings in `./system/tracking/`. Never create files from this folder outside it. Brings in experts
 
 ---
 
-## Task Complexity
+## Task Complexity (Critical) (Hard)
 
 | Task | Mode |
 |------|------|
 | Typo, rename, comment, format, spelling | **Lite** → Read, fix, list files. No ID tracking. |
 | Feature, refactor, audit, multi-file, architecture | **Full** → Follow workflows below. |
 
+-  For either **Lite** or **Full** ALWAYS Bring in expert(s). plural whe required.
+
 ---
 
-## Core Rules
+## Core Rules (Critical) (Hard)
 
 1. **Read first** — Open files before claiming
 2. **Search before implementing** — Don't assume missing
@@ -30,7 +32,7 @@
 
 ---
 
-## Subagents
+## Subagents (Critical) (Hard)
 
 **Status:** `ENABLED` _(say "no subagents" to disable)_
 
@@ -41,7 +43,7 @@ Direct tools OK for: single file, simple edit, terminal commands.
 
 ---
 
-## Tracking
+## Tracking (Critical) (Hard)
 
 | File | Purpose |
 |------|---------|
@@ -58,7 +60,7 @@ Verify: `./system/scripts/verify.ps1 fast` (Win) or `./system/scripts/verify.sh 
 
 ---
 
-## Routing
+## Routing (Critical) (Hard)
 
 | Intent | Action |
 |--------|--------|
@@ -79,13 +81,13 @@ Full format: `./system/workflows/work.md`
 
 ---
 
-## Token Estimate
+## Token Estimate (Critical) (Hard)
 
 End every response: `📊 ~In: X,XXX | Out: X,XXX | Est: $X.XXXX`
 
 ---
 
-## Resources
+## Resources (Critical) (Hard)
 
 | Need | Load |
 |------|------|
