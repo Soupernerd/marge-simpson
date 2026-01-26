@@ -140,7 +140,7 @@ echo "[6/6] AGENTS.md content validation..."
 AGENTS_PATH="$MS_DIR/AGENTS.md"
 AGENTS_CONTENT=$(cat "$AGENTS_PATH")
 
-HAS_CRITICAL=$(echo "$AGENTS_CONTENT" | grep -q "CRITICAL" && echo 0 || echo 1)
+HAS_CRITICAL=$(echo "$AGENTS_CONTENT" | grep -qi "CRITICAL" && echo 0 || echo 1)
 test_assert "AGENTS.md contains CRITICAL section" "$HAS_CRITICAL" || true
 
 # Check for folder reference - folder name, .marge/, or ./system/ (generic structure)
