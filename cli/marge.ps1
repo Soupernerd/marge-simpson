@@ -754,24 +754,46 @@ After finished, list remaining unchecked items in $script:MARGE_FOLDER/tracking/
             Write-Debug-Msg "WorkDir: $WorkDir"
 
             try {
-                # MS-0002 fix: Escape ALL cmd.exe metacharacters including ! (delayed expansion)
-                # Order matters: escape ^ first, then other metacharacters, then quotes
-                # MS-0020 fix: Also escape backticks, newlines, and parentheses
-                $escapedPrompt = $prompt -replace '\^', '^^' -replace '`', '^`' -replace '\r?\n', ' ' -replace '([&|<>%!()])', '^$1' -replace '"', '\"'
-                $fullCmd = "$cmd `"$escapedPrompt`""
-
+                # MS-0029: Native process execution without cmd.exe wrapper
+                # Parse $cmd into executable and arguments
+                $cmdParts = $cmd -split ' ', 2
+                $executable = $cmdParts[0]
+                $baseArgs = if ($cmdParts.Length -gt 1) { $cmdParts[1] } else { "" }
+                
+                # Escape the prompt for command-line: double internal quotes, wrap in quotes
+                $escapedPrompt = $prompt -replace '\r?\n', ' ' -replace '"', '\"'
+                $finalArgs = if ($baseArgs) { "$baseArgs `"$escapedPrompt`"" } else { "`"$escapedPrompt`"" }
+                
+                # Create temp files for stdout and stderr
+                $stdoutFile = [System.IO.Path]::GetTempFileName()
+                $stderrFile = [System.IO.Path]::GetTempFileName()
+                
                 $pinfo = New-Object System.Diagnostics.ProcessStartInfo
-                $pinfo.FileName = "cmd.exe"
-                $pinfo.Arguments = "/c $fullCmd > `"$outputFile`" 2>&1"
+                $pinfo.FileName = $executable
+                $pinfo.Arguments = $finalArgs
                 $pinfo.WorkingDirectory = (Resolve-Path $WorkDir).Path
                 $pinfo.UseShellExecute = $false
                 $pinfo.CreateNoWindow = $true
+                $pinfo.RedirectStandardOutput = $true
+                $pinfo.RedirectStandardError = $true
 
                 $process = New-Object System.Diagnostics.Process
                 $process.StartInfo = $pinfo
                 $process.Start() | Out-Null
-
+                
+                # Start async readers to prevent deadlock on large output
+                $stdoutTask = $process.StandardOutput.ReadToEndAsync()
+                $stderrTask = $process.StandardError.ReadToEndAsync()
+                
                 Show-Spinner $Task $process $outputFile
+                
+                # Wait for streams to complete
+                $stdout = $stdoutTask.GetAwaiter().GetResult()
+                $stderr = $stderrTask.GetAwaiter().GetResult()
+                
+                # Combine stdout and stderr into single output file
+                $combined = if ($stderr) { "$stdout`n$stderr" } else { $stdout }
+                [System.IO.File]::WriteAllText($outputFile, $combined)
                 $process.WaitForExit()
 
                 $exitCode = $process.ExitCode
@@ -1539,6 +1561,12 @@ while ($i -lt $Arguments.Count) {
         }
         $i++
         $script:MODEL = $Arguments[$i]
+        # MS-0031: Validate --model flag against safe pattern (same as env var validation)
+        if ($script:MODEL -notmatch '^[a-zA-Z0-9._/-]+$') {
+            Write-Err "--model contains invalid characters: $($script:MODEL)"
+            Write-Err "Model must match pattern: ^[a-zA-Z0-9._/-]+$"
+            exit 1
+        }
         $matched = $true
     }
     elseif ($arg -match '^(-Engine|--engine)$') {

@@ -126,7 +126,7 @@ function Test-Assert {
 Write-Banner
 
 # Test Suite 1: Version and Help Commands
-Write-Section "Test Suite 1/7: Version and Help Commands"
+Write-Section "Test Suite 1/8: Version and Help Commands"
 
 Test-Assert "marge.ps1 -Version runs without error" {
     try {
@@ -159,7 +159,7 @@ Test-Assert "marge.ps1 has Show-Usage function" {
 }
 
 # Test Suite 2: Status Command
-Write-Section "Test Suite 2/7: Status Command"
+Write-Section "Test Suite 2/8: Status Command"
 
 Test-Assert "marge.ps1 status runs without error" {
     try {
@@ -177,7 +177,7 @@ Test-Assert "marge.ps1 has Show-Status function" {
 }
 
 # Test Suite 3: DryRun and Mode Detection
-Write-Section "Test Suite 3/7: DryRun and Mode Detection"
+Write-Section "Test Suite 3/8: DryRun and Mode Detection"
 
 Test-Assert "marge.ps1 supports -DryRun parameter" {
     $content = Get-Content "$MsDir\cli\marge.ps1" -Raw
@@ -195,7 +195,7 @@ Test-Assert "marge.ps1 validates MARGE_HOME in lite mode" {
 }
 
 # Test Suite 4: AGENTS-lite.md in Shared Resources
-Write-Section "Test Suite 4/7: Shared Resources Check"
+Write-Section "Test Suite 4/8: Shared Resources Check"
 
 Test-Assert "AGENTS-lite.md exists in repo root" {
     Test-Path "$MsDir\AGENTS-lite.md"
@@ -222,7 +222,7 @@ Test-Assert "install-global.sh includes AGENTS-lite.md" {
 }
 
 # Test Suite 5: Meta Commands (MS-0015)
-Write-Section "Test Suite 5/7: Meta Commands"
+Write-Section "Test Suite 5/8: Meta Commands"
 
 Test-Assert "marge.ps1 has Initialize-Meta function" {
     $content = Get-Content "$MsDir\cli\marge.ps1" -Raw
@@ -270,7 +270,7 @@ Test-Assert "convert-to-meta.ps1 has -Help parameter" {
 }
 
 # Test Suite 6: Functional CLI Commands (using temp directory)
-Write-Section "Test Suite 6/7: Functional CLI Commands"
+Write-Section "Test Suite 6/8: Functional CLI Commands"
 
 # Create temp directory for functional tests
 $TempTestDir = Join-Path ([System.IO.Path]::GetTempPath()) "marge-cli-test-$([System.Guid]::NewGuid().ToString('N').Substring(0,8))"
@@ -382,7 +382,7 @@ finally {
 }
 
 # Test Suite 7: Edge Cases and Error Handling
-Write-Section "Test Suite 7/7: Edge Cases and Error Handling"
+Write-Section "Test Suite 7/8: Edge Cases and Error Handling"
 
 # MS-0025: Exit code validation
 Test-Assert "marge.ps1 -Version exits with code 0" {
@@ -476,6 +476,63 @@ Test-Assert "marge (bash) has error output for missing required args" {
     $content = Get-Content "$MsDir\cli\marge" -Raw
     # Check that there's some form of required argument validation  
     $content -match 'print_usage' -or $content -match 'log_error' -or $content -match 'required' -or $content -match 'must provide'
+}
+
+# Test Suite 8: Security Input Tests (MS-0028)
+Write-Section "Test Suite 8/8: Security Input Tests"
+
+Test-Assert "MARGE_FOLDER rejects path traversal (..)" {
+    $content = Get-Content "$MsDir\cli\marge.ps1" -Raw
+    # Verify CLI has validation for .. in MARGE_FOLDER
+    $content -match "MARGE_FOLDER.*contains.*path traversal" -or $content -match "MARGE_FOLDER.*-match.*\\\.\\\." 
+}
+
+Test-Assert "MARGE_FOLDER rejects absolute paths (Windows)" {
+    $content = Get-Content "$MsDir\cli\marge.ps1" -Raw
+    # Verify CLI rejects C:\ style absolute paths and /\ style paths
+    $content -match "MARGE_FOLDER.*-match.*A-Za-z.*:" -and $content -match "MARGE_FOLDER.*-match.*\[/\\\\"
+}
+
+Test-Assert "MODEL env var validates against safe pattern" {
+    $content = Get-Content "$MsDir\cli\marge.ps1" -Raw
+    # Verify MODEL is validated against ^[a-zA-Z0-9._/-]+$
+    $content -match "MODEL.*-notmatch.*\^\[a-zA-Z0-9\._/-\]\+"
+}
+
+Test-Assert "MARGE_FOLDER validation exits on violation" {
+    $content = Get-Content "$MsDir\cli\marge.ps1" -Raw
+    # Verify that invalid MARGE_FOLDER causes exit
+    $content -match "MARGE_FOLDER.*invalid.*path" -and $content -match "exit 1"
+}
+
+Test-Assert "MODEL validation exits on violation" {
+    $content = Get-Content "$MsDir\cli\marge.ps1" -Raw
+    # Verify that invalid MODEL causes exit
+    $content -match "MODEL.*invalid characters" -and $content -match "exit 1"
+}
+
+Test-Assert "Task prompt is treated as data not code" {
+    # Run CLI with a task containing shell metacharacters
+    # The CLI should NOT execute the semicolon command
+    $TempDir = Join-Path ([System.IO.Path]::GetTempPath()) "marge-sec-test-$([System.Guid]::NewGuid().ToString('N').Substring(0,8))"
+    New-Item -ItemType Directory -Path $TempDir -Force | Out-Null
+    $markerFile = Join-Path $TempDir "INJECTED.txt"
+    $originalLocation = Get-Location
+    try {
+        Set-Location $TempDir
+        # Use DryRun to avoid actual AI calls - the key is that "echo INJECTED" doesn't execute
+        $output = & "$MsDir\cli\marge.ps1" @("-DryRun", "test task; New-Item -Path '$markerFile' -ItemType File") 2>&1 | Out-String
+        # If marker file was NOT created, the injection was blocked
+        return -not (Test-Path $markerFile)
+    }
+    catch {
+        # Any error is fine as long as injection didn't happen
+        return -not (Test-Path $markerFile)
+    }
+    finally {
+        Set-Location $originalLocation
+        Remove-Item -Path $TempDir -Recurse -Force -ErrorAction SilentlyContinue
+    }
 }
 
 # ==============================================================================

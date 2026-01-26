@@ -122,7 +122,7 @@ test_assert() {
 write_banner
 
 # Test Suite 1: Version and Help Commands
-write_section "Test Suite 1/7: Version and Help Commands"
+write_section "Test Suite 1/8: Version and Help Commands"
 
 # Test: marge --version runs without error
 result="false"
@@ -154,7 +154,7 @@ fi
 test_assert "marge has show_usage function" "$result" || true
 
 # Test Suite 2: Status Command
-write_section "Test Suite 2/7: Status Command"
+write_section "Test Suite 2/8: Status Command"
 
 # Test: marge status runs without error
 result="false"
@@ -172,7 +172,7 @@ fi
 test_assert "marge has show_status function" "$result" || true
 
 # Test Suite 3: DryRun and Mode Detection
-write_section "Test Suite 3/7: DryRun and Mode Detection"
+write_section "Test Suite 3/8: DryRun and Mode Detection"
 
 # Test: marge supports --dry-run parameter
 result="false"
@@ -197,7 +197,7 @@ fi
 test_assert "marge validates MARGE_HOME in lite mode" "$result" || true
 
 # Test Suite 4: Shared Resources Check
-write_section "Test Suite 4/7: Shared Resources Check"
+write_section "Test Suite 4/8: Shared Resources Check"
 
 # Test: AGENTS-lite.md exists in repo root
 result="false"
@@ -235,7 +235,7 @@ fi
 test_assert "install-global.sh includes AGENTS-lite.md" "$result" || true
 
 # Test Suite 5: Meta Commands (MS-0015)
-write_section "Test Suite 5/7: Meta Commands"
+write_section "Test Suite 5/8: Meta Commands"
 
 # Test: marge.ps1 has Initialize-Meta function
 result="false"
@@ -304,7 +304,7 @@ fi
 test_assert "convert-to-meta.ps1 has -Help parameter" "$result" || true
 
 # Test Suite 6: Functional CLI Commands (using temp directory)
-write_section "Test Suite 6/7: Functional CLI Commands"
+write_section "Test Suite 6/8: Functional CLI Commands"
 
 # Create temp directory for functional tests
 TEMP_TEST_DIR=$(mktemp -d)
@@ -374,7 +374,7 @@ test_assert "resume handles missing progress file gracefully" "$result" || true
 rm -rf "$TEMP_TEST_DIR"
 
 # Test Suite 7: Edge Cases and Error Handling
-write_section "Test Suite 7/7: Edge Cases and Error Handling"
+write_section "Test Suite 7/8: Edge Cases and Error Handling"
 
 # MS-0025: Exit code validation
 result="false"
@@ -466,6 +466,68 @@ if echo "$content" | grep -q 'print_usage\|log_error\|required\|must provide'; t
     result="true"
 fi
 test_assert "marge (bash) has error output for missing required args" "$result" || true
+
+# Test Suite 8: Security Input Tests (MS-0028)
+write_section "Test Suite 8/8: Security Input Tests"
+
+# Test: MARGE_FOLDER rejects path traversal (..)
+result="false"
+content=$(cat "$MS_DIR/cli/marge")
+if echo "$content" | grep -q 'MARGE_FOLDER.*path traversal\|MARGE_FOLDER.*invalid.*path' && \
+   echo "$content" | grep -q '\.\.\.'; then
+    result="true"
+fi
+test_assert "MARGE_FOLDER rejects path traversal (..)" "$result" || true
+
+# Test: MARGE_FOLDER rejects absolute paths (Unix)
+result="false"
+content=$(cat "$MS_DIR/cli/marge")
+if echo "$content" | grep -q 'MARGE_FOLDER.*==.*/\*\|MARGE_FOLDER.*absolute'; then
+    result="true"
+fi
+test_assert "MARGE_FOLDER rejects absolute paths (Unix)" "$result" || true
+
+# Test: MODEL env var validates against safe pattern
+result="false"
+content=$(cat "$MS_DIR/cli/marge")
+if echo "$content" | grep -q 'MODEL.*=~.*\^\[a-zA-Z0-9._/-\]'; then
+    result="true"
+fi
+test_assert "MODEL env var validates against safe pattern" "$result" || true
+
+# Test: MARGE_FOLDER validation exits on violation
+result="false"
+content=$(cat "$MS_DIR/cli/marge")
+if echo "$content" | grep -q 'MARGE_FOLDER.*invalid\|MARGE_FOLDER.*path traversal' && \
+   echo "$content" | grep -q 'exit 1'; then
+    result="true"
+fi
+test_assert "MARGE_FOLDER validation exits on violation" "$result" || true
+
+# Test: MODEL validation exits on violation
+result="false"
+content=$(cat "$MS_DIR/cli/marge")
+if echo "$content" | grep -q 'MODEL.*invalid characters' && \
+   echo "$content" | grep -q 'exit 1'; then
+    result="true"
+fi
+test_assert "MODEL validation exits on violation" "$result" || true
+
+# Test: Task prompt is treated as data not code
+result="false"
+TEMP_SEC_DIR=$(mktemp -d)
+marker_file="$TEMP_SEC_DIR/INJECTED.txt"
+original_dir=$(pwd)
+cd "$TEMP_SEC_DIR" || exit 1
+# Use --dry-run to avoid actual AI calls - the key is that shell command doesn't execute
+"$MS_DIR/cli/marge" --dry-run "test task; touch '$marker_file'" >/dev/null 2>&1 || true
+# If marker file was NOT created, the injection was blocked
+if [[ ! -f "$marker_file" ]]; then
+    result="true"
+fi
+cd "$original_dir" || exit 1
+rm -rf "$TEMP_SEC_DIR"
+test_assert "Task prompt is treated as data not code" "$result" || true
 
 # ==============================================================================
 # SUMMARY

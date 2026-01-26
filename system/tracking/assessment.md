@@ -11,7 +11,7 @@ AI/Agents must read `AGENTS.md` before working.
 ## Tracking (required)
 
 - **Next ID:** MS-0005
-  - Use this for the next new Issue/Task ID, then increment here AND in `system/tracking/tasklist.md`.
+  - Single source of truth for ID generation. Increment here only (tasklist.md references this).
 
 ---
 

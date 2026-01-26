@@ -998,9 +998,11 @@ After finished, list remaining unchecked items in $MARGE_FOLDER/tracking/tasklis
         log_debug "Command: $cmd \"<prompt>\""
         log_debug "Workdir: $workdir"
 
-        # Run AI command in background (MS-0001: avoid eval, use array expansion)
-        # shellcheck disable=SC2086
-        (cd "$workdir" && $cmd "$prompt" > "$output_file" 2>&1) &
+        # Run AI command in background (MS-0030: use array expansion for safer execution)
+        # Convert command string to array for proper word splitting
+        # shellcheck disable=SC2206
+        local cmd_array=($cmd)
+        (cd "$workdir" && "${cmd_array[@]}" "$prompt" > "$output_file" 2>&1) &
         ai_pid=$!
         log_debug "Started PID: $ai_pid"
 
@@ -1281,7 +1283,14 @@ while [[ $# -gt 0 ]]; do
                 log_error "--model requires a value"
                 exit 1
             fi
-            MODEL="$2"; shift 2 ;;
+            MODEL="$2"
+            # MS-0031: Validate --model flag against safe pattern (same as env var validation)
+            if [[ ! "$MODEL" =~ ^[a-zA-Z0-9._/-]+$ ]]; then
+                log_error "--model contains invalid characters: $MODEL"
+                log_error "Model must match pattern: ^[a-zA-Z0-9._/-]+$"
+                exit 1
+            fi
+            shift 2 ;;
         --engine)
             if [[ -z "$2" || "$2" == -* ]]; then
                 log_error "--engine requires a value"
