@@ -83,6 +83,28 @@ EXCEPTION: Mechanical changes (rename, format, import) across 3+ files may conti
 
 **Stop for approval when:** 3+ files, architectural change, or public API modification. Include plan + risks.
 
+**"Architectural" means ANY of:**
+- Adding/removing external dependency
+- Changing data flow between modules  
+- Modifying public API signatures
+- Changing persistence/storage patterns
+- Adding required environment variables
+
+---
+
+## Violation Recovery (HARD)
+When ANY rule is violated:
+1. STOP — Halt current task
+2. DECLARE — `⚠️ VIOLATION: [rule] at [action]`
+3. RECOVER — Based on type:
+   | Violation | Recovery |
+   |-----------|----------|
+   | Missing MODE block | Declare MODE, continue |
+   | Missing MS-#### | Assign ID, continue |
+   | Missing expert citation | Load expert now, cite it |
+   | Skipped verification | Run verify before proceeding |
+4. LOG — Note violation in assessment.md
+
 ---
 
 ## Expert Subagents (Critical) (Hard)
@@ -104,6 +126,15 @@ EXCEPTION: Mechanical changes (rename, format, import) across 3+ files may conti
 - Parallel subagents when tasks are independent
 - Direct tools (no expert) only for: reading, running commands, single-line Lite fixes
 - Uncertain? More experts, not fewer.
+
+### Expert Citation (BLOCKING)
+Every expert load MUST include:
+```
+📚 Expert: [filename.md]
+   Key Principle: [2-4 word phrase FROM the file]
+   Applied To: [current task]
+```
+If citation missing or fabricated → VIOLATION
 
 ---
 
@@ -130,17 +161,14 @@ EXCEPTION: Mechanical changes (rename, format, import) across 3+ files may conti
 
 ## Routing (Critical) (Hard)
 
-| Intent | Action |
-|--------|--------|
-| Question only | Answer directly, no workflow |
-| Work request | Load `./system/workflows/work.md`, assign MS-#### |
-| Audit request | Load `./system/workflows/audit.md` |
-| Planning request | Load `./system/workflows/planning.md` |
-| Review request | Load `./system/workflows/audit.md` (analysis mode) |
-| Document request | Load `./system/workflows/work.md` (docs are work) |
-| Decision capture | Load `./system/workflows/session_end.md` |
-| Session start/resume | Load `./system/workflows/session_start.md` |
-| Loop/continuation | Load `./system/workflows/loop.md` |
+| Intent | Signal | Action |
+|--------|--------|--------|
+| **Ask** | Question, "how", "why" | Answer directly. No workflow. |
+| **Do** | Fix, build, add, change, refactor | Load `work.md`. Assign MS-####. |
+| **Audit** | "audit", "review", "scan" | Load `audit.md` → creates work items. |
+| **Plan** | "PLANNING ONLY", "brainstorm" | Load `planning.md`. No code. |
+
+**Lifecycle** (automatic): `session_start.md`, `session_end.md`, `loop.md`
 
 **Mixed intent:** Answer questions inline, then process each work item (separate MS-####).
 
