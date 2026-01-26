@@ -10,16 +10,24 @@ Get it right the first time:
 
 ---
 
-## Expert Subagents (Mandatory)
+## Expert Subagents
 
-**Always use expert subagent(s).** Even for lite tasks, bring in the relevant expert.
+For lite tasks, expert loading is **optional** for:
+- Typo/spelling fixes
+- Comment updates
+- Format-only changes
 
+For anything else, bring in the relevant expert:
 - Security tasks → Security experts
 - Code changes → Implementation + Testing experts  
 - Research → Domain experts (2+)
 - When unsure → More experts, not fewer
 
-Direct tools only for: reading files, running commands, trivial single-line fixes.
+Citation format (when used):
+```
+📚 Experts loaded: [filename.md]
+   Applied to: [current task]
+```
 
 ---
 
@@ -62,6 +70,6 @@ For architecture changes, schema changes, or API contract changes:
 
 ## Token Estimate (Optional)
 
-If pricing visibility is useful, end with:
+Only if user requests cost visibility:
 
 `📊 ~In: X,XXX | Out: X,XXX | Est: $X.XXXX`

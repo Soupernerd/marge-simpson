@@ -61,6 +61,20 @@ This folder is tooling, not the target. Work happens OUTSIDE this folder.
 
 **When in doubt → Full mode.** Over-tracking is better than lost context.
 
+**"Behavior change" means ANY of:**
+- Function signature changes (params, return type)
+- Different return values for same inputs
+- Exception/error handling changes
+- State mutation changes
+- API contract changes
+- Side effects added/removed
+
+**"One concept" means:**
+- Changes sharing the SAME root cause, OR
+- Changes required for ONE user-facing outcome
+- Example: "Fix login bug" = 1 concept (even if 3 files)
+- Example: "Fix login + add logout" = 2 concepts = 2 IDs
+
 **3-File Checkpoint:**
 After modifying 3 files under one MS-####:
 1. STOP
@@ -107,6 +121,16 @@ When ANY rule is violated:
 
 ---
 
+## Special States (HARD)
+
+| State | Trigger | Action |
+|-------|---------|--------|
+| **BLOCKED** | Need info to proceed | List blockers → Request input → WAIT (no partial work) |
+| **ABORT** | User cancels mid-task | Update tracking with partial state → List remaining work → END |
+| **LOOP_EXHAUSTED** | 5 passes without resolution | Dump state: attempts, blockers, current status → Request guidance |
+
+---
+
 ## Expert Subagents (Critical) (Hard)
 
 **Full mode requires experts. No exceptions.**
@@ -127,14 +151,12 @@ When ANY rule is violated:
 - Direct tools (no expert) only for: reading, running commands, single-line Lite fixes
 - Uncertain? More experts, not fewer.
 
-### Expert Citation (BLOCKING)
-Every expert load MUST include:
+### Expert Citation
+When loading experts, list them:
 ```
-📚 Expert: [filename.md]
-   Key Principle: [2-4 word phrase FROM the file]
-   Applied To: [current task]
+📚 Experts loaded: [filename1.md], [filename2.md]
+   Applied to: [current task]
 ```
-If citation missing or fabricated → VIOLATION
 
 ---
 
@@ -178,17 +200,16 @@ If citation missing or fabricated → VIOLATION
 
 Every Full-mode response ends with:
 - IDs touched (MS-####)
-- Files modified
+- Files modified (count: X)
 - Verification output (raw)
-- Knowledge captured
+
+Compliance indicator:
+```
+✅ MODE declared | ✅ ID assigned | ✅ Experts loaded | ✅ Verified
+```
+(Mark ❌ for any missing step)
 
 Full template: `./system/workflows/work.md`
-
----
-
-## Token Estimate (Critical) (Hard)
-
-End **every** response: `📊 ~In: X,XXX | Out: X,XXX | Est: $X.XXXX`
 
 ---
 
