@@ -90,7 +90,7 @@ while IFS= read -r -d '' file; do
     
     # Transform AGENTS.md references in prompts
     # "Read the AGENTS.md file in the marge-simpson folder" -> "Read the AGENTS.md file in the .meta_marge folder"
-    content=$(echo "$content" | sed 's/Read the AGENTS\.md file in the marge-simpson folder/Read the AGENTS.md file in the .meta_marge folder/g')
+    content=${content//"Read the AGENTS.md file in the marge-simpson folder"/"Read the AGENTS.md file in the .meta_marge folder"}
     
     # Transform relative paths to explicit .meta_marge/ paths
     # But NOT ./system/scripts/ - those should point to source (marge-simpson/system/scripts/)

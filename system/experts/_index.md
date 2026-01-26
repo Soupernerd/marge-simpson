@@ -21,6 +21,7 @@
 | docs, runbook, checklist, changelog, release notes, specification | [documentation.md](documentation.md) | Technical Specification Engineer, API Documentation Architect, DevOps Documentation Specialist, Checklist & Process Designer, Release Manager |
 | design, UI, UX, accessibility, WCAG, layout, components, styling | [design.md](design.md) | Visual Design Lead, Design Systems Architect, UX Accessibility Specialist, UX Layout & Information Architect, Design Systems Technical Writer |
 | implementation, code, build, refactor, technical debt, audit | [implementation.md](implementation.md) | Senior Implementation Engineer, API Contract Verification Engineer, Quality-Driven Integration Specialist, Implementation Audit Specialist, Technical Debt Analyst, Truth Sync Coordinator |
+| comprehension, onboarding, prompts, cognitive load, simplicity, clarity | [comprehension.md](comprehension.md) | Cognitive Load Specialist, First-Time User Advocate, Technical Simplification Architect |
 
 ---
 
@@ -36,6 +37,8 @@
 | API design | architecture.md | documentation.md |
 | Test coverage | testing.md | - |
 | Release prep | documentation.md | devops.md |
+| Prompt design | comprehension.md | design.md |
+| User onboarding | comprehension.md | documentation.md |
 
 ---
 
@@ -51,6 +54,7 @@
 | documentation.md | 5 | ~2,000 |
 | design.md | 5 | ~2,000 |
 | implementation.md | 6 | ~2,400 |
+| comprehension.md | 3 | ~1,000 |
 | **This index** | - | ~400 |
 
 **Total if monolithic**: ~11,800 tokens
