@@ -2,6 +2,7 @@
 
 **Priority:** correctness > safety > minimal diffs > speed
 
+## Critical (Hard)
 **Scope:** This folder is tooling, not the target. Audit the workspace/repo OUTSIDE this folder. Track findings in `./system/tracking/`. Never create files from this folder outside it.
 
 ---
