@@ -14,8 +14,6 @@
 | Typo, rename, comment, format, spelling | **Lite** → Read, fix, list files. No ID tracking. |
 | Feature, refactor, audit, multi-file, architecture | **Full** → Follow workflows below. |
 
--  For either **Lite** or **Full** ALWAYS Bring in expert(s). plural whe required.
-
 ---
 
 ## Core Rules (Critical) (Hard)
@@ -32,14 +30,24 @@
 
 ---
 
-## Subagents (Critical) (Hard)
+## Expert Subagents (Critical) (Hard)
 
-**Status:** `ENABLED` _(say "no subagents" to disable)_
+**MANDATORY:** Every task requires expert subagent(s). No exceptions.
 
-Use for: research, audits, multi-file edits, parallel implementation, multiple bugs.
-Direct tools OK for: single file, simple edit, terminal commands.
+| Task Type | Required Experts | Reference |
+|-----------|------------------|----------|
+| Security/audit | Security experts (2-3) | `security.md` |
+| Architecture | Systems + Implementation | `architecture.md` |
+| Code changes | Implementation + Testing | `implementation.md`, `testing.md` |
+| Frontend/UI | Design + Implementation | `design.md` |
+| Deployment | DevOps + Documentation | `devops.md` |
+| Research | Domain experts (2+) | See `./system/experts/_index.md` |
 
-**Default to subagents when in doubt.**
+**Rules:**
+- Use **multiple experts** for complex tasks (audits, architecture, multi-file)
+- Use **parallel subagents** when tasks are independent
+- Direct tools only for: reading files, running commands, simple single-line fixes
+- When in doubt: **more experts, not fewer**
 
 ---
 

@@ -10,6 +10,19 @@ Get it right the first time:
 
 ---
 
+## Expert Subagents (Mandatory)
+
+**Always use expert subagent(s).** Even for lite tasks, bring in the relevant expert.
+
+- Security tasks → Security experts
+- Code changes → Implementation + Testing experts  
+- Research → Domain experts (2+)
+- When unsure → More experts, not fewer
+
+Direct tools only for: reading files, running commands, trivial single-line fixes.
+
+---
+
 ## Core Rules
 
 1. **Read first** — Open files before making claims
