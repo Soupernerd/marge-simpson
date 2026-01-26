@@ -10,7 +10,7 @@ User wants something **done** — fix, add, improve, or refactor.
 
 ## Pre-Work
 
-### 1. Load Experts (if domain keywords match)
+### 1. Load Experts (Required)
 
 | Keywords | File |
 |----------|------|
@@ -20,7 +20,7 @@ User wants something **done** — fix, add, improve, or refactor.
 | architecture, API | `./system/experts/architecture.md` |
 | UI, UX | `./system/experts/design.md` |
 
-Skip if: simple fix, no domain keywords.
+For trivial single-line fixes (typo, format), direct tools allowed per AGENTS.md.
 
 ### 2. Check Decisions
 

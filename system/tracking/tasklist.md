@@ -32,7 +32,7 @@ AI/Agents must read `AGENTS.md` before working.
 
 - [ ] **MS-0001 —** (clear, testable outcome)
   - **Why:** …
-  - **Expert(s):** (optional) Relevant expert persona(s) from `./system/experts/_index.md`
+  - **Expert(s):** Relevant expert(s) from `./system/experts/_index.md`
   - **Definition of Done:** …
   - **Verification:**
     - Run automated verification:
@@ -57,7 +57,7 @@ AI/Agents must read `AGENTS.md` before working.
 
 - [ ] **MS-000X —** …
   - **Started:** YYYY-MM-DD
-  - **Expert(s):** (optional) Relevant expert persona(s) from `./system/experts/_index.md`
+  - **Expert(s):** Relevant expert(s) from `./system/experts/_index.md`
   - **Current status:** …
   - **Blockers:** …
   - **Next step:** …
@@ -68,7 +68,7 @@ AI/Agents must read `AGENTS.md` before working.
 
 - [x] **MS-000X —** …
   - **Completed:** YYYY-MM-DD
-  - **Expert(s):** (optional) Relevant expert persona(s) from `./system/experts/_index.md`
+  - **Expert(s):** Relevant expert(s) from `./system/experts/_index.md`
   - **Verification:**
     - Commands run: …
     - Evidence: (paste raw output)

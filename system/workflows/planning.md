@@ -15,6 +15,12 @@ When the user's message includes:
 
 ## Planning Mode Rules
 
+### Expert Consultation (Required)
+Bring in relevant experts for planning discussions:
+- Architecture planning → `./system/experts/architecture.md`
+- Security considerations → `./system/experts/security.md`
+- UX/Design planning → `./system/experts/design.md`
+
 ### No Code Changes
 - **DO NOT** modify any files
 - **DO NOT** run verification scripts

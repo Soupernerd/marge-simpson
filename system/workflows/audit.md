@@ -12,6 +12,14 @@ User explicitly asks for:
 
 **This is the ONLY workflow with a discovery phase.** Regular work items skip straight to execution.
 
+## Load Experts (Required)
+
+Audits require expert subagents. Load based on audit type:
+- **Security audit** → `./system/experts/security.md` (2-3 experts)
+- **Code audit** → `./system/experts/implementation.md` + `./system/experts/testing.md`
+- **Architecture audit** → `./system/experts/architecture.md`
+- **Full audit** → Multiple experts per `./system/experts/_index.md`
+
 ## Phase 1: Discovery
 
 ### Load Prior Context
