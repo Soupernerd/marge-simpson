@@ -228,12 +228,12 @@ test_dropin_user() {
     done
     write_result "Drop-in folder has all required files" "$all_exist"
     
-    # Test 2: AGENTS.md uses relative paths (not hardcoded marge-simpson/)
-    local uses_relative=false
-    if grep -q '\./tracking/' "$marge_folder/AGENTS.md" && ! grep -q 'marge-simpson/tracking/' "$marge_folder/AGENTS.md"; then
-        uses_relative=true
+    # Test 2: AGENTS.md uses hardcoded marge-simpson/ paths
+    local uses_hardcoded=false
+    if grep -q 'marge-simpson/system/tracking/' "$marge_folder/AGENTS.md"; then
+        uses_hardcoded=true
     fi
-    write_result "AGENTS.md uses relative paths (./)" "$uses_relative"
+    write_result "AGENTS.md uses hardcoded marge-simpson/ paths" "$uses_hardcoded"
     
     # Test 3: Scripts exist in drop-in folder
     local scripts_exist=false

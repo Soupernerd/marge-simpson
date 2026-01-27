@@ -208,10 +208,10 @@ function Test-DropInUser {
     }
     Write-TestResult "Drop-in folder has all required files" $allExist
     
-    # Test 2: AGENTS.md uses relative paths (not hardcoded marge-simpson/)
+    # Test 2: AGENTS.md uses hardcoded marge-simpson/ paths
     $agentsContent = Get-Content (Join-Path $margeFolder "AGENTS.md") -Raw
-    $usesRelative = $agentsContent -match '\./tracking/' -and -not ($agentsContent -match 'marge-simpson/tracking/')
-    Write-TestResult "AGENTS.md uses relative paths (./)" $usesRelative
+    $usesHardcoded = $agentsContent -match 'marge-simpson/system/tracking/'
+    Write-TestResult "AGENTS.md uses hardcoded marge-simpson/ paths" $usesHardcoded
     
     # Test 3: Scripts exist and are syntactically valid
     $scriptsExist = (Test-Path (Join-Path $margeFolder "scripts\verify.ps1")) -and

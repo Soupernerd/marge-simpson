@@ -3,7 +3,6 @@
 cleanup.ps1 - Marge Simpson Artifact Cleanup
 
 Reports on Marge tracking files and suggests archiving when they get large.
-This script auto-detects its own folder name, so you can rename the folder if needed.
 
 CLEANUP RULES:
 1. tracking/assessment.md  - Suggest archiving if large (no auto-modification)

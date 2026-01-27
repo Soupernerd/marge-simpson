@@ -3,7 +3,6 @@
 verify.ps1 - Marge Simpson Verification Runner
 
 Runs repo verification commands (tests/lint/build) and writes a timestamped log.
-This script auto-detects its own folder name, so you can rename the folder if needed.
 
 Usage:
   powershell -ExecutionPolicy Bypass -File .\system\scripts\verify.ps1 fast

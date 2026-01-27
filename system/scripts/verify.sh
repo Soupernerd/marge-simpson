@@ -4,7 +4,6 @@ set -euo pipefail
 # verify.sh -- Marge Simpson Verification Runner
 #
 # Runs repo verification commands and writes a timestamped log.
-# This script auto-detects its own folder name, so you can rename the folder if needed.
 #
 # SECURITY NOTE:
 #   verify.config.json is TRUSTED CONFIGURATION that specifies commands to execute.

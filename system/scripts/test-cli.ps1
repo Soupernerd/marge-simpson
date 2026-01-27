@@ -430,7 +430,7 @@ Test-Assert "marge (bash) validates max-iterations parameter" {
 }
 
 Test-Assert "marge.ps1 handles empty task gracefully" {
-    # Use temp directory to avoid triggering PRD mode from marge-simpson/tracking/PRD.md
+    # Use temp directory to avoid triggering PRD mode from marge-simpson/system/tracking/PRD.md
     $tempDir = Join-Path ([System.IO.Path]::GetTempPath()) "marge-empty-test-$([System.Guid]::NewGuid().ToString('N').Substring(0,8))"
     New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
     $originalLocation = Get-Location
