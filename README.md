@@ -75,137 +75,57 @@ Add a loop phrase to any prompt and Marge will keep iterating until work is comp
 ---
 
 ## 🔍 System Audit
-*Use first, or periodically to refresh the plan.*
+*Use first, or periodically to refresh the plan. Read-only analysis.*
 
 ```
 Read marge-simpson/AGENTS.md and follow it.
 
-Run a system-wide audit of this workspace/repo (read-only).
-- Read and understand the architecture and major workflows.
-- Identify correctness issues, risky patterns, and high-impact improvements.
-- Do not break intended functionality.
+**AUDIT MODE** - Read-only analysis, no code changes.
 
-Update/create tracking docs:
-- marge-simpson/system/tracking/assessment.md (snapshot + findings + new MS issues)
-- marge-simpson/system/tracking/tasklist.md (prioritized tasks with DoD + verification)
+1. Understand the system (read key files, map components)
+2. Identify issues (P0 → P1 → P2 priority)
+3. Update tracking docs (assessment.md, tasklist.md)
+4. Report findings with MS-#### IDs
 
-After finished above, search for and list remaining unchecked items (if any exist) in marge-simpson/system/tracking/tasklist.md (P0 → P1 → P2). Suggest order of operations.
-
-Output using the Response Format (include IDs created).
+Output using Response Format from AGENTS.md.
 ```
 
 ---
 
-## 🐛 Features & Issues
-*Report bugs or request features. Each becomes tracked work.*
+## 📝 General Prompt
+*Questions, features, bugs, confirmations, instructions - all in one.*
 
 ```
 Read marge-simpson/AGENTS.md and follow it.
 
-New Feature / Issues:
-- Example Feature: "Lets add a drop down next to search that allows for.."
-- Example / New Issue: "The right hand side nav is not expanding as expected"
-- Example / Existing issue not fixed: "MS-0046 is still exhibiting [insert issue here]"
+Prompt:
+- Example question: "What does the verify script do?"
+- Example feature: "Add a --verbose flag to the CLI"
+- Example issue: "The status command shows wrong folder name"
+- Example confirmation: "MS-0042 is fixed"
+- Example instruction: "Refactor the auth module to use JWT"
 
-After finished above, search for and list remaining unchecked items (if any exist) in marge-simpson/system/tracking/tasklist.md (P0 → P1 → P2). Suggest order of operations.
-
-Output using the Response Format (include IDs created).
+Output using Response Format from AGENTS.md.
 ```
 
 ---
 
-## 📝 Instructions
-*Give direct instructions without needing a feature/issue format.*
+## 💡 Suggest Features
+*Let Marge propose new features. Planning only, no code changes.*
 
 ```
 Read marge-simpson/AGENTS.md and follow it.
 
-Instruction:
-- (your instruction here)
-- (another instruction here)
+**PLANNING MODE** - No code changes.
 
-After finished above, search for and list remaining unchecked items (if any exist) in marge-simpson/system/tracking/tasklist.md (P0 → P1 → P2). Suggest order of operations.
+Propose 3-8 features for this project, ranked by end-user value.
 
-Output using the Response Format (include IDs created).
-```
+For each:
+- **What:** 1-2 sentence description
+- **Why:** Who benefits
+- **Risk:** Biggest blocker
 
----
-
-## ❓ Questions & Confirmations
-*Ask questions or confirm fixes. Quick answers grounded in code.*
-
-```
-Read marge-simpson/AGENTS.md and follow it.
-
-Questions / Confirmations:
-1. (Question/confirmation here)
-2. (Question/confirmation here)
-3. Example Confirmation: "MS-00xx fixed"
-4. Example Question: "Are there alternatives to codemirror?"
-
-After finished above, search for and list remaining unchecked items (if any exist) in marge-simpson/system/tracking/tasklist.md (P0 → P1 → P2). Suggest order of operations.
-
-Output using the Response Format (include IDs created).
-```
-
----
-
-## 📝 Have MARGE Suggest Features
-*Let Marge propose new features based on your codebase.*
-
-```
-Read and follow the rules in AGENTS.md (in the marge-simpson folder).
-
-MODE: PLANNING ONLY (no code changes, no patches, no execution).
-
-Goal: Propose new features for this project.
-
-Requirements:
-- Suggest 3-8 viable feature ideas.
-- Rank them highest to lowest by end-user UX / value (UX/value is the primary decision factor).
-- Do not prioritize "easy to build" unless it also clearly improves UX/value.
-- Do not treat anything as approved - these are proposals only.
-
-For each feature (keep it concise):
-- Name (short)
-- What it does (1-2 sentences)
-- Who it helps / why it matters (1 sentence)
-- Biggest risk or dependency (1 bullet)
-- How you would validate success (1 bullet; user-facing metric or acceptance criteria)
-
-Output format:
-1) Ranked list of features
-2) A short "Top pick summary" (2-4 lines) explaining why the #1-#2 options win on UX/value
-
-Update/append/create tracking doc:
-- recommended_features.md (with the bullet points created per feature)
-
-Minimize follow-up questions. If info is missing, make reasonable assumptions and state them briefly.
-```
-
----
-
-## 🔀 Combined Prompts (mix and match)
-*Mix questions and issues in one prompt for efficiency.*
-
-```
-Read marge-simpson/AGENTS.md and follow it.
-
-Questions / Confirmations:
-1. (Question/confirmation here)
-2. (Question/confirmation here)
-
-Instruction:
-- (your instruction here)
-- (another instruction here)
-
-New Feature / Issues:
-- (New Feature or Issue here)
-- (New Feature or Issue here)
-
-After finished above, search for and list remaining unchecked items (if any exist) in marge-simpson/system/tracking/tasklist.md (P0 → P1 → P2). Suggest order of operations.
-
-Output using the Response Format (include IDs created).
+Create: marge-simpson/system/tracking/recommended_features.md
 ```
 
 ---
