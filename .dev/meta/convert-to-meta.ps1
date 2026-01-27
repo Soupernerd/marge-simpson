@@ -71,15 +71,15 @@ Write-Host "[1/4] Copying..."
 #   prompts/              - All prompts (AGENTS.md references transformed)
 #   system/tracking/      - assessment.md, tasklist.md (ID reset, paths transformed)
 #   system/workflows/     - All workflows (paths transformed to .meta_marge/)
+#   system/knowledge/     - Meta knowledge store (decisions, patterns, preferences, insights)
 #
 # Everything else stays in source and is referenced directly:
 #   - system/scripts/     - AI runs marge-simpson/system/scripts/ directly
 #   - system/experts/     - AI loads from marge-simpson/system/experts/
-#   - system/knowledge/   - AI loads from marge-simpson/system/knowledge/
 #   - cli/, .dev/, etc.   - Dev tooling stays in source
 # =============================================================================
 $includeFiles = @('AGENTS.md')
-$includeDirs = @('prompts', 'system\tracking', 'system\workflows')
+$includeDirs = @('prompts', 'system\tracking', 'system\workflows', 'system\knowledge')
 
 # Copy only included items
 New-Item -ItemType Directory -Path $TargetFolder -Force | Out-Null
@@ -128,6 +128,8 @@ Get-ChildItem -Path $TargetFolder -Recurse -File -Force | ForEach-Object {
         $content = $content -replace 'marge-simpson/system/tracking/', '.meta_marge/system/tracking/'
         $content = $content -replace 'marge-simpson/system/workflows/', '.meta_marge/system/workflows/'
         $content = $content -replace 'marge-simpson/system/knowledge/', '.meta_marge/system/knowledge/'
+        $content = $content -replace 'marge-simpson/system/scripts/verify\.ps1 fast', '.meta_marge/system/scripts/verify.ps1 fast'
+        $content = $content -replace 'marge-simpson/system/scripts/verify\.sh fast', '.meta_marge/system/scripts/verify.sh fast'
         # NOTE: NOT transforming marge-simpson/system/experts/
         # Those should stay pointing to source so AI loads actual expert files
         
@@ -176,7 +178,7 @@ $newScope = @"
 ``````
 .meta_marge/AGENTS.md  →  AI audits/improves $SourceName/  →  Changes go to $SourceName/
 Work tracked in .meta_marge/system/tracking/
-Verify: $SourceName/system/scripts/verify.ps1 fast
+Verify: .meta_marge/system/scripts/verify.ps1 fast (Windows) / .meta_marge/system/scripts/verify.sh fast (macOS/Linux)
 Reset: run convert-to-meta again
 ``````
 "@
@@ -184,24 +186,8 @@ Reset: run convert-to-meta again
 # Match "## Scope" followed by content until next "---"
 $agentsContent = $agentsContent -replace '(?s)## Scope\r?\n.*?(?=\r?\n---)', $newScope
 
-# Replace Knowledge Capture section - templates shouldn't be populated with meta-dev learnings
-$newKnowledge = @"
-## Knowledge Capture
-
-**SKIP in meta-development mode.** The ``$SourceName/system/knowledge/`` files are templates that ship to users. Do not populate them with meta-development learnings.
-"@
-$agentsContent = $agentsContent -replace '(?s)## Knowledge Capture\r?\n.*?(?=\r?\n---)', $newKnowledge
-
-# Replace Decay Check section - decay is for user knowledge bases, not templates
-$newDecay = @"
-## Decay Check
-
-**SKIP in meta-development mode.** Decay check is for user knowledge bases, not template files.
-"@
-$agentsContent = $agentsContent -replace '(?s)## Decay Check\r?\n.*?(?=\r?\n---)', $newDecay
-
 Set-Content -Path $AgentsPath -Value $agentsContent -NoNewline
-Write-Host "  Reset tracking IDs, configured AGENTS.md scope, disabled knowledge/decay for meta"
+Write-Host "  Reset tracking IDs, configured AGENTS.md scope"
 
 # Copy ONLY verify scripts to meta_marge (so it can use its own verify.config.json)
 # The test-templates scripts live in marge-simpson/system/scripts/ - we create trigger wrappers in .meta_marge root

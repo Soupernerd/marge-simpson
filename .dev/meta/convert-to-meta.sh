@@ -65,11 +65,11 @@ mkdir -p "$TARGET_FOLDER"
 #   prompts/              - All prompts (AGENTS.md references transformed)
 #   system/tracking/      - assessment.md, tasklist.md (ID reset, paths transformed)
 #   system/workflows/     - All workflows (paths transformed to .meta_marge/)
+#   system/knowledge/     - Meta knowledge store (decisions, patterns, preferences, insights)
 #
 # Everything else stays in source and is referenced directly:
 #   - system/scripts/     - AI runs marge-simpson/system/scripts/ directly
 #   - system/experts/     - AI loads from marge-simpson/system/experts/
-#   - system/knowledge/   - AI loads from marge-simpson/system/knowledge/
 #   - cli/, .dev/, etc.   - Dev tooling stays in source
 # =============================================================================
 
@@ -79,6 +79,7 @@ mkdir -p "$TARGET_FOLDER"
 mkdir -p "$TARGET_FOLDER/system"
 [[ -d "$SOURCE_FOLDER/system/tracking" ]] && cp -r "$SOURCE_FOLDER/system/tracking" "$TARGET_FOLDER/system/"
 [[ -d "$SOURCE_FOLDER/system/workflows" ]] && cp -r "$SOURCE_FOLDER/system/workflows" "$TARGET_FOLDER/system/"
+[[ -d "$SOURCE_FOLDER/system/knowledge" ]] && cp -r "$SOURCE_FOLDER/system/knowledge" "$TARGET_FOLDER/system/"
 
 # [2/4] Transform: relative paths (./) -> .meta_marge/ AND explicit verify paths
 echo "[2/4] Transforming paths..."
@@ -104,6 +105,8 @@ while IFS= read -r -d '' file; do
     content=${content//"marge-simpson/system/tracking/"/".meta_marge/system/tracking/"}
     content=${content//"marge-simpson/system/workflows/"/".meta_marge/system/workflows/"}
     content=${content//"marge-simpson/system/knowledge/"/".meta_marge/system/knowledge/"}
+    content=${content//"marge-simpson/system/scripts/verify.ps1 fast"/".meta_marge/system/scripts/verify.ps1 fast"}
+    content=${content//"marge-simpson/system/scripts/verify.sh fast"/".meta_marge/system/scripts/verify.sh fast"}
     # NOTE: NOT transforming marge-simpson/system/experts/
     # Those should stay pointing to source so AI loads actual expert files
     
@@ -146,7 +149,7 @@ NEW_SCOPE="## Scope
 \`\`\`
 .meta_marge/AGENTS.md  →  AI audits/improves $SOURCE_NAME/  →  Changes go to $SOURCE_NAME/
 Work tracked in .meta_marge/system/tracking/
-Verify: $SOURCE_NAME/system/scripts/verify.sh fast
+Verify: .meta_marge/system/scripts/verify.ps1 fast (Windows) / .meta_marge/system/scripts/verify.sh fast (macOS/Linux)
 Reset: run convert-to-meta again
 \`\`\`"
 
@@ -166,39 +169,7 @@ awk -v new_scope="$NEW_SCOPE" '
     { print }
 ' "$AGENTS_PATH" > "${AGENTS_PATH}.tmp" && mv "${AGENTS_PATH}.tmp" "$AGENTS_PATH"
 
-# Replace Knowledge Capture section - templates shouldn't be populated with meta-dev learnings
-NEW_KNOWLEDGE="## Knowledge Capture
-
-**SKIP in meta-development mode.** The \`${SOURCE_NAME}/system/knowledge/\` files are templates that ship to users. Do not populate them with meta-development learnings."
-
-awk -v new_section="$NEW_KNOWLEDGE" '
-    /^## Knowledge Capture$/ { 
-        print new_section
-        while ((getline line) > 0) {
-            if (line ~ /^---/) { print ""; break }
-        }
-        next
-    }
-    { print }
-' "$AGENTS_PATH" > "${AGENTS_PATH}.tmp" && mv "${AGENTS_PATH}.tmp" "$AGENTS_PATH"
-
-# Replace Decay Check section - decay is for user knowledge bases, not templates
-NEW_DECAY="## Decay Check
-
-**SKIP in meta-development mode.** Decay check is for user knowledge bases, not template files."
-
-awk -v new_section="$NEW_DECAY" '
-    /^## Decay Check$/ { 
-        print new_section
-        while ((getline line) > 0) {
-            if (line ~ /^---/) { print ""; break }
-        }
-        next
-    }
-    { print }
-' "$AGENTS_PATH" > "${AGENTS_PATH}.tmp" && mv "${AGENTS_PATH}.tmp" "$AGENTS_PATH"
-
-echo "  Reset tracking IDs, configured AGENTS.md scope, disabled knowledge/decay for meta"
+echo "  Reset tracking IDs, configured AGENTS.md scope"
 
 # Copy ONLY verify scripts to meta_marge (so it can use its own verify.config.json)
 # The test-templates scripts live in marge-simpson/system/scripts/ - we create trigger wrappers in .meta_marge root

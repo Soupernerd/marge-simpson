@@ -88,7 +88,7 @@ IMPLEMENT → VERIFY → RECORD → NEXT
 ```
 
 1. **Implement** — Smallest safe change, update `marge-simpson/system/tracking/assessment.md`
-2. **Verify** — Run `verify.ps1 fast` (Win) or `verify.sh fast` (Unix)
+2. **Verify** — Run `marge-simpson/system/scripts/verify.ps1 fast` (Win) or `marge-simpson/system/scripts/verify.sh fast` (Unix)
 3. **Record** — Paste evidence, mark done in tasklist
 4. **Next** — Continue or deliver
 
