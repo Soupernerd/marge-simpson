@@ -2,9 +2,9 @@
 
 ## Includes Automated Testing 🛠️
 
-**Marge is a persistent knowledge base that keeps AI assistants informed across sessions.**
+**A structured context system for AI coding assistants.** Drop-in AGENTS.md rules, work tracking templates, and CLI tools that give your AI session continuity and accountability.
 
-It gives AI context about your rules, decisions, and work-in-progress so each session starts informed — not blank. Works with VS Code Copilot, Claude, Cursor, and any AI coding assistant.
+Works with VS Code Copilot, Claude, Cursor, and any AI coding assistant.
 
 <p float="none">
   <img src="./.dev/assets/many_marge_experts.jpg" width="100%" />
@@ -28,15 +28,13 @@ It gives AI context about your rules, decisions, and work-in-progress so each se
 
 ### Option A: Drop-in Folder (Simplest)
 
-1. **Clone or copy this repo** into your project
+1. **Clone or copy this repo** into your project as `marge-simpson/`
 2. Use a [Chat Prompt](#-chat-prompt-templates) from below
 
 ```bash
 # Example: copy into your project
 cp -r marge-simpson my-project/marge-simpson
 ```
-
-> **💡 Folder name flexibility:** Prompts use relative paths ("this folder"), so the folder can be named anything. The name `marge-simpson` is just the default repo name.
 
 ### Option B: CLI (Local)
 
@@ -80,7 +78,7 @@ Add a loop phrase to any prompt and Marge will keep iterating until work is comp
 *Use first, or periodically to refresh the plan.*
 
 ```
-Read the AGENTS.md file in this folder and follow it.
+Read the AGENTS.md file in the marge-simpson folder and follow it.
 
 Run a system-wide audit of this workspace/repo (read-only).
 - Read and understand the architecture and major workflows.
@@ -88,10 +86,10 @@ Run a system-wide audit of this workspace/repo (read-only).
 - Do not break intended functionality.
 
 Update/create tracking docs:
-- ./system/tracking/assessment.md (snapshot + findings + new MS issues)
-- ./system/tracking/tasklist.md (prioritized tasks with DoD + verification)
+- marge-simpson/system/tracking/assessment.md (snapshot + findings + new MS issues)
+- marge-simpson/system/tracking/tasklist.md (prioritized tasks with DoD + verification)
 
-After finished above, search for and list remaining unchecked items (if any exist) in ./system/tracking/tasklist.md (P0 → P1 → P2). Suggest order of operations.
+After finished above, search for and list remaining unchecked items (if any exist) in marge-simpson/system/tracking/tasklist.md (P0 → P1 → P2). Suggest order of operations.
 
 Output using the Response Format (include IDs created).
 ```
@@ -102,14 +100,14 @@ Output using the Response Format (include IDs created).
 *Report bugs or request features. Each becomes tracked work.*
 
 ```
-Read the AGENTS.md file in this folder and follow it.
+Read the AGENTS.md file in the marge-simpson folder and follow it.
 
 New Feature / Issues:
 - Example Feature: "Lets add a drop down next to search that allows for.."
 - Example / New Issue: "The right hand side nav is not expanding as expected"
 - Example / Existing issue not fixed: "MS-0046 is still exhibiting [insert issue here]"
 
-After finished above, search for and list remaining unchecked items (if any exist) in ./system/tracking/tasklist.md (P0 → P1 → P2). Suggest order of operations.
+After finished above, search for and list remaining unchecked items (if any exist) in marge-simpson/system/tracking/tasklist.md (P0 → P1 → P2). Suggest order of operations.
 
 Output using the Response Format (include IDs created).
 ```
@@ -120,13 +118,13 @@ Output using the Response Format (include IDs created).
 *Give direct instructions without needing a feature/issue format.*
 
 ```
-Read the AGENTS.md file in this folder and follow it.
+Read the AGENTS.md file in the marge-simpson folder and follow it.
 
 Instruction:
 - (your instruction here)
 - (another instruction here)
 
-After finished above, search for and list remaining unchecked items (if any exist) in ./system/tracking/tasklist.md (P0 → P1 → P2). Suggest order of operations.
+After finished above, search for and list remaining unchecked items (if any exist) in marge-simpson/system/tracking/tasklist.md (P0 → P1 → P2). Suggest order of operations.
 
 Output using the Response Format (include IDs created).
 ```
@@ -137,7 +135,7 @@ Output using the Response Format (include IDs created).
 *Ask questions or confirm fixes. Quick answers grounded in code.*
 
 ```
-Read the AGENTS.md file in this folder and follow it.
+Read the AGENTS.md file in the marge-simpson folder and follow it.
 
 Questions / Confirmations:
 1. (Question/confirmation here)
@@ -145,7 +143,7 @@ Questions / Confirmations:
 3. Example Confirmation: "MS-00xx fixed"
 4. Example Question: "Are there alternatives to codemirror?"
 
-After finished above, search for and list remaining unchecked items (if any exist) in ./system/tracking/tasklist.md (P0 → P1 → P2). Suggest order of operations.
+After finished above, search for and list remaining unchecked items (if any exist) in marge-simpson/system/tracking/tasklist.md (P0 → P1 → P2). Suggest order of operations.
 
 Output using the Response Format (include IDs created).
 ```
@@ -156,7 +154,7 @@ Output using the Response Format (include IDs created).
 *Let Marge propose new features based on your codebase.*
 
 ```
-Read and follow the rules in AGENTS.md (in this folder).
+Read and follow the rules in AGENTS.md (in the marge-simpson folder).
 
 MODE: PLANNING ONLY (no code changes, no patches, no execution).
 
@@ -191,7 +189,7 @@ Minimize follow-up questions. If info is missing, make reasonable assumptions an
 *Mix questions and issues in one prompt for efficiency.*
 
 ```
-Read the AGENTS.md file in this folder and follow it.
+Read the AGENTS.md file in the marge-simpson folder and follow it.
 
 Questions / Confirmations:
 1. (Question/confirmation here)
@@ -205,7 +203,7 @@ New Feature / Issues:
 - (New Feature or Issue here)
 - (New Feature or Issue here)
 
-After finished above, search for and list remaining unchecked items (if any exist) in ./system/tracking/tasklist.md (P0 → P1 → P2). Suggest order of operations.
+After finished above, search for and list remaining unchecked items (if any exist) in marge-simpson/system/tracking/tasklist.md (P0 → P1 → P2). Suggest order of operations.
 
 Output using the Response Format (include IDs created).
 ```
@@ -393,7 +391,7 @@ Quick version:
 1. Run `./.dev/meta/convert-to-meta.sh` (or `.ps1`) to create `.meta_marge/`
 2. Use prompts with "Read the AGENTS.md file in the .meta_marge folder"
 3. AI makes improvements directly to `marge-simpson/` (guided by `.meta_marge/AGENTS.md`)
-4. Test with `./system/scripts/test-marge.sh` (or `.ps1`)
+4. Test with `marge-simpson/system/scripts/test-marge.sh` (or `.ps1`)
 
 ---
 
@@ -415,3 +413,4 @@ Including but not limited to:
 ## License
 
 Do whatever you want with it. Fork it, rename it, ship it.
+

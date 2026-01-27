@@ -60,14 +60,15 @@ AI/Agents must read `AGENTS.md` before working.
 
 - **Reported:** YYYY-MM-DD
 - **Status:** Open | In Progress | Done
-- **Expert(s):** Relevant expert(s) from `./system/experts/_index.md`
+- **Expert(s):** Relevant expert(s) from `marge-simpson/system/experts/_index.md`
 - **Symptom:** What was observed
 - **Root cause:** Why it happened
 - **Fix:** What was done
 - **Files touched:** `file1.md`, `file2.md`
 - **Verification:**
-  - Commands executed: `./system/scripts/verify.ps1 fast`
+  - Commands executed: `marge-simpson/system/scripts/verify.ps1 fast`
   - Evidence: (raw output or summary)
 - **Notes / follow-ups:** (optional)
 
 -->
+

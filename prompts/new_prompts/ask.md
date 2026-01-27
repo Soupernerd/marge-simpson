@@ -7,4 +7,7 @@ Question or topic to explain:
 
 Depth: Quick | Working | Deep (delete two)
 
-After finished, list remaining unchecked items in ./system/tracking/tasklist.md (P0 → P1 → P2).
+After finished, list remaining unchecked items in marge-simpson/system/tracking/tasklist.md (P0 → P1 → P2).
+
+
+

@@ -6,6 +6,8 @@ Questions / Confirmations:
 3. Example Confirmation: "MS-00xx fixed"
 4. Example Question: "Are there alternatives to codemirror?"
 
-After finished above, search for and list remaining unchecked items (if any exist) in ./system/tracking/tasklist.md (P0 → P1 → P2). Suggest order of operations.
+After finished above, search for and list remaining unchecked items (if any exist) in marge-simpson/system/tracking/tasklist.md (P0 → P1 → P2). Suggest order of operations.
 
 Output using the Response Format (include IDs created).
+
+

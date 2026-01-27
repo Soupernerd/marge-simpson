@@ -7,4 +7,7 @@ Decision to record:
 - Why: (context/problem)
 - Alternatives considered: (list)
 
-Output: ADR entry added to ./system/knowledge/decisions.md
+Output: ADR entry added to marge-simpson/system/knowledge/decisions.md
+
+
+

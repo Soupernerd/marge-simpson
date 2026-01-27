@@ -13,8 +13,8 @@ Read the AGENTS.md file in the marge-simpson folder and follow it.
    - P2: Code quality, maintainability, performance concerns
 
 3. **Update tracking docs**
-   - ./system/tracking/assessment.md → System snapshot + findings + new MS-#### issues
-   - ./system/tracking/tasklist.md → Prioritized tasks with DoD + verification steps
+   - marge-simpson/system/tracking/assessment.md → System snapshot + findings + new MS-#### issues
+   - marge-simpson/system/tracking/tasklist.md → Prioritized tasks with DoD + verification steps
 
 4. **Report**
    - List all MS-#### IDs created
@@ -22,3 +22,5 @@ Read the AGENTS.md file in the marge-simpson folder and follow it.
    - Suggest order of operations
 
 Output using the Response Format from AGENTS.md, with detailed info on each ms-00xx, in table format.
+
+

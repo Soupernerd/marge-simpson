@@ -5,236 +5,70 @@ All notable changes to the Marge project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.3] - 2026-01-26
+
+### Fixed
+- **P0: AGENTS.md encoding corruption** - Restored file with clean UTF-8 content (MS-0001)
+- **P1: Folder references standardized** - All prompts now use hardcoded "marge-simpson folder" (MS-0002)
+- **P1: Removed non-existent pro_prompts references** - Cleaned up _index.md files (MS-0003)
+
+### Changed
+- **AGENTS.md slimmed from 188->80 lines** - Removed redundant sections (MS-0004)
+- **Expert files consolidated 9->4** - engineering.md, quality.md, security.md, operations.md (~88% token reduction)
+- **All paths now hardcoded with `marge-simpson/` prefix** - No more relative paths (MS-0005)
+- **convert-to-meta refactored** - Now uses inclusion list (4 items) instead of exclusion list (20+ items)
+
+---
+
 ## [1.3.2] - 2026-01-26
 
 ### Added
-- **Hardline enforcement rules (H1-H6)** - AGENTS.md now enforces compliance at runtime:
-  - H1: Mode Declaration block required before ANY edit
-  - H2: Cannot edit in Full mode without MS-#### assigned
-  - H3: Lite mode auto-escalates if >1 file, >10 lines, or behavior change
-  - H4: 3-File checkpoint forces review (with mechanical-change exception)
-  - H5: One MS-#### = one conceptual change
-  - H6: Tracking sync checkbox mandatory in every response
-- **Non-Negotiable Rules section** - 5 NEVER/ALWAYS rules in AGENTS.md
-- **Lite Mode Limits** - AGENTS-lite.md now recommends full AGENTS.md when thresholds exceeded
-- **Expert Citation format** - AGENTS.md requires `📚 Expert: [file]` citation proving expert was loaded
-- **Violation Recovery protocol** - STOP→DECLARE→RECOVER→LOG flow when rules broken
-- **Architectural definition** - Concrete 5-item checklist defining what needs approval
-- **Security test suite** - Test Suite 8/8 with input validation tests (MS-0028)
-
-### Changed
-- **work.md** - Added One ID = One Concept gate and Tracking Sync mandatory footer
-- **session_end.md** - Removed soft language, trimmed verbose entry format templates
-- **loop.md** - Simplified min/max parsing section from 15 lines to 3
-- **_index.md** - Now references AGENTS.md as primary routing source
-- **Routing table simplified** - 10 intents reduced to 4 (Ask/Do/Audit/Plan)
-
-### Fixed
-- **Tracking compliance gap** - System now blocks edits without proper tracking setup
+- **Hardline enforcement rules** - Mode declaration, MS-#### tracking, 3-file checkpoint
+- **Security test suite** - Input validation tests (path traversal, injection)
+- **Non-Negotiable Rules** - 5 NEVER/ALWAYS rules in AGENTS.md
 
 ### Security
-- **MS-0001** - Removed eval command injection in bash CLI
-- **MS-0002/MS-0020** - Replaced cmd.exe wrapper with ProcessStartInfo (no shell)
-- **MS-0023/MS-0031** - MODEL and --model validated against `^[a-zA-Z0-9._/-]+$`
-- **MS-0024** - MARGE_HOME validated (rejects `..` and shell metacharacters)
-- **MS-0030** - Bash uses array expansion instead of word-splitting
-- **MS-0005/MS-0021** - Symlink checks before rm -rf in install scripts
+- Removed eval command injection in bash CLI
+- Replaced cmd.exe wrapper with ProcessStartInfo
+- MODEL and MARGE_HOME input validation
+- Symlink checks before rm -rf
 
 ---
 
 ## [1.3.1] - 2026-01-25
 
 ### Added
-- **`init --help` support** - Both PS and Bash CLIs now show help for init command
-- **Prompts reorganization** - General prompts at root, marge-specific in `prompts/for_meta/`
-- **Knowledge capture reminders** - Response Format now includes knowledge capture prompt
-- **`system/tracking/PRD.md` template** - Blank PRD template for users
+- `init --help` support for both PS and Bash
+- Prompts reorganization (general vs marge-specific)
+- `system/tracking/PRD.md` template
 
 ### Fixed
-- **P0: PS `resume` crash** - Null path error when no progress file exists
-- **P0: Bash `log_err` undefined** - Changed to `log_error` function
-- **P1: PS/Bash path parity** - Both now use `system/tracking/` consistently
-- **P1: Recursive test harness failure** - Fixed environment variable inheritance in test-marge.ps1
-- **P1: Meta tracking paths** - `.meta_marge/system/tracking/` used correctly
-- **P1: Install script paths** - `install-global.sh` now copies from correct source
-
-### Changed
-- **Renamed `_template.md`** - Now `feature_plan_template.md` for clarity
-- **Prompts structure** - Long/specialized prompts moved to `prompts/for_meta/`
-- **README CLI section** - Updated with `init --help` and correct paths
+- PS `resume` crash on missing progress file
+- Bash `log_err` undefined function
+- PS/Bash path parity issues
 
 ---
-
-## [Unreleased]
-
-### Added
-- **Global install meta support** - `marge meta init` now works from global install without repo checkout
-- **`.dev/` in global install** - Shared folder includes convert-to-meta scripts for full meta-development
-- **Global install detection** - convert-to-meta scripts detect global install and create `.meta_marge/` in current directory
-- **`marge doctor` command** - Diagnostics for troubleshooting
-- **model_pricing.json validation** - Graceful fallback if malformed
-- **`-Help` parameter** for install-global and convert-to-meta scripts
-- **Meta command test suite** - 9 tests for meta init/status/clean
-- **Unix verify profiles** - `fast_sh`/`full_sh` in verify.config.json
-- **Expanded subagent guidance** - AGENTS.md encourages subagents for edits
-- **verify.sh auto-profile selection** - Uses `fast_sh` on Unix if available
-- **test-cli.sh** - Bash equivalent (24 tests)
-- **Project type detection (PS1)** - Parity with bash
-- **Spinner step detection (PS1)** - Shows Reading, Writing, Testing, etc.
-- **CLI test expansion** - init, clean, doctor, config, resume, edge cases
-- **--fast/--auto mode instructions** - Passes mode hints to AI prompt
-- **Argument bounds checking** - Validates options have required values
-- **Task failure output** - Shows last 10 lines on failure
-- **Temp file cleanup on exit** - All exit paths now clean up
-- **Complexity hint for lite mode** - CLI auto-detects simple tasks (typo fixes, renames, formatting) for lite mode; defaults to full AGENTS.md
-- **Dynamic VERSION** - Read from VERSION file, not hardcoded
-- **First-run guidance** - `marge init` shows quick start example
-- **Subagent toggle** - Explicit ENABLED/DISABLED in AGENTS.md
-- **Folder creation prohibition** - AI can't create .marge/ during chat
-- **Cross-platform shebang** - `#!/usr/bin/env pwsh` on PS1 scripts
-- **Path flexibility** - Source uses relative paths (`./`); convert-to-meta transforms to explicit
-
-### Changed
-- **README identity clarification** - Updated tagline from "drop-in workflow" to "persistent knowledge base that keeps AI assistants informed across sessions"
-- **ARCHITECTURE.md identity** - Describes Marge as a "hard drive for AI context" rather than "prompt engineering framework"
-
-### Fixed
-- **Global install assets reference** - Removed non-existent `assets` from install scripts
-- **convert-to-meta ./tracking/ transform** - Fixed regex typo that prevented path transformation
-- **P0: Get-Slug truncation bug** - Now uses `Substring()` instead of `Select-Object -First 50`
-- **P1: .marge/ created during tests** - Empty task test now runs in temp directory
-- **Template hardcoded paths** - Fixed `marge-simpson/` in tasklist.md and knowledge/_index.md; now uses relative `./` paths per D-006
-- **P1: PRD.md is now a blank template** - Users fill it in to enable PRD mode
-- **P1: Ambiguous verify path** - Now explicit `marge-simpson/scripts/verify.ps1`
-- **P1: Redundant .meta_marge/scripts/** - Excluded; meta uses source scripts
-- **P1: Premature loop termination** - Functions return false when files don't exist
-- **P2: Path traversal validation** - Rejects `..` edge cases in both CLI scripts
-- **P2: marge-init symlink indicator** - Bash now shows "(copy)" vs "(symlink)"
-- **P2: Token estimate format** - AGENTS-lite.md uses `$X.XXXX` format
-- **P2: Cross-platform verification docs** - work.md shows both `.ps1` and `.sh`
-- **P3: Grammar/accuracy fixes** - deep_system_audit.md, loop.md
-- **Security: Path traversal in --folder** - Validates folder is relative and within project
-- **Security: Code injection in load_progress** - Parses explicitly instead of `source`
-- **Removed unused variables** - Cleaned up dead code from CLI scripts
-
-### Changed
-- **Help text parity** - PS1 and Bash now identical
-- **Show-Usage output** - Write-Output instead of Write-Host (testable)
-- **Early engine validation** - Validated during arg parsing with hints
-- **CLI test count** - 23 → 36 tests
-- **deep_system_audit.md** - References centralized docs, removed duplication
-- **Engine not found error** - Shows installation hints
-- **Bash invalid flag handling** - Friendly "Unknown option" message
-- **README completeness** - Added --auto, --help, doctor, clean
-- **loop.md defaults** - Clarified workflow (5) vs CLI (20)
-- **marge-init bash** - Added copy fallback for symlink failures
-- **Config parse warnings** - Both scripts warn on invalid config.yaml
-- **Missing value errors** - CLI errors if --option lacks value
 
 ## [1.3.0] - 2026-01-23
 
 ### Added
-- **Lite Mode** - One-off tasks use minimal `AGENTS-lite.md` (~35 lines vs full AGENTS.md) when no local `.marge/` folder exists
-- **`--full` flag** - Force full AGENTS.md workflow even for one-off tasks
-- **Task Chaining** - Run multiple tasks sequentially: `marge "task1" "task2" "task3"`
-- **`marge clean` command** - Remove local `.marge/` folder with safety confirmation
-- **Token totals with cost** - Session summary now shows accumulated tokens and estimated cost
-- **`AGENTS-lite.md`** - Lightweight agent rules for quick one-off tasks
+- **Lite Mode** - Minimal `AGENTS-lite.md` for one-off tasks
+- **Task Chaining** - `marge "task1" "task2" "task3"`
+- **`marge clean` command**
+- **Token totals with cost** in session summary
 
-### Changed
-- CLI now auto-detects lite vs full mode based on local `.marge/` folder presence
-- Single task output now shows "Mode: lite" or "Mode: full" for clarity
-- Session summary enhanced with cost calculation (Claude Sonnet pricing)
+---
 
-### Technical
-- Cherry-picked features from PR #13 (@arbuthnot-eth) with adaptations for v1.2.x architecture
-- Skipped: folder rename (keep `marge-simpson/` for repo), git-free file tracking (unnecessary complexity)
+## Earlier Versions
 
-## [1.2.2] - 2026-01-23
+For changes prior to v1.3.0, see the [release history](https://github.com/Soupernerd/marge-simpson/releases).
 
-### Changed
-- **Folder-agnostic templates** - All prompts and docs now use relative paths ("this folder", "tracking/") instead of hardcoded `.marge`
-- **Flexible folder naming** - Users can name their folder anything (`marge/`, `.marge/`, `ai-assistant/`, etc.)
-- **`convert-to-meta` scripts** - Now properly replace both source folder name AND `.marge` references with `.meta_marge`
+**Summary of earlier releases:**
+- **v1.2.x** - Folder-agnostic templates (later reverted), flat repo structure
+- **v1.1.x** - `--folder` flag, `meta` command, PowerShell CLI
+- **v1.0.0** - Initial release with AGENTS.md, workflows, experts, CLI
 
-### Fixed
-- **MS-0001** - `.meta_marge/` was being created with `.marge` paths inside documents instead of `.meta_marge`
-- All prompts/*.md files updated to use relative folder references
-- README.md prompt templates updated to be folder-agnostic
-- workflows/_index.md scope inference updated for folder-agnostic operation
-
-### Documentation
-- Clarified three usage patterns: Direct Copy (any name), Global CLI (`.marge`), Meta-Development (`.meta_marge`)
-- Updated Quick Start to emphasize folder naming flexibility
-
-## [1.2.1] - 2026-01-23
-
-### Changed
-- **Flat repository structure** - Repo root IS the product (no nested `marge_simpson/` folder)
-- **Default folder name** - Changed from `marge_simpson` to `.marge` for user projects
-- **Meta folder name** - Standardized to `.meta_marge/` (inside workspace, gitignored)
-- **CLI location** - Moved to `cli/` subdirectory
-- **Meta tools location** - Moved to `.dev/` subdirectory
-
-### Added
-- **`cli/` directory** - Contains `marge`, `marge.ps1`, `marge-init`, and global install scripts
-- **`.dev/` directory** - Contains `convert-to-meta.sh` and `convert-to-meta.ps1`
-- **`scripts/test-syntax.ps1` and `.sh`** - Validates PowerShell/Bash script syntax at build time
-- **Simplified installation** - Clone repo as `.marge/` and use directly
-
-### Fixed
-- CLI test paths now correctly reference `$MARGE_HOME/marge` instead of `$SHARED_DIR/scripts/marge`
-- Version consistency across all CLI scripts
-
-### Removed
-- Root-level `install.sh` and `install.ps1` (now in `cli/`)
-- Root-level `convert-to-meta.*` (now in `.dev/`)
-- Nested `marge_simpson/` and `.meta_marge/` folders
-
-## [1.1.0] - 2026-01-23
-
-### Added
-- **`--folder` flag** - Target any Marge folder (e.g., `marge --folder .meta_marge "task"`)
-- **`meta` command shortcut** - Quick access to `.meta_marge` folder (e.g., `marge meta "run audit"`)
-- **`MARGE_FOLDER` environment variable** - Set default folder globally
-- **`marge.ps1` CLI** - PowerShell version with full feature parity
-- **ShellCheck linting** - CI now enforces shell script quality
-- **Comprehensive test suite** - All `.sh` files validated in CI
-
-### Changed
-- README restructured with clear CLI vs Chat Prompt sections
-- Improved error handling with grouped redirects (SC2129)
-- Better variable scoping and pattern matching
-
-### Fixed
-- Unused variables removed (SC2034)
-- Parameter expansion quoting (SC2295)
-- Function reachability warnings (SC2317)
-
-## [1.0.0] - 2026-01-20
-
-### Added
-- Initial release of Marge Simpson workflow system
-- **AGENTS.md** - Core agent instructions with workflow routing
-- **Workflow system** - Structured workflows for work, audit, planning, sessions
-- **Expert domains** - Architecture, design, devops, implementation, etc.
-- **Knowledge management** - Decisions, patterns, preferences, insights
-- **Scripts** - verify.sh, cleanup.sh, decay.sh, status.sh
-- **Cross-platform support** - Bash and PowerShell scripts
-- **Auto-detection** - Folder name detection for marge_simpson/.meta_marge
-- **Test suite** - Self-validating test-marge.sh
-- **CI/CD** - GitHub Actions for Windows, Linux, macOS
-
-### Repository Architecture
-- `marge_simpson/` - Production template for end users
-- `.meta_marge/` - Self-development working copy (gitignored)
-- Changes flow: `marge_simpson/` → `.meta_marge/` → validate → back to `marge_simpson/`
-
-[Unreleased]: https://github.com/Soupernerd/marge-simpson/compare/v1.3.2...HEAD
+[1.3.3]: https://github.com/Soupernerd/marge-simpson/compare/v1.3.2...v1.3.3
 [1.3.2]: https://github.com/Soupernerd/marge-simpson/compare/v1.3.1...v1.3.2
 [1.3.1]: https://github.com/Soupernerd/marge-simpson/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/Soupernerd/marge-simpson/compare/v1.2.2...v1.3.0
-[1.2.2]: https://github.com/Soupernerd/marge-simpson/compare/v1.2.1...v1.2.2
-[1.2.1]: https://github.com/Soupernerd/marge-simpson/compare/v1.1.0...v1.2.1
-[1.1.0]: https://github.com/Soupernerd/marge-simpson/compare/v1.0.0...v1.1.0
-[1.0.0]: https://github.com/Soupernerd/marge-simpson/releases/tag/v1.0.0

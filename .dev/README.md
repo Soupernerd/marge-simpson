@@ -143,7 +143,7 @@ Options:
 1. **Use `marge meta init`** — It handles setup automatically
 2. **Don't reset unnecessarily** — Work state is valuable
 3. **Commit frequently** — Small, focused commits to marge-simpson/ make review easier
-4. **Run tests** — Use `./system/scripts/verify.ps1 fast` after changes
+4. **Run tests** — Use `marge-simpson/system/scripts/verify.ps1 fast` after changes
 
 ## Folder Structure
 

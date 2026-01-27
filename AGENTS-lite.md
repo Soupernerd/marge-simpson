@@ -46,8 +46,8 @@ Citation format (when used):
 
 **Escalation Path:** When limits exceeded, use:
 - `./AGENTS.md` — Full operating rules with tracking
-- `./system/workflows/work.md` — Standard work workflow
-- `./system/tracking/` — Issue tracking templates
+- `marge-simpson/system/workflows/work.md` — Standard work workflow
+- `marge-simpson/system/tracking/` — Issue tracking templates
 
 ---
 

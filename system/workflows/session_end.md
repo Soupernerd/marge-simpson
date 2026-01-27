@@ -28,7 +28,7 @@ Before extracting new facts, check if knowledge files are empty:
 
 ```powershell
 # Check entry counts in _index.md
-Select-String -Path "./system/knowledge/_index.md" -Pattern "entries$"
+Select-String -Path "marge-simpson/system/knowledge/_index.md" -Pattern "entries$"
 ```
 
 If all counts show 0, this is a fresh installation. **Seed knowledge with:**
@@ -73,7 +73,7 @@ Before adding new facts, **check if they conflict with existing entries**:
 
 ```powershell
 # Quick search for potential conflicts
-Select-String -Path "./system/knowledge/*.md" -Pattern "keyword1|keyword2"
+Select-String -Path "marge-simpson/system/knowledge/*.md" -Pattern "keyword1|keyword2"
 ```
 
 ### Conflict Resolution Rules
@@ -111,13 +111,13 @@ Select-String -Path "./system/knowledge/*.md" -Pattern "keyword1|keyword2"
 
 ### Entry Formats
 
-See `./system/knowledge/_index.md` for format templates (D-###, PR-###, P-###, I-###).
+See `marge-simpson/system/knowledge/_index.md` for format templates (D-###, PR-###, P-###, I-###).
 
 ---
 
 ## Phase 4: Update Index
 
-After adding/updating entries, update `./system/knowledge/_index.md`:
+After adding/updating entries, update `marge-simpson/system/knowledge/_index.md`:
 
 1. **Quick Stats** — increment/update counts
 2. **Recent Entries** — add new entries (keep last 5, remove oldest)
@@ -126,6 +126,22 @@ After adding/updating entries, update `./system/knowledge/_index.md`:
 ---
 
 ## Phase 5: Memory Decay Check
+
+**Only run if > 7 days since last check:**
+
+```powershell
+# Check last run
+$timestamp = Get-Content "marge-simpson/system/knowledge/.decay-timestamp" -ErrorAction SilentlyContinue
+$lastRun = if ($timestamp) { [datetime]$timestamp } else { [datetime]::MinValue }
+$daysSince = ((Get-Date) - $lastRun).Days
+
+if ($daysSince -gt 7) {
+    # Run decay preview
+    & "marge-simpson/system/scripts/decay.ps1" -Preview
+    # Update timestamp after run
+    Get-Date -Format "yyyy-MM-dd" | Set-Content "marge-simpson/system/knowledge/.decay-timestamp"
+}
+```
 
 Entries should decay over time. Check for stale entries based on **Last Accessed**:
 
@@ -138,7 +154,7 @@ Entries should decay over time. Check for stale entries based on **Last Accessed
 | Decision superseded | Archive with reason |
 
 ### Archiving Process
-1. Move entry to `./system/knowledge/archive.md`
+1. Move entry to `marge-simpson/system/knowledge/archive.md`
 2. Add: `Archived: YYYY-MM-DD | Reason: <reason>`
 3. Decrement count in index
 4. Remove from Recent Entries if present

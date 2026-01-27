@@ -23,7 +23,9 @@
 
 ## Advanced (for Marge contributors)
 
-See `prompts/for_meta/` for specialized prompts used in developing Marge itself:
+See `for_meta/` for specialized prompts used in developing Marge itself:
 - `deep_system_audit.md` — Subagents + loop + experts
 - `path_integrity_audit.md` — All paths + workflows + orphans
-- `pro_prompts/` — Extended versions with more detail
+
+
+

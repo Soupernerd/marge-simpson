@@ -10,7 +10,7 @@ set -euo pipefail
 # 4. Cleanup script runs in preview mode
 #
 # Usage:
-#   ./system/scripts/test-marge.sh
+#   marge-simpson/system/scripts/test-marge.sh
 
 # Dynamic folder detection (scripts are now in system/scripts/ subfolder)
 SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -143,8 +143,8 @@ AGENTS_CONTENT=$(cat "$AGENTS_PATH")
 HAS_CRITICAL=$(echo "$AGENTS_CONTENT" | grep -qi "CRITICAL" && echo 0 || echo 1)
 test_assert "AGENTS.md contains CRITICAL section" "$HAS_CRITICAL" || true
 
-# Check for folder reference - folder name, .marge/, or ./system/ (generic structure)
-HAS_FOLDER_REF=$(echo "$AGENTS_CONTENT" | grep -qE "(${MS_FOLDER_NAME}/|\\.marge/|\\./system/)" && echo 0 || echo 1)
+# Check for folder reference - folder name, .marge/, or marge-simpson/system/ (generic structure)
+HAS_FOLDER_REF=$(echo "$AGENTS_CONTENT" | grep -qE "(${MS_FOLDER_NAME}/|\\.marge/|\\marge-simpson/system/)" && echo 0 || echo 1)
 test_assert "AGENTS.md contains folder reference" "$HAS_FOLDER_REF" || true
 
 HAS_VERIFY_REF=$(echo "$AGENTS_CONTENT" | grep -q "verify" && echo 0 || echo 1)

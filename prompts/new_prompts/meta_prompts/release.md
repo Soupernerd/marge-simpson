@@ -32,7 +32,7 @@ Read the AGENTS.md file in the marge-simpson folder and follow it.
 ### Final Verify
 
 ```powershell
-./system/scripts/verify.ps1 full
+marge-simpson/system/scripts/verify.ps1 full
 ```
 
 ### Output
@@ -43,3 +43,6 @@ Read the AGENTS.md file in the marge-simpson folder and follow it.
 - [x] VERSION bumped
 
 **Highlights:** [1-2 sentences]
+
+
+

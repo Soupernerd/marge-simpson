@@ -7,7 +7,7 @@ set -euo pipefail
 # Does NOT require actual AI engines - tests help/version/init/clean/status.
 #
 # Usage:
-#   ./system/scripts/test-cli.sh
+#   marge-simpson/system/scripts/test-cli.sh
 
 # Dynamic folder detection (scripts are now in system/scripts/ subfolder)
 SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

@@ -58,23 +58,27 @@ fi
 echo "[1/4] Copying..."
 
 mkdir -p "$TARGET_FOLDER"
-# Exclusions: scripts/ excluded - meta_marge uses marge-simpson/scripts/ directly
-if command -v rsync &>/dev/null; then
-    rsync -a \
-        --exclude='.git' --exclude='node_modules' --exclude='.meta_marge' \
-        --exclude='.marge' --exclude='.dev' --exclude='cli' --exclude='meta' \
-        --exclude='assets' --exclude='.github' --exclude='scripts' \
-        --exclude='README.md' --exclude='CHANGELOG.md' --exclude='VERSION' \
-        --exclude='LICENSE' --exclude='.gitignore' --exclude='.gitattributes' \
-        "$SOURCE_FOLDER/" "$TARGET_FOLDER/"
-else
-    cp -r "$SOURCE_FOLDER/." "$TARGET_FOLDER/"
-    rm -rf "$TARGET_FOLDER/.git" "$TARGET_FOLDER/node_modules" "$TARGET_FOLDER/.meta_marge" \
-           "$TARGET_FOLDER/.marge" "$TARGET_FOLDER/.dev" "$TARGET_FOLDER/cli" "$TARGET_FOLDER/meta" \
-           "$TARGET_FOLDER/assets" "$TARGET_FOLDER/.github" "$TARGET_FOLDER/scripts" 2>/dev/null || true
-    rm -f "$TARGET_FOLDER/README.md" "$TARGET_FOLDER/CHANGELOG.md" "$TARGET_FOLDER/VERSION" \
-          "$TARGET_FOLDER/LICENSE" "$TARGET_FOLDER/.gitignore" "$TARGET_FOLDER/.gitattributes" 2>/dev/null || true
-fi
+# =============================================================================
+# INCLUSIONS - Only these get copied to .meta_marge/
+# =============================================================================
+#   AGENTS.md             - Transformed for meta-development scope
+#   prompts/              - All prompts (AGENTS.md references transformed)
+#   system/tracking/      - assessment.md, tasklist.md (ID reset, paths transformed)
+#   system/workflows/     - All workflows (paths transformed to .meta_marge/)
+#
+# Everything else stays in source and is referenced directly:
+#   - system/scripts/     - AI runs marge-simpson/system/scripts/ directly
+#   - system/experts/     - AI loads from marge-simpson/system/experts/
+#   - system/knowledge/   - AI loads from marge-simpson/system/knowledge/
+#   - cli/, .dev/, etc.   - Dev tooling stays in source
+# =============================================================================
+
+# Copy only included items
+[[ -f "$SOURCE_FOLDER/AGENTS.md" ]] && cp "$SOURCE_FOLDER/AGENTS.md" "$TARGET_FOLDER/"
+[[ -d "$SOURCE_FOLDER/prompts" ]] && cp -r "$SOURCE_FOLDER/prompts" "$TARGET_FOLDER/"
+mkdir -p "$TARGET_FOLDER/system"
+[[ -d "$SOURCE_FOLDER/system/tracking" ]] && cp -r "$SOURCE_FOLDER/system/tracking" "$TARGET_FOLDER/system/"
+[[ -d "$SOURCE_FOLDER/system/workflows" ]] && cp -r "$SOURCE_FOLDER/system/workflows" "$TARGET_FOLDER/system/"
 
 # [2/4] Transform: relative paths (./) -> .meta_marge/ AND explicit verify paths
 echo "[2/4] Transforming paths..."
@@ -92,23 +96,12 @@ while IFS= read -r -d '' file; do
     # "Read the AGENTS.md file in the marge-simpson folder" -> "Read the AGENTS.md file in the .meta_marge folder"
     content=${content//"Read the AGENTS.md file in the marge-simpson folder"/"Read the AGENTS.md file in the .meta_marge folder"}
     
-    # Transform relative paths to explicit .meta_marge/ paths
-    # But NOT ./system/scripts/ - those should point to source (marge-simpson/system/scripts/)
-    # Handle both old (./tracking/) and new (./system/tracking/) formats
-    content=${content//"./system/tracking/"/".meta_marge/system/tracking/"}
-    content=${content//"./system/workflows/"/".meta_marge/system/workflows/"}
-    content=${content//"./system/experts/"/".meta_marge/system/experts/"}
-    content=${content//"./system/knowledge/"/".meta_marge/system/knowledge/"}
-    content=${content//"./tracking/"/".meta_marge/system/tracking/"}
-    content=${content//"./workflows/"/".meta_marge/system/workflows/"}
-    content=${content//"./experts/"/".meta_marge/system/experts/"}
-    content=${content//"./knowledge/"/".meta_marge/system/knowledge/"}
-    content=${content//"./system/model_pricing.json"/".meta_marge/model_pricing.json"}
-    content=${content//"./model_pricing.json"/".meta_marge/model_pricing.json"}
-    
-    # Scripts should use source folder for verification (test the source, not meta)
-    content=${content//"./system/scripts/"/"${SOURCE_NAME}/system/scripts/"}
-    content=${content//"./scripts/"/"${SOURCE_NAME}/system/scripts/"}
+    # Transform ONLY tracking and workflow paths to .meta_marge/
+    # BUT keep experts and knowledge pointing to source (AI uses source references)
+    content=${content//"marge-simpson/system/tracking/"/".meta_marge/system/tracking/"}
+    content=${content//"marge-simpson/system/workflows/"/".meta_marge/system/workflows/"}
+    # NOTE: NOT transforming marge-simpson/system/experts/ or marge-simpson/system/knowledge/
+    # Those should stay pointing to source so AI loads actual expert/knowledge files
     
     # Protect GitHub URLs (using sed because this requires capture groups)
     # shellcheck disable=SC2001
@@ -122,198 +115,85 @@ while IFS= read -r -d '' file; do
 done < <(find "$TARGET_FOLDER" -type f -print0)
 echo "  $count files transformed"
 
-# [3/4] Reset work queues + rewrite AGENTS.md scope + add meta-only scripts
-echo "[3/4] Resetting work queues and adding meta-only scripts..."
+# [3/4] Reset tracking files (preserve structure, just reset IDs) + configure AGENTS.md
+echo "[3/4] Resetting tracking IDs and configuring AGENTS.md..."
 
-cat > "$TARGET_FOLDER/system/tracking/assessment.md" << EOF
-# $TARGET_NAME Assessment
+# Read source templates and reset IDs, transform tracking paths only
+sed -e 's/\*\*Next ID:\*\* MS-[0-9]*/\*\*Next ID:\*\* MS-0001/' \
+    -e 's|marge-simpson/system/tracking/|.meta_marge/system/tracking/|g' \
+    -e "s|marge-simpson/system/scripts/|${SOURCE_NAME}/system/scripts/|g" \
+    "$SOURCE_FOLDER/system/tracking/assessment.md" > "$TARGET_FOLDER/system/tracking/assessment.md"
 
-> Meta-development tracking. AI reads .meta_marge/AGENTS.md, improves marge-simpson/.
+sed -e 's|marge-simpson/system/tracking/|.meta_marge/system/tracking/|g' \
+    -e "s|marge-simpson/system/scripts/|${SOURCE_NAME}/system/scripts/|g" \
+    "$SOURCE_FOLDER/system/tracking/tasklist.md" > "$TARGET_FOLDER/system/tracking/tasklist.md"
 
-**Next ID:** MS-0001
-
----
-
-## Triage (New Issues)
-_None_
-
-## Accepted (Ready to Work)
-_None_
-
-## In-Progress
-_None_
-
-## Done
-_None_
-EOF
-
-cat > "$TARGET_FOLDER/system/tracking/tasklist.md" << EOF
-# $TARGET_NAME Tasklist
-
-> Work queue for meta-development.
-
-**Next ID:** MS-0001
-
----
-
-## Backlog
-_None_
-
-## In-Progress
-_None_
-
-## Done
-_None_
-EOF
-
-# Rewrite AGENTS.md scope section
+# Rewrite AGENTS.md scope section - the source has "## Scope" section
 AGENTS_PATH="$TARGET_FOLDER/AGENTS.md"
-NEW_SCOPE="**Scope (CRITICAL):**
-1. This folder (\\\`$TARGET_NAME/\\\`) is the **control plane** for improving \\\`$SOURCE_NAME/\\\`.
-2. Audit \\\`$SOURCE_NAME/\\\` (the target). Track findings HERE in \\\`$TARGET_NAME/system/tracking/\\\`.
-3. Never create \\\`$TARGET_NAME\\\` files outside this folder.
 
-**Meta-Development Workflow:**
-\\\`\\\`\\\`
-  $TARGET_NAME/AGENTS.md  ->  AI audits $SOURCE_NAME/  ->  Changes to $SOURCE_NAME/
-  Work tracked in $TARGET_NAME/system/tracking/
-  Verify using: $SOURCE_NAME/system/scripts/verify.sh fast
-  When done: run convert-to-meta again to reset
-\\\`\\\`\\\`
+# Create the new scope content
+NEW_SCOPE="## Scope
 
-**IMPORTANT:** \\\`$TARGET_NAME/\\\` is the control plane, NOT a sandbox."
+**Meta-development mode.** This folder controls improvements to \`$SOURCE_NAME/\`.
 
+- **Track findings** → \`.meta_marge/system/tracking/\`
+- **Make changes** → \`$SOURCE_NAME/\` (the target, NOT .meta_marge/)
+- **Never** create \`.meta_marge\` files outside this folder
+
+**Workflow:**
+\`\`\`
+.meta_marge/AGENTS.md  →  AI audits/improves $SOURCE_NAME/  →  Changes go to $SOURCE_NAME/
+Work tracked in .meta_marge/system/tracking/
+Verify: $SOURCE_NAME/system/scripts/verify.sh fast
+Reset: run convert-to-meta again
+\`\`\`"
+
+# Use awk to replace from "## Scope" until the next "---"
 awk -v new_scope="$NEW_SCOPE" '
-    /^\*\*Scope \(CRITICAL\):\*\*/ { print new_scope; getline; getline; getline; next }
+    /^## Scope$/ { 
+        print new_scope
+        # Skip until we hit ---
+        while ((getline line) > 0) {
+            if (line ~ /^---/) {
+                print ""
+                break
+            }
+        }
+        next
+    }
     { print }
 ' "$AGENTS_PATH" > "${AGENTS_PATH}.tmp" && mv "${AGENTS_PATH}.tmp" "$AGENTS_PATH"
 
-echo "  Reset assessment.md, tasklist.md, AGENTS.md"
+echo "  Reset tracking IDs, configured AGENTS.md scope"
 
-# Copy verify scripts to meta_marge (so it can use its own verify.config.json)
+# Copy ONLY verify scripts to meta_marge (so it can use its own verify.config.json)
+# The test-templates scripts live in marge-simpson/system/scripts/ - we create trigger wrappers in .meta_marge root
 META_SCRIPTS_DIR="$TARGET_FOLDER/system/scripts"
 mkdir -p "$META_SCRIPTS_DIR"
 cp "$SOURCE_FOLDER/system/scripts/verify.ps1" "$META_SCRIPTS_DIR/"
 cp "$SOURCE_FOLDER/system/scripts/verify.sh" "$META_SCRIPTS_DIR/"
 chmod +x "$META_SCRIPTS_DIR/verify.sh"
 
-# Create test-templates.sh (meta-only template pollution guard)
-cat > "$META_SCRIPTS_DIR/test-templates.sh" << 'TESTSCRIPT'
-#!/bin/bash
-# Meta-Marge Template Pollution Test - validates marge-simpson/ templates are pristine
-# IMPORTANT: This test checks REGULAR marge-simpson/ templates, NOT .meta_marge/ copies.
-set -e
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# Script is at .meta_marge/system/scripts/ - go up 3 levels to reach marge-simpson/
-MARGE_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
-
-# Verify we're checking the RIGHT folder (marge-simpson, not .meta_marge)
-FOLDER_NAME="$(basename "$MARGE_ROOT")"
-if [[ "$FOLDER_NAME" == ".meta_marge" ]]; then
-    echo "ERROR: Test is checking .meta_marge/ instead of marge-simpson/!"
-    exit 1
-fi
-
-echo ""; echo "============================================================"
-echo " Template Pollution Tests (Meta-Marge Only)"
-echo " Checking: $MARGE_ROOT"
-echo "============================================================"; echo ""
-
-passed=0; failed=0
-
-test_template_clean() {
-    local file_path="$1" pattern="$2" description="$3"
-    local full_path="$MARGE_ROOT/$file_path"
-    [[ ! -f "$full_path" ]] && { echo "  [SKIP] $description - file not found"; return 0; }
-    local content_no_comments=$(perl -0777 -pe 's/<!--.*?-->//gs' "$full_path" 2>/dev/null || cat "$full_path")
-    if echo "$content_no_comments" | grep -qE "$pattern" 2>/dev/null; then
-        echo "  [FAIL] $description"; echo "         Found prohibited pattern: $pattern"; return 1
-    fi
-    echo "  [PASS] $description"; return 0
-}
-
-echo "[1/4] Checking system/tracking/assessment.md..."
-test_template_clean "system/tracking/assessment.md" '### \[MS-[0-9]{4}\]' "No real MS-#### entries" && ((passed++)) || ((failed++))
-[[ -f "$MARGE_ROOT/system/tracking/assessment.md" ]] && {
-    grep -qE "Next ID:\*{0,2}.*MS-0001" "$MARGE_ROOT/system/tracking/assessment.md" 2>/dev/null && { echo "  [PASS] Pristine Next ID"; ((passed++)); } || { echo "  [FAIL] Next ID incremented"; ((failed++)); }
-}
-
-echo ""; echo "[2/4] Checking system/tracking/tasklist.md..."
-test_template_clean "system/tracking/tasklist.md" '- \[x\] \*\*MS-[0-9]{4}' "No completed MS-#### items" && ((passed++)) || ((failed++))
-
-echo ""; echo "[3/4] Checking system/knowledge/decisions.md..."
-test_template_clean "system/knowledge/decisions.md" '### \[D-[0-9]{3}\]' "No real D-### entries" && ((passed++)) || ((failed++))
-
-echo ""; echo "[4/4] Checking system/knowledge/ other files..."
-test_template_clean "system/knowledge/patterns.md" '### \[P-[0-9]{3}\]' "No real P-### entries" && ((passed++)) || ((failed++))
-test_template_clean "system/knowledge/insights.md" '### \[I-[0-9]{3}\]' "No real I-### entries" && ((passed++)) || ((failed++))
-test_template_clean "system/knowledge/preferences.md" '### \[PR-[0-9]{3}\]' "No real PR-### entries" && ((passed++)) || ((failed++))
-
-echo ""; echo "============================================================"
-echo " Summary: Passed=$passed Failed=$failed"
-echo "============================================================"; echo ""
-
-[[ $failed -gt 0 ]] && { echo -e "\033[31mTEMPLATE POLLUTION DETECTED!\033[0m"; exit 1; }
-echo -e "\033[32mAll template pollution tests passed!\033[0m"; exit 0
-TESTSCRIPT
-chmod +x "$META_SCRIPTS_DIR/test-templates.sh"
-
-# Create test-templates.ps1 (PowerShell version)
-cat > "$META_SCRIPTS_DIR/test-templates.ps1" << 'TESTSCRIPT'
-$ErrorActionPreference = "Stop"
+# Create trigger wrappers in .meta_marge root that call the source test-templates scripts
+# This keeps .meta_marge cleaner (no need for full test scripts copied in)
+cat > "$TARGET_FOLDER/run-template-tests.ps1" << 'TRIGGERWRAPPER'
+# Trigger wrapper - calls the real test-templates.ps1 in marge-simpson/system/scripts/
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$margeRoot = (Get-Item "$scriptDir\..\..\..").FullName
+$margeRoot = (Get-Item "$scriptDir\..").FullName
+& "$margeRoot\system\scripts\test-templates.ps1" -MargeRoot $margeRoot
+exit $LASTEXITCODE
+TRIGGERWRAPPER
 
-Write-Host "`n============================================================"
-Write-Host " Template Pollution Tests (Meta-Marge Only)"
-Write-Host "============================================================`n"
+cat > "$TARGET_FOLDER/run-template-tests.sh" << 'TRIGGERWRAPPER'
+#!/bin/bash
+# Trigger wrapper - calls the real test-templates.sh in marge-simpson/system/scripts/
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+MARGE_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+exec "$MARGE_ROOT/system/scripts/test-templates.sh" "$MARGE_ROOT"
+TRIGGERWRAPPER
+chmod +x "$TARGET_FOLDER/run-template-tests.sh"
 
-$passed = 0; $failed = 0
-
-function Test-TemplateClean {
-    param([string]$FilePath, [string]$MustNotContain, [string]$Description)
-    $fullPath = Join-Path $margeRoot $FilePath
-    if (-not (Test-Path $fullPath)) { Write-Host "  [SKIP] $Description - file not found"; return $true }
-    $content = Get-Content $fullPath -Raw
-    $contentNoComments = $content -replace '(?s)<!--.*?-->', ''
-    if ($contentNoComments -match $MustNotContain) {
-        Write-Host "  [FAIL] $Description"
-        Write-Host "         Found prohibited pattern: $MustNotContain"
-        return $false
-    }
-    Write-Host "  [PASS] $Description"
-    return $true
-}
-
-Write-Host "[1/4] Checking system/tracking/assessment.md..."
-if (Test-TemplateClean -FilePath "system\tracking\assessment.md" -MustNotContain "### \[MS-\d{4}\]" -Description "No real MS-#### entries") { $passed++ } else { $failed++ }
-$ap = Join-Path $margeRoot "system\tracking\assessment.md"
-if (Test-Path $ap) {
-    $c = Get-Content $ap -Raw
-    if ($c -match "Next ID:\*{0,2}\s*MS-0001") { Write-Host "  [PASS] Pristine Next ID (MS-0001)"; $passed++ }
-    else { Write-Host "  [FAIL] Next ID incremented (should be MS-0001)"; $failed++ }
-}
-
-Write-Host "`n[2/4] Checking system/tracking/tasklist.md..."
-if (Test-TemplateClean -FilePath "system\tracking\tasklist.md" -MustNotContain "- \[x\] \*\*MS-\d{4}" -Description "No completed MS-#### items") { $passed++ } else { $failed++ }
-
-Write-Host "`n[3/4] Checking system/knowledge/decisions.md..."
-if (Test-TemplateClean -FilePath "system\knowledge\decisions.md" -MustNotContain "### \[D-\d{3}\]" -Description "No real D-### entries") { $passed++ } else { $failed++ }
-
-Write-Host "`n[4/4] Checking system/knowledge/ other files..."
-if (Test-TemplateClean -FilePath "system\knowledge\patterns.md" -MustNotContain "### \[P-\d{3}\]" -Description "No real P-### entries") { $passed++ } else { $failed++ }
-if (Test-TemplateClean -FilePath "system\knowledge\insights.md" -MustNotContain "### \[I-\d{3}\]" -Description "No real I-### entries") { $passed++ } else { $failed++ }
-if (Test-TemplateClean -FilePath "system\knowledge\preferences.md" -MustNotContain "### \[PR-\d{3}\]" -Description "No real PR-### entries") { $passed++ } else { $failed++ }
-
-Write-Host "`n============================================================"
-Write-Host " Summary: Passed=$passed Failed=$failed"
-Write-Host "============================================================`n"
-
-if ($failed -gt 0) { Write-Host "TEMPLATE POLLUTION DETECTED!" -ForegroundColor Red; exit 1 }
-Write-Host "All template pollution tests passed!" -ForegroundColor Green; exit 0
-TESTSCRIPT
-
-# Update verify.config.json with meta-specific paths including template test
+# Update verify.config.json with meta-specific paths - trigger wrappers in .meta_marge root
 cat > "$TARGET_FOLDER/verify.config.json" << 'CONFIGJSON'
 {
   "fast": [
@@ -321,35 +201,33 @@ cat > "$TARGET_FOLDER/verify.config.json" << 'CONFIGJSON'
     ".\\system\\scripts\\test-general.ps1",
     ".\\system\\scripts\\test-marge.ps1",
     ".\\system\\scripts\\test-cli.ps1",
-    ".\\.meta_marge\\system\\scripts\\test-templates.ps1"
+    ".\\.meta_marge\\run-template-tests.ps1"
   ],
   "full": [
     ".\\system\\scripts\\test-syntax.ps1",
     ".\\system\\scripts\\test-general.ps1",
     ".\\system\\scripts\\test-marge.ps1",
     ".\\system\\scripts\\test-cli.ps1",
-    ".\\.meta_marge\\system\\scripts\\test-templates.ps1"
+    ".\\.meta_marge\\run-template-tests.ps1"
   ],
   "fast_sh": [
-    "./system/scripts/test-syntax.sh",
-    "./system/scripts/test-general.sh",
-    "./system/scripts/test-marge.sh",
-    "./system/scripts/test-cli.sh",
-    "./.meta_marge/system/scripts/test-templates.sh"
+    "marge-simpson/system/scripts/test-syntax.sh",
+    "marge-simpson/system/scripts/test-general.sh",
+    "marge-simpson/system/scripts/test-marge.sh",
+    "marge-simpson/system/scripts/test-cli.sh",
+    "./.meta_marge/run-template-tests.sh"
   ],
   "full_sh": [
-    "./system/scripts/test-syntax.sh",
-    "./system/scripts/test-general.sh",
-    "./system/scripts/test-marge.sh",
-    "./system/scripts/test-cli.sh",
-    "./.meta_marge/system/scripts/test-templates.sh"
+    "marge-simpson/system/scripts/test-syntax.sh",
+    "marge-simpson/system/scripts/test-general.sh",
+    "marge-simpson/system/scripts/test-marge.sh",
+    "marge-simpson/system/scripts/test-cli.sh",
+    "./.meta_marge/run-template-tests.sh"
   ],
-  "_comment": ".meta_marge verify config. Paths relative to marge-simpson/ (repo root).",
-  "_meta_note": "test-templates only exists in .meta_marge/ - guards against AI polluting template files."
+  "_comment": ".meta_marge verify config. Trigger wrappers call marge-simpson/system/scripts/test-templates.*"
 }
 CONFIGJSON
-
-echo "  Added verify scripts and test-templates to .meta_marge/system/scripts/"
+echo "  Added verify scripts and trigger wrappers for template tests"
 
 # [4/4] Verify (uses meta_marge scripts which include template test)
 echo "[4/4] Verifying..."

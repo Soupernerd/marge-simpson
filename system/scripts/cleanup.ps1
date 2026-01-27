@@ -10,7 +10,7 @@ CLEANUP RULES:
 2. tracking/tasklist.md    - Suggest archiving if large (no auto-modification)
 
 Usage:
-  ./system/scripts/cleanup.ps1     # Analyze and report
+  marge-simpson/system/scripts/cleanup.ps1     # Analyze and report
 #>
 
 param(

@@ -27,28 +27,28 @@ AI/Agents must read `AGENTS.md` before working.
 
 ## Work Queue
 
-### P0  Must fix (breaking / core workflow)
+### P0 — Must fix (breaking / core workflow)
 
 <!-- Example:
-- [ ] **MS-0001 ** (clear, testable outcome)
+- [ ] **MS-0001** (clear, testable outcome)
   - **Why:** 
-  - **Expert(s):** Relevant expert(s) from `./system/experts/_index.md`
+  - **Expert(s):** Relevant expert(s) from `marge-simpson/system/experts/_index.md`
   - **Definition of Done:** 
   - **Verification:**
     - Run automated verification:
-      - macOS/Linux: `./system/scripts/verify.sh fast`
-      - Windows: `./system/scripts/verify.ps1 fast`
+      - macOS/Linux: `marge-simpson/system/scripts/verify.sh fast`
+      - Windows: `marge-simpson/system/scripts/verify.ps1 fast`
     - Add/adjust a regression test or deterministic repro for this MS item.
-    - Record evidence in `./system/tracking/assessment.md` (raw output or verify log path).
+    - Record evidence in `marge-simpson/system/tracking/assessment.md` (raw output or verify log path).
   - **Files likely involved:** 
   - **Linked assessment:** [MS-0001]
 -->
 
-### P1  Should fix (important but not blocking)
+### P1 — Should fix (important but not blocking)
 
 _(none)_
 
-### P2  Nice to have (polish / refactor / cleanup)
+### P2 — Nice to have (polish / refactor / cleanup)
 
 _(none)_
 
@@ -63,7 +63,7 @@ _(none)_
 ## Done (recent)
 
 <!-- Example:
-- [x] **MS-0001  Brief description**
+- [x] **MS-0001 — Brief description**
   - **Completed:** YYYY-MM-DD
   - **Expert(s):** 
   - **Verification:** (raw output or summary)

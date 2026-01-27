@@ -13,9 +13,9 @@ set -euo pipefail
 #   Malicious entries could execute arbitrary shell commands with user privileges.
 #
 # Usage:
-#   ./system/scripts/verify.sh fast
-#   ./system/scripts/verify.sh full
-#   ./system/scripts/verify.sh fast --skip-if-no-tests
+#   marge-simpson/system/scripts/verify.sh fast
+#   marge-simpson/system/scripts/verify.sh full
+#   marge-simpson/system/scripts/verify.sh fast --skip-if-no-tests
 #
 # Options:
 #   fast|full (default: fast)

@@ -14,7 +14,7 @@ Copy everything below the line:
 ---
 
 ```
-Read the AGENTS.md file in this folder and follow it.
+Read the AGENTS.md file in the marge-simpson folder and follow it.
 
 ## PATH INTEGRITY AUDIT — Full System Scan
 
@@ -59,12 +59,12 @@ For EVERY path found, validate:
 
 ### Phase 3: Path Type Rules (CRITICAL)
 
-Load expert knowledge from `./system/experts/architecture.md` and apply these rules:
+Load expert knowledge from `marge-simpson/system/experts/engineering.md` and apply these rules:
 
 **RELATIVE paths (`./path/to/file`):**
 - Use when: Same repo, script invoked from repo root
 - Context: Internal references within a project
-- Example: `./system/tracking/assessment.md`
+- Example: `marge-simpson/system/tracking/assessment.md`
 
 **HARDCODED paths (`.meta_marge/system/tracking/`):**
 - Use when: Cross-repo references, meta-development, CI/CD
@@ -95,13 +95,13 @@ Special focus on path transformation scripts (e.g., `convert-to-meta.ps1/.sh`):
 
 ### Phase 5: Workflow Coverage Testing
 
-Test each workflow end-to-end. Load `./system/workflows/_index.md` first.
+Test each workflow end-to-end. Load `marge-simpson/system/workflows/_index.md` first.
 
 **For each workflow (`work.md`, `audit.md`, `loop.md`, `planning.md`, `session_start.md`, `session_end.md`):**
 
 | Test | Method | Pass/Fail |
 |------|--------|-----------|
-| All referenced files exist | Check each `./system/X` path | |
+| All referenced files exist | Check each `marge-simpson/system/X` path | |
 | Paths resolve correctly | Test from repo root | |
 | No circular dependencies | Map reference graph | |
 | Examples work | Run any example commands | |
@@ -140,11 +140,10 @@ Identify files NOT touched by any workflow:
 
 After discovery, load relevant experts:
 
-- Path consistency issues → `./system/experts/architecture.md`
-- Script portability issues → `./system/experts/devops.md`
-- Documentation path issues → `./system/experts/documentation.md`
-- Workflow gaps → `./system/experts/implementation.md`
-- Test coverage for paths → `./system/experts/testing.md`
+- Path consistency issues → `marge-simpson/system/experts/engineering.md`
+- Script portability issues → `marge-simpson/system/experts/operations.md`
+- Workflow gaps → `marge-simpson/system/experts/engineering.md`
+- Test coverage for paths → `marge-simpson/system/experts/quality.md`
 
 Have experts review and refine recommendations.
 
@@ -159,8 +158,8 @@ Have experts review and refine recommendations.
 For each fix:
 1. Create MS-#### tracking ID
 2. Implement fix with clear rationale
-3. Run `./system/scripts/verify.ps1 fast` (Windows) or `./system/scripts/verify.sh fast` (Unix)
-4. Record in `./system/tracking/assessment.md`
+3. Run `marge-simpson/system/scripts/verify.ps1 fast` (Windows) or `marge-simpson/system/scripts/verify.sh fast` (Unix)
+4. Record in `marge-simpson/system/tracking/assessment.md`
 
 ### Phase 9: Verification Suite
 
@@ -168,18 +167,18 @@ Run complete verification:
 
 ```powershell
 # Windows - Full verification
-./system/scripts/verify.ps1
+marge-simpson/system/scripts/verify.ps1
 
 # Quick verification
-./system/scripts/verify.ps1 fast
+marge-simpson/system/scripts/verify.ps1 fast
 ```
 
 ```bash
 # Unix - Full verification
-./system/scripts/verify.sh
+marge-simpson/system/scripts/verify.sh
 
 # Quick verification  
-./system/scripts/verify.sh fast
+marge-simpson/system/scripts/verify.sh fast
 ```
 
 **Additional path-specific tests:**
@@ -205,14 +204,14 @@ Run complete verification:
 
 | File | Path | Type | Target Exists | Correct Type | Status |
 |------|------|------|---------------|--------------|--------|
-| AGENTS.md:15 | `./system/tracking/` | relative | ✅ | ✅ | OK |
+| AGENTS.md:15 | `marge-simpson/system/tracking/` | relative | ✅ | ✅ | OK |
 | convert-to-meta.ps1:42 | `.meta_marge/system/` | hardcoded | ✅ | ✅ | OK |
 
 ### Transform Script Analysis
 
 | Script | Pattern | Input Example | Output Example | Status |
 |--------|---------|---------------|----------------|--------|
-| convert-to-meta.ps1 | `./system/tracking/` | `./system/tracking/assessment.md` | `.meta_marge/system/tracking/assessment.md` | ✅ |
+| convert-to-meta.ps1 | `marge-simpson/system/tracking/` | `marge-simpson/system/tracking/assessment.md` | `.meta_marge/system/tracking/assessment.md` | ✅ |
 
 ### Workflow Coverage
 
@@ -232,14 +231,14 @@ Run complete verification:
 
 | ID | Category | Issue | Fix | Verified |
 |----|----------|-------|-----|----------|
-| MS-0001 | BROKEN | `./tracking/` doesn't exist | Changed to `./system/tracking/` | ✅ |
+| MS-0001 | BROKEN | `./tracking/` doesn't exist | Changed to `marge-simpson/system/tracking/` | ✅ |
 
 ### Verification Evidence
 [Raw output from verify.ps1/verify.sh]
 
 ### Expert Recommendations
-- [architecture.md]: [Recommendation]
-- [devops.md]: [Recommendation]
+- [engineering.md]: [Recommendation]
+- [operations.md]: [Recommendation]
 ```
 
 ### Loop Criteria
@@ -250,3 +249,6 @@ Run complete verification:
 ```
 
 ````
+
+
+

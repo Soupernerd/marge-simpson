@@ -24,21 +24,24 @@ Before ANY work, explicitly declare:
 
 **Skip this step = skip tracking = violation.**
 
-### 1. Load Experts (Required)
+### 1. Load Context (Just-in-Time)
 
-| Keywords | File |
-|----------|------|
-| security, auth | `./system/experts/security.md` |
-| test, QA | `./system/experts/testing.md` |
-| deploy, CI/CD | `./system/experts/devops.md` |
-| architecture, API | `./system/experts/architecture.md` |
-| UI, UX | `./system/experts/design.md` |
+**Load only what's relevant to this task:**
 
-For trivial single-line fixes (typo, format), direct tools allowed per AGENTS.md.
+| If task involves... | Load... |
+|---------------------|---------|
+| Architecture, code structure | `marge-simpson/system/experts/engineering.md` |
+| Tests, QA | `marge-simpson/system/experts/quality.md` |
+| Security, auth, secrets | `marge-simpson/system/experts/security.md` |
+| CI/CD, deploy, infra | `marge-simpson/system/experts/operations.md` |
 
-### 2. Check Decisions
+**Then check knowledge** (quick grep, not full read):
+```powershell
+Select-String -Path "marge-simpson/system/knowledge/decisions.md" -Pattern "#relevant-tag"
+Select-String -Path "marge-simpson/system/knowledge/preferences.md" -Pattern "#relevant-tag"
+```
 
-Grep `./system/knowledge/decisions.md` for relevant tags. Don't contradict prior choices.
+Don't contradict prior decisions. Respect stored preferences.
 
 ---
 
@@ -52,7 +55,7 @@ Grep `./system/knowledge/decisions.md` for relevant tags. Don't contradict prior
 
 ### Features
 1. Create MS-#### ID
-2. Create plan: `./system/tracking/[name]_MS-####.md` (copy from `feature_plan_template.md`)
+2. Create plan: `marge-simpson/system/tracking/[name]_MS-####.md` (copy from `feature_plan_template.md`)
 3. Add to `assessment.md` + `tasklist.md`
 4. Increment Next ID in both
 
@@ -140,7 +143,27 @@ Process is same for all. Labels are for humans.
 
 ## After Work
 
-**IF** architectural decision made OR user preference discovered OR reusable pattern identified:
-→ Load `./system/workflows/session_end.md` to capture it.
+### Knowledge Capture (If Noteworthy)
 
-**IF** trivial fix with no learnings → skip.
+**After completing MS-####**, check if any of these occurred:
+
+| What happened | Add to | ID format |
+|---------------|--------|-----------|
+| Made architectural decision | `decisions.md` | D-### |
+| User stated preference | `preferences.md` | PR-### |
+| Noticed repeated user behavior | `patterns.md` | P-### |
+| Learned non-obvious codebase fact | `insights.md` | I-### |
+
+**If yes:** Add entry, update `_index.md` (Quick Stats, Recent Entries, Tag Index).
+
+**If no:** Skip. Don't force it.
+
+### Decay Check (Session End Only)
+
+**Only when user says goodbye or long session wrapping up:**
+
+1. Check: `Get-Content marge-simpson/system/knowledge/.decay-timestamp 2>$null`
+2. If missing or > 7 days → run `marge-simpson/system/scripts/decay.ps1 -Preview`
+3. Show stale entries to user, ask if they want to archive
+
+**UX > maintenance.** If user is busy, skip decay.

@@ -15,10 +15,10 @@ User explicitly asks for:
 ## Load Experts (Required)
 
 Audits require expert subagents. Load based on audit type:
-- **Security audit** → `./system/experts/security.md` (2-3 experts)
-- **Code audit** → `./system/experts/implementation.md` + `./system/experts/testing.md`
-- **Architecture audit** → `./system/experts/architecture.md`
-- **Full audit** → Multiple experts per `./system/experts/_index.md`
+- **Security audit** → `marge-simpson/system/experts/security.md`
+- **Code audit** → `marge-simpson/system/experts/engineering.md` + `marge-simpson/system/experts/quality.md`
+- **Architecture audit** → `marge-simpson/system/experts/engineering.md`
+- **Full audit** → Multiple experts per `marge-simpson/system/experts/_index.md`
 
 ## Phase 1: Discovery
 
@@ -26,10 +26,10 @@ Audits require expert subagents. Load based on audit type:
 
 Before scanning, check what's already known:
 
-1. **Read `./system/knowledge/_index.md`** — check Quick Stats and Recent Entries
-2. **Grep `./system/knowledge/decisions.md`** for architectural decisions:
+1. **Read `marge-simpson/system/knowledge/_index.md`** — check Quick Stats and Recent Entries
+2. **Grep `marge-simpson/system/knowledge/decisions.md`** for architectural decisions:
    ```powershell
-   Select-String -Path "./system/knowledge/decisions.md" -Pattern "#architecture|#database|#api"
+   Select-String -Path "marge-simpson/system/knowledge/decisions.md" -Pattern "#architecture|#database|#api"
    ```
 3. **Note any constraints** — don't flag issues that contradict known decisions
 
@@ -52,7 +52,7 @@ Before scanning, check what's already known:
 
 ### Document Findings
 
-Update `./system/tracking/assessment.md`:
+Update `marge-simpson/system/tracking/assessment.md`:
 
 ```markdown
 ## Audit: [Date] - [Scope]

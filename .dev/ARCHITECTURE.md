@@ -14,13 +14,13 @@ These invariants are fundamental to how Marge works. Changing them will break th
 
 | Context | Path Style | Example | Why |
 |---------|------------|---------|-----|
-| **Source files** (`marge-simpson/`) | **Relative** (`./`) | `./system/workflows/work.md` | Users can rename folder to `.marge`, `marge`, etc. |
+| **Source files** (`marge-simpson/`) | **Relative** (`./`) | `marge-simpson/system/workflows/work.md` | Users can rename folder to `.marge`, `marge`, etc. |
 | **Meta-development** (`.meta_marge/`) | **Explicit** | `.meta_marge/system/workflows/work.md` | AI must not confuse meta files with source files |
 | **Verify scripts** (always) | **Source folder** | `marge-simpson/system/scripts/verify.ps1` | Tests run against source, not meta |
 
 **THE RULE:** Source is relative for flexibility. Meta is explicit to prevent confusion.
 
-The `convert-to-meta` scripts transform `./` → `.meta_marge/` paths automatically (e.g., `./system/workflows/` → `.meta_marge/system/workflows/`). This is intentional and required. Do NOT "fix" this by making everything relative or everything explicit.
+The `convert-to-meta` scripts transform `./` → `.meta_marge/` paths automatically (e.g., `marge-simpson/system/workflows/` → `.meta_marge/system/workflows/`). This is intentional and required. Do NOT "fix" this by making everything relative or everything explicit.
 
 ### Four Operating Modes
 
@@ -104,8 +104,8 @@ Marge provides structured context that AI assistants read at the start of each s
 
 | User Type | Has CLI? | Folders | AGENTS Used | Tracking |
 |-----------|----------|---------|-------------|----------|
-| **1. IDE/Chat Only** | ❌ | Source repo only | `./AGENTS.md` | `./system/tracking/` |
-| **2. Drop-in Folder** | ❌ | Source repo (renamed) | `./AGENTS.md` | `./system/tracking/` |
+| **1. IDE/Chat Only** | ❌ | Source repo only | `./AGENTS.md` | `marge-simpson/system/tracking/` |
+| **2. Drop-in Folder** | ❌ | Source repo (renamed) | `./AGENTS.md` | `marge-simpson/system/tracking/` |
 | **3. CLI Global** | ✅ | `~/.marge/` + `.marge/` per project | Symlinked | `.marge/system/tracking/` |
 | **4. CLI Lite Mode** | ✅ | `~/.marge/` only | `AGENTS-lite.md` | None |
 | **5. Hybrid** | ✅ | Both global + drop-in | Local wins | Local wins |

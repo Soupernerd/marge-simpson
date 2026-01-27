@@ -6,10 +6,10 @@
 ## Path Resolution
 
 All paths in this folder are relative to the project root:
-- `./system/tracking/` → tracking files
-- `./system/workflows/` → workflow files  
-- `./system/experts/` → domain expertise
-- `./system/knowledge/` → decisions and patterns
+- `marge-simpson/system/tracking/` → tracking files
+- `marge-simpson/system/workflows/` → workflow files  
+- `marge-simpson/system/experts/` → domain expertise
+- `marge-simpson/system/knowledge/` → decisions and patterns
 
 ## Quick Reference
 
@@ -34,22 +34,22 @@ User message received
     ├─ Just asking a question? → Answer directly, no ID needed
     │
     ├─ Planning/design discussion? (new feature planning)
-    │   └─ Read ./system/workflows/planning.md
+    │   └─ Read marge-simpson/system/workflows/planning.md
     │   └─ Creates MS-#### plan, uses feature_plan_template.md if multi-step
     │
     ├─ Wants something done (fix/add/change/docs)?
-    │   ├─ Read ./system/workflows/work.md
-    │   └─ If "loop until clean" → Also read ./system/workflows/loop.md
+    │   ├─ Read marge-simpson/system/workflows/work.md
+    │   └─ If "loop until clean" → Also read marge-simpson/system/workflows/loop.md
     │
     ├─ Wants codebase audit/review?
-    │   └─ Read ./system/workflows/audit.md (discovery)
-    │   └─ Then ./system/workflows/work.md (execution)
+    │   └─ Read marge-simpson/system/workflows/audit.md (discovery)
+    │   └─ Then marge-simpson/system/workflows/work.md (execution)
     │
     ├─ Capture decisions / wrap up?
-    │   └─ Read ./system/workflows/session_end.md
+    │   └─ Read marge-simpson/system/workflows/session_end.md
     │
     └─ Task complete / session ending?
-        └─ Read ./system/workflows/session_end.md
+        └─ Read marge-simpson/system/workflows/session_end.md
 ```
 
 ## Token Costs

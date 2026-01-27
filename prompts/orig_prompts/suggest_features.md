@@ -38,4 +38,7 @@ Propose 3-8 new features for this project.
 2. Top pick summary (3-4 lines)
 3. Any assumptions made
 
-Create: `./system/tracking/recommended_features.md`
+Create: `marge-simpson/system/tracking/recommended_features.md`
+
+
+

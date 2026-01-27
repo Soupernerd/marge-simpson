@@ -17,9 +17,8 @@ When the user's message includes:
 
 ### Expert Consultation (Required)
 Bring in relevant experts for planning discussions:
-- Architecture planning → `./system/experts/architecture.md`
-- Security considerations → `./system/experts/security.md`
-- UX/Design planning → `./system/experts/design.md`
+- Architecture planning → `marge-simpson/system/experts/engineering.md`
+- Security considerations → `marge-simpson/system/experts/security.md`
 
 ### No Implementation Code
 - **DO NOT** modify source code, configs, or scripts
@@ -27,7 +26,7 @@ Bring in relevant experts for planning discussions:
 - **DO NOT** begin implementation work
 
 **DO create:**
-- Plan documents using `feature_plan_template.md` → save to `./system/tracking/[feature]_PLAN.md`
+- Plan documents using `feature_plan_template.md` → save to `marge-simpson/system/tracking/[feature]_PLAN.md`
 - MS-#### ID for the plan itself (plan tracking, not implementation tasks)
 - Entry in `assessment.md` with Status: Planning
 
@@ -41,7 +40,7 @@ Bring in relevant experts for planning discussions:
 
 ## Planning Response Format
 
-**Feature planning:** Use the template `./system/tracking/feature_plan_template.md`
+**Feature planning:** Use the template `marge-simpson/system/tracking/feature_plan_template.md`
 
 **Quick brainstorming:** Use inline format:
 
@@ -104,7 +103,7 @@ When planning is approved and user says "proceed" or "implement":
 
 1. Update plan's MS-#### status to "Approved" in assessment.md
 2. Create implementation tasks (sub-IDs) in tasklist.md
-3. Switch to `./system/workflows/work.md` process
+3. Switch to `marge-simpson/system/workflows/work.md` process
 
 ## Examples
 

@@ -11,7 +11,7 @@ set -euo pipefail
 # - Next task recommendation
 #
 # Usage:
-#   ./system/scripts/status.sh
+#   marge-simpson/system/scripts/status.sh
 
 # Dynamic folder detection
 SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
