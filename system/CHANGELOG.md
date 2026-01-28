@@ -5,6 +5,25 @@ All notable changes to the Marge project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.4] - 2026-01-28
+
+### Added
+- **Confirmation routing** - AGENTS.md now handles "MS-#### is fixed" confirmations
+- **Audit scope selection menu** - Interactive menu when scope is unclear
+- **Explicit stop conditions** - audit.md recognizes "AUDIT MODE" banner as stop signal
+- **Format precedence rule** - Inline prompt format > workflow format > AGENTS.md format
+
+### Changed
+- **Feature size distinction** - work.md now separates small features (< 50 lines) from large features (need plan file)
+- **Expert loading** - Now routes through _index.md first (~50 tokens), then selects specific experts
+- **Knowledge capture simplified** - Removed mandatory ID schemes (D-###, PR-###, etc.) and _index.md updates
+- **Prompts consolidated** - Removed redundant approve.md (prompt.md handles approval)
+
+### Fixed
+- **Default audit type** - When unspecified, defaults to Code audit (engineering + quality)
+
+---
+
 ## [1.3.3] - 2026-01-26
 
 ### Fixed

@@ -80,12 +80,12 @@ Add a loop phrase to any prompt and Marge will keep iterating until work is comp
 ```
 Read marge-simpson/AGENTS.md and follow it.
 
-**AUDIT MODE** - Read-only analysis, no code changes.
+**AUDIT MODE** - Analysis + tracking updates only. Do not modify target code or behavior.
 
 1. Understand the system (read key files, map components)
 2. Identify issues (P0 → P1 → P2 priority)
-3. Update tracking docs (assessment.md, tasklist.md)
-4. Report findings with MS-#### IDs
+3. Update tracking docs (assessment.md, tasklist.md) with MS-#### IDs
+4. Stop. Report findings in chat as a table (MS-#### + 1-2 sentence summary per issue)
 
 Output using Response Format from AGENTS.md.
 ```
@@ -116,7 +116,7 @@ Output using Response Format from AGENTS.md.
 ```
 Read marge-simpson/AGENTS.md and follow it.
 
-**PLANNING MODE** - No code changes.
+**PLANNING MODE** - No code changes. Documentation is allowed.
 
 Propose 3-8 features for this project, ranked by end-user value.
 
@@ -126,6 +126,8 @@ For each:
 - **Risk:** Biggest blocker
 
 Create: marge-simpson/system/tracking/recommended_features.md
+
+To approve a feature: "Approve feature [N] from recommendations"
 ```
 
 ---
