@@ -19,7 +19,7 @@ All paths in this folder are relative to the project root:
 | **Question** | Curiosity, "how", "why", "what" | None (answer directly) | No |
 | **Work** | Fix, add, change, build | [work.md](work.md) | Yes (or continue existing) |
 | **Document** | Generate docs, README, API docs | [work.md](work.md) (docs are work) | Yes |
-| **Audit** | "audit", "review codebase" | [audit.md](audit.md) → then work.md | Yes (generates multiple) |
+| **Audit** | "audit", "review codebase" | [audit.md](audit.md) → then work.md (only if requested) | Yes (generates multiple) |
 | **Review** | Code review, analysis | [audit.md](audit.md) (analysis mode) | Optional |
 | **Loop** | "loop until clean", "iterate" | [loop.md](loop.md) (modifier) | Continues existing |
 | **Planning** | "PLANNING ONLY", design discussion | [planning.md](planning.md) | Yes (plan ID) |
@@ -43,6 +43,8 @@ User message received
     │
     ├─ Wants codebase audit/review?
     │   └─ Read marge-simpson/system/workflows/audit.md (discovery)
+    │   └─ Use tracking location from active AGENTS.md (meta vs base)
+    │   └─ If meta run, apply changes to marge-simpson/ (not .meta_marge/)
     │   └─ Then marge-simpson/system/workflows/work.md (execution)
     │
     ├─ Capture decisions / wrap up?

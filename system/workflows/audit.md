@@ -33,6 +33,16 @@ Before scanning, check what's already known:
    ```
 3. **Note any constraints** — don't flag issues that contradict known decisions
 
+### Resolve Tracking Location
+
+Use the tracking paths from the active AGENTS.md:
+- If the prompt instructs "Read .meta_marge/AGENTS.md" (meta run), track in `.meta_marge/system/tracking/`
+- Otherwise, track in `marge-simpson/system/tracking/`
+
+### Target of Changes (Meta Runs)
+
+When using `.meta_marge/AGENTS.md`, apply fixes to `marge-simpson/` (not `.meta_marge/`).
+
 ### Scan the Codebase
 
 1. Read and understand:
@@ -52,7 +62,7 @@ Before scanning, check what's already known:
 
 ### Document Findings
 
-Update `marge-simpson/system/tracking/assessment.md`:
+Update the active tracking `assessment.md` (see "Resolve Tracking Location"):
 
 ```markdown
 ## Audit: [Date] - [Scope]
@@ -88,7 +98,7 @@ Prioritize:
 
 ## Phase 2: Execution
 
-**Hand off to [work.md](work.md).**
+**Hand off to [work.md](work.md) only if the user explicitly requests execution.**
 
 After discovery, you have a populated tasklist. Execute using the standard work workflow:
 
@@ -119,4 +129,4 @@ After audit discovery, report:
 Proceeding with P0 items...
 ```
 
-Then immediately begin execution using work.md workflow.
+Stop after discovery and reporting unless the user asks to proceed.

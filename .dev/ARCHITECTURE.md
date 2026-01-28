@@ -14,11 +14,11 @@ These invariants are fundamental to how Marge works. Changing them will break th
 
 | Context | Path Style | Example | Why |
 |---------|------------|---------|-----|
-| **Source files** (`marge-simpson/`) | **Relative** (`./`) | `marge-simpson/system/workflows/work.md` | Users can rename folder to `.marge`, `marge`, etc. |
+| **Source files** (`marge-simpson/`) | **Explicit** | `marge-simpson/system/workflows/work.md` | Users can rename folder to `.marge`, `marge`, etc. |
 | **Meta-development** (`.meta_marge/`) | **Explicit** | `.meta_marge/system/workflows/work.md` | AI must not confuse meta files with source files |
 | **Verify scripts** (always) | **Source folder** | `marge-simpson/system/scripts/verify.ps1` | Tests run against source, not meta |
 
-**THE RULE:** Source is relative for flexibility. Meta is explicit to prevent confusion.
+
 
 The `convert-to-meta` scripts transform `./` → `.meta_marge/` paths automatically (e.g., `marge-simpson/system/workflows/` → `.meta_marge/system/workflows/`). This is intentional and required. Do NOT "fix" this by making everything relative or everything explicit.
 
