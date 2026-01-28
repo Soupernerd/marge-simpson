@@ -78,17 +78,24 @@ Bring in relevant experts for planning discussions:
 
 ## Checkpoint Rules
 
-### Major Changes Requiring Planning
-Before these changes, stop and request approval:
+### When These Apply
 
-| Change Type | Requires Plan |
-|-------------|---------------|
-| Architecture changes | Yes |
-| Large refactors (>5 files) | Yes |
-| Schema/database changes | Yes |
-| API contract changes | Yes |
-| New dependencies | Yes |
-| Breaking changes | Yes |
+**These checkpoints ONLY apply when:**
+- User explicitly invokes planning mode ("PLANNING ONLY", "design discussion", etc.)
+- User asks "what would it take to..." or "propose a solution"
+
+**If user says "do X" without planning triggers → EXECUTE DIRECTLY. No checkpoint.**
+
+### Major Changes (Planning Mode Only)
+
+| Change Type | In Planning Mode |
+|-------------|------------------|
+| Architecture changes | Create plan first |
+| Large refactors (>5 files) | Create plan first |
+| Schema/database changes | Create plan first |
+| API contract changes | Create plan first |
+| New dependencies | Create plan first |
+| Breaking changes | Create plan first |
 
 ### Plan Contents
 1. **What** - Clear description of the change

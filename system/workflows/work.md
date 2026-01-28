@@ -2,46 +2,45 @@
 
 > For all trackable work: bugs, features, improvements, refactors.
 
-## When to Use
+## Core Principle
 
-User wants something **done** — fix, add, improve, or refactor.
+**User prompt = Approval.** When asked to do something, execute it. Don't announce and stop.
 
 ---
 
-## Pre-Work
+## Action Phase (DO THIS FIRST)
 
-### 0. Mode Check (Required)
+1. **Declare MODE** (Lite or Full) — then immediately continue
+2. **Execute the work** — create/edit files as requested
+3. **Report what you did** — files modified, verification output
 
-Before ANY work, explicitly declare:
-- **Mode:** Lite or Full
-- **Reason:** Why this qualifies
+If you say "proceeding" or "I will create X", you MUST do it in the same response.
+If you cannot execute, state the specific blocker (missing input, permission, environment).
+
+---
+
+## Mode Selection (Quick Check)
 
 | If... | Then... |
 |-------|--------|
 | Single typo, comment, format | Lite (no MS-####) |
-| Multi-file OR affects system behavior | Full (MS-#### required) |
-| Unsure | Full (over-tracking > lost context) |
+| Multi-file OR affects behavior | Full (MS-#### required) |
+| Unsure | Full |
 
-**Skip this step = skip tracking = violation.**
+---
 
-### 1. Load Context (Just-in-Time)
+## Context Loading (Only If Needed)
 
-**Load only what's relevant to this task:**
+Load experts/knowledge **only when uncertain**:
 
-| If task involves... | Load... |
+| If uncertain about... | Load... |
 |---------------------|---------|
 | Architecture, code structure | `marge-simpson/system/experts/engineering.md` |
 | Tests, QA | `marge-simpson/system/experts/quality.md` |
 | Security, auth, secrets | `marge-simpson/system/experts/security.md` |
 | CI/CD, deploy, infra | `marge-simpson/system/experts/operations.md` |
 
-**Then check knowledge** (quick grep, not full read):
-```powershell
-Select-String -Path "marge-simpson/system/knowledge/decisions.md" -Pattern "#relevant-tag"
-Select-String -Path "marge-simpson/system/knowledge/preferences.md" -Pattern "#relevant-tag"
-```
-
-Don't contradict prior decisions. Respect stored preferences.
+If the task is clear, skip this and execute.
 
 ---
 
@@ -87,9 +86,9 @@ Find MS-#### in `marge-simpson/system/tracking/tasklist.md`, mark `In Progress`,
 IMPLEMENT → VERIFY → RECORD → NEXT
 ```
 
-1. **Implement** — Smallest safe change, update `marge-simpson/system/tracking/assessment.md`
+1. **Implement** — Execute the change (smallest safe change)
 2. **Verify** — Run `marge-simpson/system/scripts/verify.ps1 fast` (Win) or `marge-simpson/system/scripts/verify.sh fast` (Unix)
-3. **Record** — Paste evidence, mark done in tasklist
+3. **Record** — Update tracking, paste evidence
 4. **Next** — Continue or deliver
 
 **Do NOT mark done without evidence.**

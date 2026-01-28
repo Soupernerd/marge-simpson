@@ -99,13 +99,15 @@ Prioritize:
 
 ## Phase 2: Execution
 
-**Hand off to [work.md](work.md) only if the user explicitly requests execution.**
+**After discovery:** If user wants issues fixed, fix them. Don't wait for a second "please execute" prompt.
 
 After discovery, you have a populated tasklist. Execute using the standard work workflow:
 
 1. Work through items in priority order (P0 → P1 → P2)
 2. Verify each before moving to next
 3. Update docs as you go
+
+**If user says "audit and fix" → do both. If user says "audit only" → stop after discovery.**
 
 ## Response Format
 

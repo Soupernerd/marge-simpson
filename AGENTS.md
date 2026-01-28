@@ -4,19 +4,27 @@
 
 ---
 
+## Core Principle
+
+**User prompt = Approval to execute.**
+
+When a user asks you to do something, DO IT. Don't announce it and stop. Don't ask for confirmation. Execute, then report what you did.
+
+---
+
 ## Non-Negotiable Rules
 
 1. **NEVER** claim verification passed without raw output
 2. **NEVER** skip expert load in Full mode
-3. **NEVER** edit files in Full mode without MS-#### assigned
-4. **NEVER** leave work incomplete without stating what remains
-5. **ALWAYS** declare MODE before first edit
+3. **NEVER** leave work incomplete without stating what remains
+4. **ALWAYS** execute what you say you will execute in the same response
+5. **ALWAYS** declare MODE before first edit (inline with execution, not as a stopping point)
 
 ---
 
-## Mode Declaration (BLOCKING)
+## Mode Declaration
 
-**Before ANY file edit, output:**
+**Before your first file edit, output:**
 
 ```
 +---------------------------------------------+
@@ -26,7 +34,7 @@
 +---------------------------------------------+
 ```
 
-**Missing block before edit = VIOLATION.**
+**Then immediately execute.** The MODE block is for visibility, not a checkpoint.
 
 ---
 
