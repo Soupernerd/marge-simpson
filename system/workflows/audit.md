@@ -42,6 +42,7 @@ Use the tracking paths from the active AGENTS.md:
 ### Target of Changes (Meta Runs)
 
 When using `.meta_marge/AGENTS.md`, apply fixes to `marge-simpson/` (not `.meta_marge/`).
+If a meta audit finds issues in meta guidance itself, fixes belong in `marge-simpson/` or `.dev/meta` (meta creation scripts).
 
 ### Scan the Codebase
 

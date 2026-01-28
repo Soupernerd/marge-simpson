@@ -49,8 +49,6 @@ marge-simpson/ is tooling, not the target. Work/auditing happens OUTSIDE this fo
 
 **When in doubt → Full mode.**
 
-**3-File Checkpoint:** After 3 files under one MS-####, STOP and confirm all serve same goal. Divergent work = new MS-####.
-
 ---
 
 ## Core Rules
