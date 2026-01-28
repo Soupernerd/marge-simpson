@@ -49,8 +49,8 @@ The sophistication scales automatically. Simple tasks route quickly through mini
 
 This protocol covers:
 - Agent specialization and registration
-- Task intake and ambiguity detection
-- Deliberation phase mechanics
+- Task intake and complexity assessment
+- Coordination phase mechanics
 - Consensus and handoff protocols
 - Review loop integration
 
@@ -215,31 +215,34 @@ interface Task {
 }
 ```
 
-### 3.2 Ambiguity Detection
+### 3.2 Complexity Assessment
 
-A task is considered **ambiguous** when:
+Coordination depth is determined by multiple factors. The system assesses:
 
 ```typescript
-function isAmbiguous(task: Task, candidates: Agent[]): boolean {
-  // Condition 1: Multiple agents match at similar relevance
-  if (candidates.length >= 3) {
-    const scores = candidates.map(a => computeRelevance(a, task));
-    const variance = statisticalVariance(scores);
-    if (variance < AMBIGUITY_THRESHOLD) return true;
-  }
-  
-  // Condition 2: Ambiguous action verbs
-  const AMBIGUOUS_VERBS = ['improve', 'fix', 'update', 'change', 'make better', 'optimize'];
-  if (AMBIGUOUS_VERBS.some(v => task.prompt.toLowerCase().includes(v))) {
-    return true;
-  }
-  
-  // Condition 3: No clear domain signal
-  const domainKeywords = extractDomainKeywords(task.prompt);
-  if (domainKeywords.length === 0) return true;
-  
-  return false;
+interface ComplexityFactors {
+  candidateCount: number;        // How many experts match
+  confidenceVariance: number;    // How spread out are confidence scores
+  domainOverlap: boolean;        // Do expert domains overlap
+  actionClarity: boolean;        // Is the requested action clear
+  scopeDefinition: boolean;      // Is the scope well-defined
 }
+
+function assessComplexity(task: Task, candidates: Agent[]): ComplexityFactors {
+  return {
+    candidateCount: candidates.length,
+    confidenceVariance: statisticalVariance(candidates.map(a => a.confidence)),
+    domainOverlap: hasOverlappingDomains(candidates),
+    actionClarity: !containsVagueVerbs(task.prompt),
+    scopeDefinition: hasClearDomainSignals(task.prompt)
+  };
+}
+
+// Vague verbs that suggest unclear intent (one factor among many)
+const VAGUE_VERBS = ['improve', 'fix', 'update', 'change', 'make better', 'optimize'];
+```
+
+**Key insight:** These factors influence coordination *depth*, not whether coordination happens. A task with all clear signals still flows through the system—it just resolves faster.
 ```
 
 ### 3.3 Relevance Scoring
@@ -297,26 +300,29 @@ Deliberation isn't binary (on/off)—it's a spectrum that scales with task compl
 └─────────────────────────────────────────────────────────────┘
 ```
 
-**Every task flows through this system.** The depth of coordination adapts automatically:
+**Every task flows through this system.** The depth of coordination adapts based on complexity factors:
 
 ```typescript
 function determineCoordinationDepth(task: Task, candidates: Agent[]): CoordinationLevel {
+  const factors = assessComplexity(task, candidates);
+  
   // Single clear match = instant routing
-  if (candidates.length === 1 && candidates[0].confidence > 0.9) {
+  if (factors.candidateCount === 1 && candidates[0].confidence > 0.9) {
     return 'instant';
   }
   
-  // Single expert, high confidence = quick claim
-  if (candidates.length <= 2 && maxConfidence(candidates) > 0.7) {
+  // Few candidates, high confidence = quick claim
+  if (factors.candidateCount <= 2 && maxConfidence(candidates) > 0.7) {
     return 'quick_claim';
   }
   
-  // Multiple experts, clear domains = standard coordination
-  if (candidates.length <= 3 && domainsAreDistinct(candidates)) {
+  // Multiple experts with clear, distinct domains = standard coordination
+  if (factors.candidateCount <= 3 && !factors.domainOverlap && factors.actionClarity) {
     return 'standard';
   }
   
-  // Overlapping domains or ambiguous = extended deliberation
+  // Complex factors warrant extended deliberation
+  // (many candidates, overlapping domains, unclear action, undefined scope)
   return 'extended';
 }
 ```
@@ -582,7 +588,7 @@ MADP implementations SHOULD track these metrics:
 All coordination sessions produce an observable trace:
 
 ```typescript
-interface DeliberationTrace {
+interface CoordinationTrace {
   id: string;
   task_id: string;
   timestamp: ISO8601;
@@ -591,8 +597,8 @@ interface DeliberationTrace {
   phases: {
     intake: {
       candidates: string[];
-      ambiguity_detected: boolean;
-      ambiguity_reasons: string[];
+      complexity_factors: ComplexityFactors;
+      coordination_depth: CoordinationLevel;
     };
     claims: ClaimMessage[];
     challenges: ChallengeMessage[];
@@ -737,9 +743,12 @@ Candidates identified:
 - implementation-engineer (relevance: 0.5)
 - sre (relevance: 0.7)
 
+Complexity assessment:
+- Candidate count: 3 (multiple perspectives needed)
+- Confidence variance: low (no clear leader)
+- Action clarity: low ("improve" is vague)
+
 Coordination depth: EXTENDED
-- Reason: 3 candidates, variance < threshold
-- Reason: Contains ambiguous verb "improve"
 ```
 
 **Phase 2: Claims**
