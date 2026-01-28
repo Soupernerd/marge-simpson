@@ -7,7 +7,7 @@
 1. Scan `system/experts/*.md` (excluding this file)
 2. Each expert declares triggers in its header
 3. Match current task keywords → load matching expert(s)
-4. Multiple experts can load for complex tasks
+4. **Default: expect 2-3 experts per task** - real work spans domains
 
 ---
 
@@ -15,10 +15,12 @@
 
 When determining which expert(s) to load:
 
-1. **Read the expert file headers** - each has a `Triggers:` line
-2. **Match keywords** from the current task to trigger words
-3. **Load matching experts** - can load multiple if task spans domains
-4. **Priority** - if multiple experts match, higher priority loads first
+1. **Scan expert filenames first** - ~20 tokens to see all options
+2. **Read headers of likely matches** - `Triggers:` line is first 3 lines
+3. **Select 2-3 experts by default** - most tasks span domains (e.g., implementation + testing)
+4. **Reduce to 1 only if task is truly single-domain** (rare)
+
+**Priority**: If >3 experts match, prefer higher priority (1 = highest)
 
 ---
 
@@ -63,15 +65,23 @@ Each expert file follows this structure:
 
 ---
 
-## Quick Reference by Task
+## Common Expert Combinations
 
-| Task | Experts to Load |
-|------|-----------------|
-| New feature | systems-architect + implementation-engineer |
-| Bug fix | implementation-engineer + qa-engineer |
-| Security review | security-architect |
-| Test coverage | qa-engineer + test-automation-architect |
-| Deployment | sre + build-engineer |
-| Performance | sre + systems-architect |
-| Refactor | staff-engineering-lead + tech-debt-analyst |
+Most real tasks need 2-3 experts. Here are typical patterns:
+
+| Task | Experts | Why |
+|------|---------|-----|
+| New feature | systems-architect + implementation-engineer + qa-engineer | Design → Build → Test |
+| Bug fix | implementation-engineer + qa-engineer | Fix → Verify |
+| Refactor | staff-engineering-lead + tech-debt-analyst + implementation-engineer | Assess → Plan → Execute |
+| Security review | security-architect + implementation-auditor | Threat model → Verify code |
+| Test coverage | qa-engineer + test-automation-architect | Strategy → Implementation |
+| Deployment | sre + build-engineer | Reliability → Pipeline |
+| Performance | sre + systems-architect | Measure → Optimize |
+| Code review | implementation-auditor + qa-engineer | Spec compliance → Test coverage |
+
+**Single expert is rare** - usually only for:
+- Pure architecture discussion (no implementation)
+- Pure test strategy (no automation)
+- Isolated security assessment
 | Code review | implementation-auditor |

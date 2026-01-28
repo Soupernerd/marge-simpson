@@ -82,9 +82,10 @@ marge-simpson/ is tooling, not the target. Work/auditing happens OUTSIDE this fo
 | Uncertain how user wants something | Check `marge-simpson/system/knowledge/patterns.md` |
 
 **Expert selection flow:**
-1. Load `_index.md` first (~50 tokens)
-2. Use keyword mapping to identify needed expert(s)
-3. Load only those expert files
+1. Scan expert filenames in `system/experts/` (~20 tokens)
+2. Read headers (first 3 lines) of likely matches for `Triggers:`
+3. **Load 2-3 experts by default** - real work spans domains
+4. Reduce to 1 only if task is truly single-domain (rare)
 
 **Chain loading:** If a loaded file references another, load that too.
 
@@ -92,9 +93,9 @@ marge-simpson/ is tooling, not the target. Work/auditing happens OUTSIDE this fo
 
 ## Expert Subagents
 
-**Full mode: load `marge-simpson/system/experts/_index.md` first, then select based on triggers.**
+**Full mode: expect multiple experts per task.**
 
-Each expert file declares its own triggers. Match task keywords to trigger words:
+Each expert file declares its own triggers. Scan filenames → read headers → select:
 
 | Category | Experts |
 |----------|---------|
