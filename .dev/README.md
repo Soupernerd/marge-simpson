@@ -56,9 +56,12 @@ marge meta init --fresh
 ### Option 2: Scripts (Full Control)
 
 ```bash
-# Create meta guide folder
+# Create meta guide folder (fresh)
 ./.dev/meta/convert-to-meta.sh
 # Creates: .meta_marge/ (gitignored)
+
+# Update meta guide folder (preserve tracking/knowledge)
+./.dev/meta/convert-to-meta.sh --update
 
 # Run task
 ./cli/marge meta "run self-audit"
@@ -136,6 +139,7 @@ Options:
 ```powershell
 .\.dev\meta\convert-to-meta.ps1
 .\.dev\meta\convert-to-meta.ps1 -Force
+.\.dev\meta\convert-to-meta.ps1 -Update
 ```
 
 ## Best Practices

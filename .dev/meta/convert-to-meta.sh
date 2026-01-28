@@ -2,15 +2,18 @@
 set -euo pipefail
 
 # convert-to-meta.sh - Creates .meta_marge/ for meta-development
-# Usage: ./.dev/meta/convert-to-meta.sh [-f|--force] [-h|--help]
+# Usage: ./.dev/meta/convert-to-meta.sh [-f|--force] [-u|--update] [-h|--help]
 
 FORCE=false
+UPDATE=false
 while [[ $# -gt 0 ]]; do
     case "$1" in
         -f|--force) FORCE=true; shift ;;
+        -u|--update) UPDATE=true; shift ;;
         -h|--help)
             echo "Usage: $0 [-f|--force] [-h|--help]"
             echo "Creates .meta_marge/ folder for meta-development."
+            echo "  --update preserves .meta_marge/system/tracking and .meta_marge/system/knowledge"
             exit 0 ;;
         *) shift ;;
     esac
@@ -47,13 +50,23 @@ TARGET_NAME=".meta_marge"
 echo -e "\n===== Convert $SOURCE_NAME -> $TARGET_NAME =====\n"
 [[ "$IS_GLOBAL_INSTALL" == "true" ]] && echo -e "[Global install mode - creating in current directory]\n"
 
-# [1/4] Remove existing / create fresh
+# [1/4] Remove existing / create fresh (or update)
+PRESERVE_ROOT=""
 if [[ -d "$TARGET_FOLDER" ]]; then
-    if [[ "$FORCE" != "true" ]]; then
-        read -rp "$TARGET_NAME exists. Overwrite? (y/N) " r
-        [[ "$r" != "y" && "$r" != "Y" ]] && { echo "Aborted."; exit 0; }
+    if [[ "$UPDATE" == "true" ]]; then
+        PRESERVE_ROOT="$(mktemp -d 2>/dev/null || mktemp -d -t meta_marge_preserve)"
+        [[ -d "$TARGET_FOLDER/system/tracking" ]] && cp -r "$TARGET_FOLDER/system/tracking" "$PRESERVE_ROOT/"
+        [[ -d "$TARGET_FOLDER/system/knowledge" ]] && cp -r "$TARGET_FOLDER/system/knowledge" "$PRESERVE_ROOT/"
+        rm -rf "$TARGET_FOLDER"
+    else
+        if [[ "$FORCE" != "true" ]]; then
+            read -rp "$TARGET_NAME exists. Overwrite? (y/N) " r
+            [[ "$r" != "y" && "$r" != "Y" ]] && { echo "Aborted."; exit 0; }
+        fi
+        rm -rf "$TARGET_FOLDER"
     fi
-    rm -rf "$TARGET_FOLDER"
+elif [[ "$UPDATE" == "true" ]]; then
+    echo "[Update] Target not found; creating fresh .meta_marge/"
 fi
 echo "[1/4] Copying..."
 
@@ -173,6 +186,14 @@ awk -v new_scope="$NEW_SCOPE" '
 ' "$AGENTS_PATH" > "${AGENTS_PATH}.tmp" && mv "${AGENTS_PATH}.tmp" "$AGENTS_PATH"
 
 echo "  Reset tracking IDs, configured AGENTS.md scope"
+
+if [[ -n "$PRESERVE_ROOT" ]]; then
+    rm -rf "$TARGET_FOLDER/system/tracking" "$TARGET_FOLDER/system/knowledge"
+    [[ -d "$PRESERVE_ROOT/tracking" ]] && cp -r "$PRESERVE_ROOT/tracking" "$TARGET_FOLDER/system/"
+    [[ -d "$PRESERVE_ROOT/knowledge" ]] && cp -r "$PRESERVE_ROOT/knowledge" "$TARGET_FOLDER/system/"
+    rm -rf "$PRESERVE_ROOT"
+    echo "  Preserved tracking and knowledge from existing .meta_marge/"
+fi
 
 # Copy ONLY verify scripts to meta_marge (so it can use its own verify.config.json)
 # The test-templates scripts live in marge-simpson/system/scripts/ - we create trigger wrappers in .meta_marge root

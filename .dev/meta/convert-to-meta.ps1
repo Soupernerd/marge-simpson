@@ -8,16 +8,18 @@
     .\.dev\meta\convert-to-meta.ps1 -Force
 #>
 
-param([switch]$Force, [switch]$Help)
+param([switch]$Force, [switch]$Update, [switch]$Help)
 
 if ($Help) {
     Write-Host @"
 convert-to-meta - Create .meta_marge/ for meta-development
 
-USAGE:  .\.dev\meta\convert-to-meta.ps1 [-Force] [-Help]
+USAGE:  .\.dev\meta\convert-to-meta.ps1 [-Force] [-Update] [-Help]
 
 Creates .meta_marge/ folder. AI reads .meta_marge/AGENTS.md and
 makes changes directly to marge-simpson/ (the target).
+
+-Update preserves .meta_marge/system/tracking and .meta_marge/system/knowledge.
 "@
     exit 0
 }
@@ -54,13 +56,30 @@ if (-not (Test-Path (Join-Path $SourceFolder "AGENTS.md"))) { Write-Host "ERROR:
 Write-Host "`n===== Convert $SourceName -> $TargetName =====`n" -ForegroundColor Cyan
 if ($IsGlobalInstall) { Write-Host "[Global install mode - creating in current directory]`n" -ForegroundColor Yellow }
 
-# [1/4] Remove existing / create fresh
+# [1/4] Remove existing / create fresh (or update)
+$preserveRoot = $null
 if (Test-Path $TargetFolder) {
-    if (-not $Force) {
-        $r = Read-Host "$TargetName exists. Overwrite? (y/N)"
-        if ($r -ne "y" -and $r -ne "Y") { Write-Host "Aborted."; exit 0 }
+    if ($Update) {
+        $preserveRoot = Join-Path $env:TEMP ("meta_marge_preserve_" + [guid]::NewGuid().ToString("N"))
+        New-Item -ItemType Directory -Path $preserveRoot -Force | Out-Null
+        $preserveTracking = Join-Path $TargetFolder "system\tracking"
+        $preserveKnowledge = Join-Path $TargetFolder "system\knowledge"
+        if (Test-Path $preserveTracking) {
+            Copy-Item -Path $preserveTracking -Destination (Join-Path $preserveRoot "tracking") -Recurse -Force
+        }
+        if (Test-Path $preserveKnowledge) {
+            Copy-Item -Path $preserveKnowledge -Destination (Join-Path $preserveRoot "knowledge") -Recurse -Force
+        }
+        Remove-Item -Path $TargetFolder -Recurse -Force
+    } else {
+        if (-not $Force) {
+            $r = Read-Host "$TargetName exists. Overwrite? (y/N)"
+            if ($r -ne "y" -and $r -ne "Y") { Write-Host "Aborted."; exit 0 }
+        }
+        Remove-Item -Path $TargetFolder -Recurse -Force
     }
-    Remove-Item -Path $TargetFolder -Recurse -Force
+} elseif ($Update) {
+    Write-Host "[Update] Target not found; creating fresh .meta_marge/" -ForegroundColor Yellow
 }
 Write-Host "[1/4] Copying..."
 
@@ -191,6 +210,21 @@ $agentsContent = $agentsContent -replace '(?s)## Scope\r?\n.*?(?=\r?\n---)', $ne
 
 Set-Content -Path $AgentsPath -Value $agentsContent -NoNewline
 Write-Host "  Reset tracking IDs, configured AGENTS.md scope"
+
+if ($preserveRoot) {
+    $metaTracking = Join-Path $TargetFolder "system\tracking"
+    $metaKnowledge = Join-Path $TargetFolder "system\knowledge"
+    if (Test-Path $metaTracking) { Remove-Item -Path $metaTracking -Recurse -Force }
+    if (Test-Path $metaKnowledge) { Remove-Item -Path $metaKnowledge -Recurse -Force }
+    if (Test-Path (Join-Path $preserveRoot "tracking")) {
+        Copy-Item -Path (Join-Path $preserveRoot "tracking") -Destination $metaTracking -Recurse -Force
+    }
+    if (Test-Path (Join-Path $preserveRoot "knowledge")) {
+        Copy-Item -Path (Join-Path $preserveRoot "knowledge") -Destination $metaKnowledge -Recurse -Force
+    }
+    Remove-Item -Path $preserveRoot -Recurse -Force
+    Write-Host "  Preserved tracking and knowledge from existing .meta_marge/"
+}
 
 # Copy ONLY verify scripts to meta_marge (so it can use its own verify.config.json)
 # The test-templates scripts live in marge-simpson/system/scripts/ - we create trigger wrappers in .meta_marge root
