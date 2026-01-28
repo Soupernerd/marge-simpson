@@ -92,14 +92,18 @@ marge-simpson/ is tooling, not the target. Work/auditing happens OUTSIDE this fo
 
 ## Expert Subagents
 
-**Full mode: load `marge-simpson/system/experts/_index.md` first, then select:**
+**Full mode: load `marge-simpson/system/experts/_index.md` first, then select based on triggers.**
 
-| Task Keywords | Expert File |
-|---------------|-------------|
-| architecture, API, refactor, implementation | `engineering.md` |
-| test, QA, coverage, automation | `quality.md` |
-| security, auth, encryption, compliance | `security.md` |
-| deploy, CI/CD, docker, monitoring | `operations.md` |
+Each expert file declares its own triggers. Match task keywords to trigger words:
+
+| Category | Experts |
+|----------|---------|
+| Engineering | systems-architect, staff-engineering-lead, implementation-engineer, implementation-auditor, tech-debt-analyst |
+| Quality | qa-engineer, test-automation-architect, integration-specialist |
+| Security | security-architect |
+| Operations | sre, build-engineer |
+
+**Example**: Task mentions "refactor" → load `staff-engineering-lead.md` + `tech-debt-analyst.md`
 
 Direct tools (no expert) only for: reading, commands, single-line Lite fixes.
 
