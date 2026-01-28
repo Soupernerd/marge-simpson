@@ -82,9 +82,10 @@ marge-simpson/ is tooling, not the target. Work/auditing happens OUTSIDE this fo
 | Uncertain how user wants something | Check `marge-simpson/system/knowledge/patterns.md` |
 
 **Expert selection flow:**
-1. Load `_index.md` first (~50 tokens)
-2. Use keyword mapping to identify needed expert(s)
-3. Load only those expert files
+1. Scan expert filenames in `system/experts/` (~20 tokens)
+2. Read headers (first 3 lines) of likely matches for `Triggers:`
+3. **Load 2-3 experts by default** - real work spans domains
+4. Reduce to 1 only if task is truly single-domain (rare)
 
 **Chain loading:** If a loaded file references another, load that too.
 
@@ -92,14 +93,18 @@ marge-simpson/ is tooling, not the target. Work/auditing happens OUTSIDE this fo
 
 ## Expert Subagents
 
-**Full mode: load `marge-simpson/system/experts/_index.md` first, then select:**
+**Full mode: expect multiple experts per task.**
 
-| Task Keywords | Expert File |
-|---------------|-------------|
-| architecture, API, refactor, implementation | `engineering.md` |
-| test, QA, coverage, automation | `quality.md` |
-| security, auth, encryption, compliance | `security.md` |
-| deploy, CI/CD, docker, monitoring | `operations.md` |
+Each expert file declares its own triggers. Scan filenames → read headers → select:
+
+| Category | Experts |
+|----------|---------|
+| Engineering | systems-architect, staff-engineering-lead, implementation-engineer, implementation-auditor, tech-debt-analyst |
+| Quality | qa-engineer, test-automation-architect, integration-specialist |
+| Security | security-architect |
+| Operations | sre, build-engineer |
+
+**Example**: Task mentions "refactor" → load `staff-engineering-lead.md` + `tech-debt-analyst.md`
 
 Direct tools (no expert) only for: reading, commands, single-line Lite fixes.
 
