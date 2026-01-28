@@ -1,4 +1,4 @@
-# Marge Simpson - sMITten Recursive Context + Experts
+# Marge - sMITten Recursive Context + Experts
 
 ## Includes Automated Testing 🛠️
 
