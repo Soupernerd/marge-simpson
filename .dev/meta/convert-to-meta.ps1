@@ -133,6 +133,9 @@ Get-ChildItem -Path $TargetFolder -Recurse -File -Force | ForEach-Object {
         # NOTE: NOT transforming marge-simpson/system/experts/
         # Those should stay pointing to source so AI loads actual expert files
         
+        # Restore explicit base tracking path markers
+        $content = $content -replace '__BASE_TRACKING__', 'marge-simpson/system/tracking/'
+
         # Protect GitHub URLs
         $content = $content -replace "(github\.com/[^/]+/)$([regex]::Escape($SourceName))", '$1___GITHUB___'
         $content = $content -replace '___GITHUB___', $SourceName

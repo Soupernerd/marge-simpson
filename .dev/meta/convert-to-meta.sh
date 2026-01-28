@@ -110,6 +110,9 @@ while IFS= read -r -d '' file; do
     # NOTE: NOT transforming marge-simpson/system/experts/
     # Those should stay pointing to source so AI loads actual expert files
     
+    # Restore explicit base tracking path markers
+    content=${content//"__BASE_TRACKING__"/"marge-simpson/system/tracking/"}
+
     # Protect GitHub URLs (using sed because this requires capture groups)
     # shellcheck disable=SC2001
     content=$(echo "$content" | sed "s|github\.com/\([^/]*\)/${SOURCE_NAME}|github.com/\1/___GITHUB___|g")
